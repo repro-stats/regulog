@@ -1,0 +1,172 @@
+---
+title: "Getting started with regulog"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with regulog}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(regulog)
+```
+
+## Overview
+
+`regulog` provides tamper-evident, hash-chained audit logging for R
+applications. This vignette covers the core API. For Shiny
+integration, see `vignette("shiny-integration")`.
+
+## Initialise a session
+
+Every audit log starts with `regulog_init()`. You must supply an application
+name and user identity. Optionally provide a `path` to persist entries to disk
+as a newline-delimited JSON file (`.rlog`).
+
+```{r init}
+log <- regulog_init(
+  app     = "clinical-review-tool",
+  version = "1.2.0",
+  user    = "jsmith"
+  # path  = "logs/audit.rlog"  # omit for in-memory only
+)
+
+log
+```
+
+Without a `path`, the log is in-memory only — useful for development and
+testing, but not appropriate for production regulated deployments.
+
+## Logging actions
+
+Use `log_action()` for discrete user actions: approvals, rejections, exports,
+sign-offs.
+
+```{r log-action}
+log_action(log,
+  action = "approved",
+  object = "dataset_v3.csv",
+  reason = "QC review complete — no anomalies found"
+)
+
+log_action(log,
+  action = "exported",
+  object = "dataset_v3.csv",
+  reason = "Sent to statistical analysis team per SAP section 4.1"
+)
+```
+
+`reason` is **mandatory with no default**. An empty or blank reason raises an
+error immediately — every entry in the log must document why it was made.
+
+```{r reason-error, error = TRUE}
+# This will error:
+log_action(log, action = "approved", object = "file.csv", reason = "")
+```
+
+## Logging data changes
+
+Use `log_change()` when a field value is modified. Both the prior and new value
+are captured, so you have a complete history of what it was, what it became,
+and why.
+
+```{r log-change}
+log_change(log,
+  object = "patient_10472",
+  field  = "dob",
+  before = "1985-03-01",
+  after  = "1985-03-11",
+  reason = "Transcription error — corrected per source document CRF page 14"
+)
+```
+
+## Verifying chain integrity
+
+`verify_log()` recomputes every entry hash and checks that chain links are
+unbroken. Run it at any time, on a schedule, or as part of a handoff.
+
+```{r verify}
+verify_log(log)
+```
+
+It also works directly from a `.rlog` file path — no R object needed:
+
+```{r verify-file, eval = FALSE}
+verify_log("logs/audit.rlog")
+```
+
+### What tampering looks like
+
+```{r tamper, error = FALSE, warning = TRUE}
+# Simulate tampering — modifying an entry field after the fact
+log$entries[[1L]]$action <- "ALTERED"
+verify_log(log)
+```
+
+## Exporting for regulatory submission
+
+`export_audit_trail()` serialises the log to CSV or JSON. Use `signed = TRUE`
+for regulatory submissions — this runs `verify_log()` and stamps `chain_intact`
+and `verified_at` into every row.
+
+```{r export-csv}
+# Reset to a clean log for the export example
+log2 <- regulog_init(app = "clinical-review-tool", version = "1.2.0",
+                      user = "jsmith")
+log_action(log2, action = "approved", object = "report_final.pdf",
+           reason = "All review comments resolved")
+log_change(log2, object = "patient_99", field = "visit_date",
+           before = "2026-04-01", after = "2026-04-11",
+           reason = "Date transposition error per visit log")
+
+df <- export_audit_trail(log2, format = "csv", signed = TRUE)
+df
+```
+
+### Writing to disk
+
+```{r export-disk, eval = FALSE}
+export_audit_trail(log2,
+  format = "csv",
+  from   = "2026-01-01",
+  signed = TRUE,
+  path   = "audit_export.csv"
+)
+
+# JSON format — useful for archival and system integration
+export_audit_trail(log2,
+  format = "json",
+  signed = TRUE,
+  path   = "audit_export.json"
+)
+```
+
+## The .rlog file format
+
+Entries are written as newline-delimited JSON (one JSON object per line). The
+format is deliberately human-readable — a regulator can inspect an audit log
+with any text editor:
+
+```
+{"entry_id":1,"timestamp":"2026-06-18T14:32:01.123456Z","app":"clinical-review-tool","app_version":"1.2.0","user":"jsmith","type":"ACTION","action":"approved","object":"dataset_v3.csv","reason":"QC review complete","prev_hash":"e3b0c4...","entry_hash":"a87ff6..."}
+```
+
+## Validation
+
+`regulog` ships with IQ/OQ/PQ qualification scripts in `inst/validation/`.
+Run them in sequence to qualify the package for use in a validated
+computerised system:
+
+```{r validation, eval = FALSE}
+source(system.file("validation/IQ_regulog.R", package = "regulog"))
+source(system.file("validation/OQ_regulog.R", package = "regulog"))
+source(system.file("validation/PQ_regulog.R", package = "regulog"))
+```
+
+The Requirements Traceability Matrix (RTM) is at:
+
+```{r rtm, eval = FALSE}
+rtm_path <- system.file("validation/RTM_regulog.csv", package = "regulog")
+read.csv(rtm_path)
+```
