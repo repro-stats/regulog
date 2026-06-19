@@ -189,8 +189,8 @@ Use <code>signed = TRUE</code> for regulatory submissions — this runs
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/export_audit_trail.html">export_audit_trail</a></span><span class="op">(</span><span class="va">log2</span>, format <span class="op">=</span> <span class="st">"csv"</span>, signed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">df</span></span>
 <span><span class="co">#&gt;   entry_id                   timestamp                  app app_version   user</span></span>
-<span><span class="co">#&gt; 1        1 2026-06-19T16:38:27.920101Z clinical-review-tool       1.2.0 jsmith</span></span>
-<span><span class="co">#&gt; 2        2 2026-06-19T16:38:27.921062Z clinical-review-tool       1.2.0 jsmith</span></span>
+<span><span class="co">#&gt; 1        1 2026-06-19T18:37:20.673438Z clinical-review-tool       1.2.0 jsmith</span></span>
+<span><span class="co">#&gt; 2        2 2026-06-19T18:37:20.674355Z clinical-review-tool       1.2.0 jsmith</span></span>
 <span><span class="co">#&gt;     type   action           object      field     before      after</span></span>
 <span><span class="co">#&gt; 1 ACTION approved report_final.pdf       &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2 CHANGE     &lt;NA&gt;       patient_99 visit_date 2026-04-01 2026-04-11</span></span>
@@ -198,14 +198,14 @@ Use <code>signed = TRUE</code> for regulatory submissions — this runs
 <span><span class="co">#&gt; 1           All review comments resolved</span></span>
 <span><span class="co">#&gt; 2 Date transposition error per visit log</span></span>
 <span><span class="co">#&gt;                                                         entry_hash</span></span>
-<span><span class="co">#&gt; 1 e5903e86fe45e44b543a03af107e931b36b3caebd406a6bd8da897fa0ce8fbe4</span></span>
-<span><span class="co">#&gt; 2 4cc6597c25a477d5882a028755f26db3c119ea94ab77e8718484efe399c4ef83</span></span>
+<span><span class="co">#&gt; 1 134a64d1acebde78a8c7550d2cf35e695cca4f43f141fcaa67eb5592bd79a831</span></span>
+<span><span class="co">#&gt; 2 3844a59608edafce5fd9805e07a37ec58442ffa7ccd16973cf0880a2382aa848</span></span>
 <span><span class="co">#&gt;                                                          prev_hash chain_intact</span></span>
-<span><span class="co">#&gt; 1 973b2f3819e77d30d8b09a89449a2efe11f2c9e75e04b1d1c4a2669d56669689         TRUE</span></span>
-<span><span class="co">#&gt; 2 e5903e86fe45e44b543a03af107e931b36b3caebd406a6bd8da897fa0ce8fbe4         TRUE</span></span>
+<span><span class="co">#&gt; 1 14250bfc95dc94e9a7dc676953d01c6a99681d41072266ad2c8e86a178c0b4ca         TRUE</span></span>
+<span><span class="co">#&gt; 2 134a64d1acebde78a8c7550d2cf35e695cca4f43f141fcaa67eb5592bd79a831         TRUE</span></span>
 <span><span class="co">#&gt;                   verified_at</span></span>
-<span><span class="co">#&gt; 1 2026-06-19T16:38:27.922235Z</span></span>
-<span><span class="co">#&gt; 2 2026-06-19T16:38:27.922235Z</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 2026-06-19T18:37:20.675429Z</span></span>
+<span><span class="co">#&gt; 2 2026-06-19T18:37:20.675429Z</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="writing-to-disk">Writing to disk<a class="anchor" aria-label="anchor" href="#writing-to-disk"></a>
 </h3>
