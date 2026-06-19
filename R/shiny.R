@@ -182,12 +182,12 @@ regulog_observer <- function(log, session, eventExpr, action, object, reason, ..
 # --------------------------------------------------------------------------- #
 
 .require_shiny <- function() {
-  if (!requireNamespace("shiny", quietly = TRUE)) {
+  if (!requireNamespace("shiny", quietly = TRUE)) { # nocov start
     stop(
       "Package 'shiny' is required for Shiny integration.\n",
       "  Install it with: install.packages(\"shiny\")"
     )
-  }
+  } # nocov end
 }
 
 .resolve_shiny_user <- function(session) {

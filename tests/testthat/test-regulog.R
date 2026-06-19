@@ -140,3 +140,18 @@ test_that("log_action returns log invisibly for piping", {
   result <- log_action(log, action = "a", object = "o", reason = "r")
   expect_identical(result, log)
 })
+
+test_that("log_action errors when log is not a regulog object", {
+  expect_error(
+    log_action(list(), action = "a", object = "o", reason = "r"),
+    "regulog"
+  )
+})
+
+test_that("log_change errors when log is not a regulog object", {
+  expect_error(
+    log_change(list(), object = "o", field = "f",
+               before = "a", after = "b", reason = "r"),
+    "regulog"
+  )
+})

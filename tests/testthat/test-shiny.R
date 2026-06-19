@@ -135,3 +135,53 @@ test_that(".require_shiny passes when shiny is installed", {
   skip_if_not_installed("shiny")
   expect_no_error(.require_shiny())
 })
+
+test_that("regulog_observer fires and logs with fixed object and reason", {
+  skip_if_not_installed("shiny")
+
+  log <- regulog_init(app = "test-app", user = "jsmith")
+
+  shiny::testServer(
+    function(input, output, session) {
+      regulog_observer(
+        log       = log,
+        session   = session,
+        eventExpr = input$btn,
+        action    = "clicked",
+        object    = "button_1",
+        reason    = "User submitted form"
+      )
+    },
+    expr = {
+      session$setInputs(btn = 1)
+    }
+  )
+
+  actions <- vapply(log$entries, `[[`, character(1L), "action")
+  expect_true("clicked" %in% actions)
+})
+
+test_that("regulog_observer fires and logs with reactive object and reason", {
+  skip_if_not_installed("shiny")
+
+  log <- regulog_init(app = "test-app", user = "jsmith")
+
+  shiny::testServer(
+    function(input, output, session) {
+      regulog_observer(
+        log       = log,
+        session   = session,
+        eventExpr = input$btn,
+        action    = "submitted",
+        object    = shiny::reactive(paste0("item_", input$btn)),
+        reason    = shiny::reactive("reactive reason")
+      )
+    },
+    expr = {
+      session$setInputs(btn = 1)
+    }
+  )
+
+  actions <- vapply(log$entries, `[[`, character(1L), "action")
+  expect_true("submitted" %in% actions)
+})
