@@ -13,12 +13,13 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tamper-Evident Audit Logging for R">
 <meta name="description" content="Provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Covers user attribution, timestamp integrity, mandatory reason capture, chain verification, structured export, and Shiny session instrumentation. Suitable for any context where accountability and traceability matter: regulated environments (21 CFR Part 11, EU Annex 11), internal tooling, data pipelines, and multi-user Shiny applications. Ships with optional IQ/OQ/PQ qualification scripts for use in validated computerised systems.">
 <meta property="og:description" content="Provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Covers user attribution, timestamp integrity, mandatory reason capture, chain verification, structured export, and Shiny session instrumentation. Suitable for any context where accountability and traceability matter: regulated environments (21 CFR Part 11, EU Annex 11), internal tooling, data pipelines, and multi-user Shiny applications. Ships with optional IQ/OQ/PQ qualification scripts for use in validated computerised systems.">
+<meta property="og:image" content="https://repro-stats.github.io/regulog/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">regulog</a>
 
@@ -39,21 +40,13 @@
     <li><a class="dropdown-item" href="articles/shiny-integration.html">Shiny integration</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="dropdown-item" href="news/index.html">Version 0.1.0</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/repro-stats/regulog" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/repro-stats/regulog/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -62,13 +55,17 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="regulog">regulog<a class="anchor" aria-label="anchor" href="#regulog"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="regulog-">regulog 
+<a class="anchor" aria-label="anchor" href="#regulog-"></a>
+</h1>
+</div>
 <blockquote>
 <p>Tamper-Evident Audit Logging for R</p>
 </blockquote>
 <!-- badges: start -->
 
+<!-- badges: end -->
 <p><code>regulog</code> provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Logs are written as plain newline-delimited JSON — readable with any text editor, no special tooling required.</p>
 <p>Use it anywhere you need a reliable record of <strong>who did what, when, and why</strong>.</p>
 <div class="section level2">
@@ -255,6 +252,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://CRAN.R-project.org/package=regulog" class="external-link"><img src="https://www.r-pkg.org/badges/version/regulog" alt="CRAN status"></a></li>
+<li><a href="https://app.codecov.io/gh/repro-stats/regulog" class="external-link"><img src="https://codecov.io/gh/repro-stats/regulog/graph/badge.svg" alt="Codecov test coverage"></a></li>
 </ul>
 </div>
 

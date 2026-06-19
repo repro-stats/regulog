@@ -146,8 +146,8 @@ log_change(log2, object = "patient_99", field = "visit_date",
 df <- export_audit_trail(log2, format = "csv", signed = TRUE)
 df
 #>   entry_id                   timestamp                  app app_version   user
-#> 1        1 2026-06-19T10:29:14.078451Z clinical-review-tool       1.2.0 jsmith
-#> 2        2 2026-06-19T10:29:14.079449Z clinical-review-tool       1.2.0 jsmith
+#> 1        1 2026-06-19T13:36:16.624484Z clinical-review-tool       1.2.0 jsmith
+#> 2        2 2026-06-19T13:36:16.625441Z clinical-review-tool       1.2.0 jsmith
 #>     type   action           object      field     before      after
 #> 1 ACTION approved report_final.pdf       <NA>       <NA>       <NA>
 #> 2 CHANGE     <NA>       patient_99 visit_date 2026-04-01 2026-04-11
@@ -155,14 +155,14 @@ df
 #> 1           All review comments resolved
 #> 2 Date transposition error per visit log
 #>                                                         entry_hash
-#> 1 28d16611d0d93721e97a786e21c11dc74f2bf316db50a03f2fb31697f51ef88e
-#> 2 699626c9709c1a0c92751269ad0c9c94f8158faa6717f71742b19919b836a17e
+#> 1 393be9a6e53ac7ca755cf50ee408de139e791fb9f8baf09b8e774795daa654e9
+#> 2 999e7af78c42f9e2127cf4467d540fc4d523a4d3f9b2e9fec185c1b63a88a18d
 #>                                                          prev_hash chain_intact
-#> 1 ad5cd48fcd9a2e2413f632c593dc458b4ec9815301fad320b6ec650af1b7f173         TRUE
-#> 2 28d16611d0d93721e97a786e21c11dc74f2bf316db50a03f2fb31697f51ef88e         TRUE
+#> 1 7bb703c6272f44f6f27236839ea3d1173a39904adc62df0cda507f935bfc7193         TRUE
+#> 2 393be9a6e53ac7ca755cf50ee408de139e791fb9f8baf09b8e774795daa654e9         TRUE
 #>                   verified_at
-#> 1 2026-06-19T10:29:14.080662Z
-#> 2 2026-06-19T10:29:14.080662Z
+#> 1 2026-06-19T13:36:16.626596Z
+#> 2 2026-06-19T13:36:16.626596Z
 ```
 
 ### Writing to disk
