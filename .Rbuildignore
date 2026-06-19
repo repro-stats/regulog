@@ -1,5 +1,9 @@
-^LICENSE\.md$
+groung^LICENSE\.md$
 ^\.gitignore$
 ^regulog\.Rproj$
 ^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^\.github$
+^ROADMAP\.md$
 ^codecov\.yml$

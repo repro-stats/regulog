@@ -27,7 +27,6 @@ Suggests:
     knitr,
     rmarkdown,
     covr
-
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog
