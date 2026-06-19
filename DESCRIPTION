@@ -16,14 +16,17 @@ Description: Provides tamper-evident, hash-chained audit logging for R
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Imports:
     digest,
     jsonlite
 Suggests:
     testthat (>= 3.0.0),
     shiny,
-    withr
+    withr,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr
 URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog
 BugReports: https://github.com/repro-stats/regulog/issues

@@ -1,0 +1,20 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+inst/doc/
+/doc/
+/Meta/
+/vignettes/*.html
+/vignettes/*.R
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Build
+*.tar.gz
+*.zip
