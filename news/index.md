@@ -2,7 +2,7 @@
 
 ## regulog (development version)
 
-### regulog 0.0.0.9000
+### regulog 0.1.0
 
 #### New features
 
