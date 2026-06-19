@@ -1,12 +1,10 @@
-# regulog <a href="https://repro-stats.github.io/regulog/"><img src="man/figures/logo.svg" align="right" height="130" alt="regulog website" /></a>
+# regulog <a href="https://repro-stats.github.io/regulog/"><img src="man/figures/logo.png" align="right" height="139" alt="regulog website" /></a>
 
 > Tamper-Evident Audit Logging for R
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml)
-[![CRAN status](https://www.r-pkg.org/badges/version/regulog)](https://CRAN.R-project.org/package=regulog)
 [![Codecov test coverage](https://codecov.io/gh/repro-stats/regulog/graph/badge.svg)](https://app.codecov.io/gh/repro-stats/regulog)
-
 <!-- badges: end -->
 
 `regulog` provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Logs are written as plain newline-delimited JSON — readable with any text editor, no special tooling required.
