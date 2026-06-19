@@ -1,0 +1,17 @@
+req_id,regulation,clause,requirement,regulog_function,iq_ref,oq_ref,pq_ref,status
+CFR-11.10a,21 CFR Part 11,§11.10(a),System validation,inst/validation/ IQ/OQ/PQ scripts,IQ-001:IQ-009,OQ-001:OQ-014,PQ-001:PQ-005,Covered
+CFR-11.10b,21 CFR Part 11,§11.10(b),Accurate and complete copies of records,export_audit_trail(format='csv'|'json'),IQ-008,OQ-010:OQ-012,PQ-002,Covered
+CFR-11.10c,21 CFR Part 11,§11.10(c),Protection of records throughout retention period,.rlog append-only NDJSON format,IQ-008,OQ-013,PQ-005,Covered
+CFR-11.10d,21 CFR Part 11,§11.10(d),Limiting system access to authorised individuals,Delegated to system/app authentication layer,,,, Partial — outside package scope
+CFR-11.10e-ts,21 CFR Part 11,§11.10(e),Audit trail: date and time of operator entries,ISO-8601 UTC timestamp per entry,IQ-006,OQ-006,PQ-001,Covered
+CFR-11.10e-user,21 CFR Part 11,§11.10(e),Audit trail: user identity,user field on every entry,IQ-009,OQ-005,PQ-001:PQ-003,Covered
+CFR-11.10e-change,21 CFR Part 11,§11.10(e),Audit trail: prior and new value for changes,log_change(before= after=),IQ-009,OQ-003,PQ-001,Covered
+CFR-11.10e-reason,21 CFR Part 11,§11.10(e),Audit trail: reason for change,Mandatory reason argument — no default,IQ-009,OQ-004,PQ-001:PQ-002,Covered
+CFR-11.10e-integrity,21 CFR Part 11,§11.10(e),Audit trail: record integrity,SHA-256 hash chain; verify_log(),IQ-006,OQ-007:OQ-009,PQ-004:PQ-005,Covered
+CFR-11.10k,21 CFR Part 11,§11.10(k),Operational system checks,regulog_shiny_init() session instrumentation,,,, Covered (Shiny)
+CFR-11.50,21 CFR Part 11,§11.50,Electronic signature manifestations,user field per entry; session_start/end events,IQ-009,OQ-005,PQ-003,Covered
+AX11-4.8,EU Annex 11,Clause 4.8,Audit trail,Hash-chained .rlog entries,IQ-006:IQ-009,OQ-001:OQ-002,PQ-001:PQ-004,Covered
+AX11-9,EU Annex 11,Clause 9,Audit trail content: date/time/user/action,Full field set on every entry,IQ-009,OQ-005:OQ-006,PQ-001,Covered
+AX11-10,EU Annex 11,Clause 10,Change management documentation,log_change() with mandatory reason,IQ-009,OQ-003:OQ-004,PQ-001,Covered
+AX11-11,EU Annex 11,Clause 11,Periodic evaluation of records,verify_log(),IQ-006,OQ-007:OQ-009,PQ-004:PQ-005,Covered
+AX11-17,EU Annex 11,Clause 17,Archiving,export_audit_trail(signed=TRUE),IQ-008,OQ-010:OQ-011,PQ-002,Covered
