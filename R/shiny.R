@@ -128,7 +128,7 @@ regulog_shiny_init <- function(session,
     reason = "Shiny session opened"
   )
 
-  shiny::onSessionEnded(function() {
+  session$onSessionEnded(function() {
     log_action(log,
       action = "session_end",
       object = session$token,
