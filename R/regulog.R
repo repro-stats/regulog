@@ -101,6 +101,7 @@ regulog_init <- function(app,
   log$hash_algo  <- hash_algo
   log$entries    <- list()
   log$last_hash  <- genesis_hash
+  log$genesis_hash <- genesis_hash
   log$entry_id   <- 0L
   log$created_at <- .utc_now()
 
@@ -279,11 +280,20 @@ print.regulog <- function(x, ...) {
   log$entry_id <- log$entry_id + 1L
   ts           <- .utc_now()
 
-  # Canonical hash input: every field that appears in the entry, in order.
-  # Changing *any* field — including reason or timestamp — breaks the chain.
+  # Canonical hash input: pipe-delimited string of every value in a fixed order.
+  # Using paste() on scalar values avoids any JSON serialisation ambiguity —
+  # the same string must be reproducible in .run_verification().
+  # Field order: entry_id | timestamp | app | app_version | user | type |
+  #              <field-values in sorted key order> | prev_hash
+  field_str <- paste(
+    paste(sort(names(fields)), sapply(sort(names(fields)), function(k) fields[[k]]),
+          sep = "=", collapse = ";"),
+    sep = ""
+  )
+
   hash_input <- paste(
     log$entry_id, ts, log$app, log$version, user, type,
-    jsonlite::toJSON(fields, auto_unbox = TRUE),
+    field_str,
     log$last_hash,
     sep = "|"
   )
@@ -300,7 +310,7 @@ print.regulog <- function(x, ...) {
       user        = user,
       type        = type
     ),
-    fields,                         # action/object/reason OR object/field/before/after/reason
+    fields,
     list(
       prev_hash  = log$last_hash,
       entry_hash = entry_hash

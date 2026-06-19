@@ -50,7 +50,7 @@ verify_log.regulog <- function(log, verbose = TRUE) {
   .run_verification(
     entries    = log$entries,
     hash_algo  = log$hash_algo,
-    first_prev = log$entries[[1L]]$prev_hash,   # should equal genesis hash
+    first_prev = log$genesis_hash,
     verbose    = verbose
   )
 }
@@ -100,14 +100,21 @@ verify_log.character <- function(log, verbose = TRUE) {
     e <- entries[[i]]
     id <- e$entry_id %||% i
 
-    # Reconstruct hash input in the same canonical order as .build_entry()
-    # Fields: entry_id | timestamp | app | app_version | user | type | <payload_json> | prev_hash
-    payload_fields <- e[!names(e) %in%
-                          c("entry_id", "timestamp", "app", "app_version",
-                            "user", "type", "prev_hash", "entry_hash")]
+    # Reconstruct hash input using the same canonical format as .build_entry():
+    # entry_id | timestamp | app | app_version | user | type |
+    # <key=value pairs in sorted key order, semicolon-separated> | prev_hash
+    structural <- c("entry_id", "timestamp", "app", "app_version",
+                    "user", "type", "prev_hash", "entry_hash")
+    payload_keys <- sort(setdiff(names(e), structural))
+    field_str <- paste(
+      paste(payload_keys, sapply(payload_keys, function(k) e[[k]]),
+            sep = "=", collapse = ";"),
+      sep = ""
+    )
+
     hash_input <- paste(
       e$entry_id, e$timestamp, e$app, e$app_version, e$user, e$type,
-      jsonlite::toJSON(payload_fields, auto_unbox = TRUE),
+      field_str,
       e$prev_hash,
       sep = "|"
     )
@@ -118,14 +125,14 @@ verify_log.character <- function(log, verbose = TRUE) {
     ok_chain   <- identical(e$prev_hash, prev_hash)
 
     if (!ok_content) {
-      msg <- sprintf("Entry #%d: entry_hash mismatch — content may have been modified", id)
+      msg <- sprintf("Entry #%d: entry_hash mismatch \u2014 content may have been modified", id)
       errors <- c(errors, msg)
       if (is.na(first_broken)) first_broken <- as.integer(id)
     }
 
     if (!ok_chain) {
       msg <- sprintf(
-        "Entry #%d: prev_hash mismatch — entries may have been inserted, deleted, or reordered",
+        "Entry #%d: prev_hash mismatch \u2014 entries may have been inserted, deleted, or reordered",
         id
       )
       errors <- c(errors, msg)
@@ -146,7 +153,7 @@ verify_log.character <- function(log, verbose = TRUE) {
       ))
     } else {
       warning(sprintf(
-        "regulog: Log FAILED verification — %d error(s). First broken entry: #%d\n%s",
+        "regulog: Log FAILED verification \u2014 %d error(s). First broken entry: #%d\n%s",
         length(errors), first_broken, paste(errors, collapse = "\n")
       ), call. = FALSE)
     }

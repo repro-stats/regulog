@@ -19,7 +19,7 @@
 #' @param app Character. Application name.
 #' @param version Character. Application version.
 #' @param path Character or `NULL`. Persistent log file path. When `NULL`,
-#'   a per-session temp file is created (suitable for development only —
+#'   a per-session temp file is created (suitable for development only;
 #'   logs will be lost when the session ends).
 #' @param hash_algo Character. Hashing algorithm. Defaults to `"sha256"`.
 #'
@@ -107,7 +107,7 @@ regulog_shiny_init <- function(session,
   if (is.null(path)) {
     warning(
       "regulog_shiny_init(): no `path` supplied. ",
-      "Using a temporary file — log will not persist after session ends.\n",
+      "Using a temporary file \u2014 log will not persist after session ends.\n",
       "  Temp path: ", resolved_path,
       call. = FALSE
     )
