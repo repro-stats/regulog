@@ -1,0 +1,10 @@
+pandoc: 3.8.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  getting-started: getting-started.html
+  shiny-integration: shiny-integration.html
+last_built: 2026-06-19T10:10Z
+urls:
+  reference: https://repro-stats.github.io/regulog/reference
+  article: https://repro-stats.github.io/regulog/articles
