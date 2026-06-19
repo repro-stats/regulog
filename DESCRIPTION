@@ -1,0 +1,29 @@
+Package: regulog
+Title: Tamper-Evident Audit Logging for R
+Version: 0.1.0
+Authors@R:
+    person("Ndoh", "Penn", email = "ndohpenn9@gmail.com", role = c("aut", "cre"),
+       comment = c(ORCID = "0009-0003-9054-465X"))
+Description: Provides tamper-evident, hash-chained audit logging for R
+    applications. Every log entry is cryptographically linked to its
+    predecessor, making insertions, deletions, and modifications detectable.
+    Covers user attribution, timestamp integrity, mandatory reason capture,
+    chain verification, structured export, and Shiny session instrumentation.
+    Suitable for any context where accountability and traceability matter:
+    regulated environments (21 CFR Part 11, EU Annex 11), internal tooling,
+    data pipelines, and multi-user Shiny applications. Ships with optional
+    IQ/OQ/PQ qualification scripts for use in validated computerised systems.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports:
+    digest,
+    jsonlite
+Suggests:
+    testthat (>= 3.0.0),
+    shiny,
+    withr
+Config/testthat/edition: 3
+URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog
+BugReports: https://github.com/repro-stats/regulog/issues
