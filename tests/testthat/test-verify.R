@@ -1,4 +1,4 @@
-# Mock Shiny session object — avoids needing a real Shiny server
+# Mock Shiny session object
 .mock_session <- function(user = "testuser", token = "test-token-123") {
   ended_callbacks <- list()
   env <- new.env(parent = emptyenv())
