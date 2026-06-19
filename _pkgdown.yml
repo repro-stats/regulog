@@ -2,58 +2,8 @@ url: https://repro-stats.github.io/regulog/
 
 template:
   bootstrap: 5
-  bootswatch: flatly
 
 navbar:
-  structure:
-    left:  [intro, reference, articles, news]
-    right: [search, github]
-  components:
-    github:
-      icon: fab fa-github
-      href: https://github.com/repro-stats/regulog
-      aria-label: GitHub
-
-home:
-  sidebar:
-    structure: [links, license, community, citation, authors, dev]
-
-reference:
-  - title: "Initialise"
-    desc: "Start an audit log session"
-    contents:
-      - regulog_init
-
-  - title: "Log entries"
-    desc: "Record actions and changes"
-    contents:
-      - log_action
-      - log_change
-
-  - title: "Verify"
-    desc: "Check chain integrity"
-    contents:
-      - verify_log
-
-  - title: "Export"
-    desc: "Export the audit trail"
-    contents:
-      - export_audit_trail
-
-  - title: "Shiny"
-    desc: "Shiny session integration"
-    contents:
-      - regulog_shiny_init
-      - regulog_observer
-
-articles:
-  - title: "Guides"
-    navbar: ~
-    contents:
-      - getting-started
-      - shiny-integration
-
-news:
-  releases:
-    - text: "Version 0.1.0"
-      href: news/index.html
+  logo:
+    image: logo.png
+    href: index.html

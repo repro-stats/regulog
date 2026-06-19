@@ -2,3 +2,4 @@
 ^\.gitignore$
 ^regulog\.Rproj$
 ^\.Rproj\.user$
+^codecov\.yml$
