@@ -75,10 +75,10 @@ log_signature(log, "Analysis complete and accurate per SAP v2")
 # All entries as a data frame
 filter_log(log)
 #>   entry_id                   timestamp      app app_version      user      type
-#> 1        1 2026-06-23T19:13:53.713863Z analysis         1.0 ndoh.penn    ACTION
-#> 2        2 2026-06-23T19:13:53.714711Z analysis         1.0 ndoh.penn      NOTE
-#> 3        3 2026-06-23T19:13:53.715478Z analysis         1.0 ndoh.penn    ACTION
-#> 4        4 2026-06-23T19:13:53.716289Z analysis         1.0 ndoh.penn SIGNATURE
+#> 1        1 2026-06-23T19:32:42.676996Z analysis         1.0 ndoh.penn    ACTION
+#> 2        2 2026-06-23T19:32:42.677814Z analysis         1.0 ndoh.penn      NOTE
+#> 3        3 2026-06-23T19:32:42.678534Z analysis         1.0 ndoh.penn    ACTION
+#> 4        4 2026-06-23T19:32:42.679357Z analysis         1.0 ndoh.penn SIGNATURE
 #>      action      object           field before after
 #> 1       run   primary.R            <NA>   <NA>  <NA>
 #> 2      note        <NA>            <NA>   <NA>  <NA>
@@ -90,55 +90,55 @@ filter_log(log)
 #> 3                           Sent to sponsor
 #> 4 Analysis complete and accurate per SAP v2
 #>                                                         entry_hash
-#> 1 c0fb00f293af35e8b4919d2e81e7c374d187440cef60de4273620dd0a7a0bdf5
-#> 2 b6af2153f8912b179be2ad8919f288d1effca68d492b9b6410769222119d633c
-#> 3 72922e313f78cc7e5846baf5180b93c51ff9bb43a5bd0dc4536b37ae27036e27
-#> 4 a371582780076dfbbdde5c1a3e8189ea0c5429ebad6b274b909f0b26eefe972f
+#> 1 28dd8f04f508825310d3fe7bc1e72e15d3dd1e877569eacc35bd11d7d56d8a37
+#> 2 4c08abd834a205203693619d2e2e56998c8e9ce17e40a7eae987287fcad882c1
+#> 3 f2e5e36750dd2b59994d56bb06be7eb65e79ba1f7eefe3e6418458417c93d558
+#> 4 838616d207d510931db295b3a5810e708075eb03f83e3989a9e0769c8f431ee0
 #>                                                          prev_hash
-#> 1 5115faeeb60e1a45ac3854bf081f9a4555e2d1d40c3740da66fd6b40e06b3e0f
-#> 2 c0fb00f293af35e8b4919d2e81e7c374d187440cef60de4273620dd0a7a0bdf5
-#> 3 b6af2153f8912b179be2ad8919f288d1effca68d492b9b6410769222119d633c
-#> 4 72922e313f78cc7e5846baf5180b93c51ff9bb43a5bd0dc4536b37ae27036e27
+#> 1 085543c46100e3fed86019203a18c0002a2943dd1f7cebf7d203f28e1c7e05eb
+#> 2 28dd8f04f508825310d3fe7bc1e72e15d3dd1e877569eacc35bd11d7d56d8a37
+#> 3 4c08abd834a205203693619d2e2e56998c8e9ce17e40a7eae987287fcad882c1
+#> 4 f2e5e36750dd2b59994d56bb06be7eb65e79ba1f7eefe3e6418458417c93d558
 
 # Only signatures
 filter_log(log, type = "SIGNATURE")
 #>   entry_id                   timestamp      app app_version      user      type
-#> 1        4 2026-06-23T19:13:53.716289Z analysis         1.0 ndoh.penn SIGNATURE
+#> 1        4 2026-06-23T19:32:42.679357Z analysis         1.0 ndoh.penn SIGNATURE
 #>      action    object           field before after
 #> 1 signature ndoh.penn entries_covered   <NA>     3
 #>                                      reason
 #> 1 Analysis complete and accurate per SAP v2
 #>                                                         entry_hash
-#> 1 a371582780076dfbbdde5c1a3e8189ea0c5429ebad6b274b909f0b26eefe972f
+#> 1 838616d207d510931db295b3a5810e708075eb03f83e3989a9e0769c8f431ee0
 #>                                                          prev_hash
-#> 1 72922e313f78cc7e5846baf5180b93c51ff9bb43a5bd0dc4536b37ae27036e27
+#> 1 f2e5e36750dd2b59994d56bb06be7eb65e79ba1f7eefe3e6418458417c93d558
 
 # Actions and notes by a specific user
 filter_log(log, type = c("ACTION", "NOTE"), user = "ndoh.penn")
 #>   entry_id                   timestamp      app app_version      user   type
-#> 1        1 2026-06-23T19:13:53.713863Z analysis         1.0 ndoh.penn ACTION
-#> 2        2 2026-06-23T19:13:53.714711Z analysis         1.0 ndoh.penn   NOTE
-#> 3        3 2026-06-23T19:13:53.715478Z analysis         1.0 ndoh.penn ACTION
+#> 1        1 2026-06-23T19:32:42.676996Z analysis         1.0 ndoh.penn ACTION
+#> 2        2 2026-06-23T19:32:42.677814Z analysis         1.0 ndoh.penn   NOTE
+#> 3        3 2026-06-23T19:32:42.678534Z analysis         1.0 ndoh.penn ACTION
 #>   action      object field before after                                  reason
 #> 1    run   primary.R  <NA>   <NA>  <NA>                    Primary model fitted
 #> 2   note        <NA>  <NA>   <NA>  <NA> Outlier in subject 042 retained per SAP
 #> 3 export results.csv  <NA>   <NA>  <NA>                         Sent to sponsor
 #>                                                         entry_hash
-#> 1 c0fb00f293af35e8b4919d2e81e7c374d187440cef60de4273620dd0a7a0bdf5
-#> 2 b6af2153f8912b179be2ad8919f288d1effca68d492b9b6410769222119d633c
-#> 3 72922e313f78cc7e5846baf5180b93c51ff9bb43a5bd0dc4536b37ae27036e27
+#> 1 28dd8f04f508825310d3fe7bc1e72e15d3dd1e877569eacc35bd11d7d56d8a37
+#> 2 4c08abd834a205203693619d2e2e56998c8e9ce17e40a7eae987287fcad882c1
+#> 3 f2e5e36750dd2b59994d56bb06be7eb65e79ba1f7eefe3e6418458417c93d558
 #>                                                          prev_hash
-#> 1 5115faeeb60e1a45ac3854bf081f9a4555e2d1d40c3740da66fd6b40e06b3e0f
-#> 2 c0fb00f293af35e8b4919d2e81e7c374d187440cef60de4273620dd0a7a0bdf5
-#> 3 b6af2153f8912b179be2ad8919f288d1effca68d492b9b6410769222119d633c
+#> 1 085543c46100e3fed86019203a18c0002a2943dd1f7cebf7d203f28e1c7e05eb
+#> 2 28dd8f04f508825310d3fe7bc1e72e15d3dd1e877569eacc35bd11d7d56d8a37
+#> 3 4c08abd834a205203693619d2e2e56998c8e9ce17e40a7eae987287fcad882c1
 
 # Entries within a date range
 filter_log(log, from = "2026-06-01", to = "2026-12-31")
 #>   entry_id                   timestamp      app app_version      user      type
-#> 1        1 2026-06-23T19:13:53.713863Z analysis         1.0 ndoh.penn    ACTION
-#> 2        2 2026-06-23T19:13:53.714711Z analysis         1.0 ndoh.penn      NOTE
-#> 3        3 2026-06-23T19:13:53.715478Z analysis         1.0 ndoh.penn    ACTION
-#> 4        4 2026-06-23T19:13:53.716289Z analysis         1.0 ndoh.penn SIGNATURE
+#> 1        1 2026-06-23T19:32:42.676996Z analysis         1.0 ndoh.penn    ACTION
+#> 2        2 2026-06-23T19:32:42.677814Z analysis         1.0 ndoh.penn      NOTE
+#> 3        3 2026-06-23T19:32:42.678534Z analysis         1.0 ndoh.penn    ACTION
+#> 4        4 2026-06-23T19:32:42.679357Z analysis         1.0 ndoh.penn SIGNATURE
 #>      action      object           field before after
 #> 1       run   primary.R            <NA>   <NA>  <NA>
 #> 2      note        <NA>            <NA>   <NA>  <NA>
@@ -150,15 +150,15 @@ filter_log(log, from = "2026-06-01", to = "2026-12-31")
 #> 3                           Sent to sponsor
 #> 4 Analysis complete and accurate per SAP v2
 #>                                                         entry_hash
-#> 1 c0fb00f293af35e8b4919d2e81e7c374d187440cef60de4273620dd0a7a0bdf5
-#> 2 b6af2153f8912b179be2ad8919f288d1effca68d492b9b6410769222119d633c
-#> 3 72922e313f78cc7e5846baf5180b93c51ff9bb43a5bd0dc4536b37ae27036e27
-#> 4 a371582780076dfbbdde5c1a3e8189ea0c5429ebad6b274b909f0b26eefe972f
+#> 1 28dd8f04f508825310d3fe7bc1e72e15d3dd1e877569eacc35bd11d7d56d8a37
+#> 2 4c08abd834a205203693619d2e2e56998c8e9ce17e40a7eae987287fcad882c1
+#> 3 f2e5e36750dd2b59994d56bb06be7eb65e79ba1f7eefe3e6418458417c93d558
+#> 4 838616d207d510931db295b3a5810e708075eb03f83e3989a9e0769c8f431ee0
 #>                                                          prev_hash
-#> 1 5115faeeb60e1a45ac3854bf081f9a4555e2d1d40c3740da66fd6b40e06b3e0f
-#> 2 c0fb00f293af35e8b4919d2e81e7c374d187440cef60de4273620dd0a7a0bdf5
-#> 3 b6af2153f8912b179be2ad8919f288d1effca68d492b9b6410769222119d633c
-#> 4 72922e313f78cc7e5846baf5180b93c51ff9bb43a5bd0dc4536b37ae27036e27
+#> 1 085543c46100e3fed86019203a18c0002a2943dd1f7cebf7d203f28e1c7e05eb
+#> 2 28dd8f04f508825310d3fe7bc1e72e15d3dd1e877569eacc35bd11d7d56d8a37
+#> 3 4c08abd834a205203693619d2e2e56998c8e9ce17e40a7eae987287fcad882c1
+#> 4 f2e5e36750dd2b59994d56bb06be7eb65e79ba1f7eefe3e6418458417c93d558
 
 # Works directly on a .rlog file — no live session needed
 if (FALSE) { # \dontrun{

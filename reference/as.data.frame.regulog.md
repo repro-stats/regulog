@@ -46,15 +46,15 @@ log_note(log, "Outlier retained per SAP")
 
 as.data.frame(log)
 #>   entry_id                   timestamp      app app_version      user   type
-#> 1        1 2026-06-23T19:13:53.444081Z analysis         1.0 ndoh.penn ACTION
-#> 2        2 2026-06-23T19:13:53.445147Z analysis         1.0 ndoh.penn   NOTE
+#> 1        1 2026-06-23T19:32:42.409745Z analysis         1.0 ndoh.penn ACTION
+#> 2        2 2026-06-23T19:32:42.410756Z analysis         1.0 ndoh.penn   NOTE
 #>   action    object field before after                   reason
 #> 1    run primary.R  <NA>   <NA>  <NA>     Primary model fitted
 #> 2   note      <NA>  <NA>   <NA>  <NA> Outlier retained per SAP
 #>                                                         entry_hash
-#> 1 631250929c5eac61b682f96d792d1dff4dab68d80855b444cb53c920f268bb14
-#> 2 a5a7e9ea5c16c9cb870e55f6aff05e35320fc69bba610062f860a4dee376ab02
+#> 1 b2c30ab0e48f726f9587ae51eade7da22414e9b47cc340afb0a0ba109e6d2b9f
+#> 2 b204041862a0e8896475044adb814966f99935c4dbb84cf8caa2b1e1a4d609eb
 #>                                                          prev_hash
-#> 1 3d39bc34c42207f682983439c59872dd00994d952b699be5e5445d4a89e4998d
-#> 2 631250929c5eac61b682f96d792d1dff4dab68d80855b444cb53c920f268bb14
+#> 1 bad485d48f2a09f881f9230d43981a2598e0071209c1996045c71d43c82a13e7
+#> 2 b2c30ab0e48f726f9587ae51eade7da22414e9b47cc340afb0a0ba109e6d2b9f
 ```

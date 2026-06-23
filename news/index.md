@@ -1,10 +1,29 @@
 # Changelog
 
-## regulog (development version)
+## regulog 0.2.0
 
-### regulog 0.1.0
+### New features
 
-#### New features
+- [`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md):
+  free-text annotation entries
+- [`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md):
+  electronic signatures per 21 CFR Part 11 §11.100/§11.200
+- [`filter_log()`](https://repro-stats.github.io/regulog/reference/filter_log.md):
+  query log entries by type, user, action, or date
+- [`as.data.frame.regulog()`](https://repro-stats.github.io/regulog/reference/as.data.frame.regulog.md):
+  convert log to data frame
+- [`log_hooks_enable()`](https://repro-stats.github.io/regulog/reference/log_hooks_enable.md)
+  /
+  [`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md)
+  /
+  [`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md):
+  automatic data I/O logging
+- Updated IQ/OQ/PQ validation suite (OQ-015–024, PQ-006–007)  
+- Updated RTM with §11.100, §11.200, and automated tracking coverage
+
+## regulog 0.1.0
+
+### Initial features
 
 - [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
   — initialise a hash-chained audit log session. Writes a genesis record

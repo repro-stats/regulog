@@ -25,8 +25,11 @@ log_hooks_enable(log)
 
 ## Details
 
-**Functions patched (when the package is loaded):** `haven::read_sas`,
-`haven::read_xpt`, `readr::read_csv`, `data.table::fread`,
+**Functions patched (when the package is loaded):**
+[`haven::read_sas`](https://haven.tidyverse.org/reference/read_sas.html),
+[`haven::read_xpt`](https://haven.tidyverse.org/reference/read_xpt.html),
+[`readr::read_csv`](https://readr.tidyverse.org/reference/read_delim.html),
+`data.table::fread`,
 [`utils::read.csv`](https://rdrr.io/r/utils/read.table.html),
 [`utils::read.table`](https://rdrr.io/r/utils/read.table.html)
 

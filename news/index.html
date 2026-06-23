@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regulog</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,11 +37,27 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="regulog-development-version">regulog (development version)<a class="anchor" aria-label="anchor" href="#regulog-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.0" id="regulog-020">regulog 0.2.0<a class="anchor" aria-label="anchor" href="#regulog-020"></a></h2>
 <div class="section level3">
-<h3 id="regulog-development-version-1">regulog 0.1.0<a class="anchor" aria-label="anchor" href="#regulog-development-version-1"></a></h3>
-<div class="section level4">
-<h4 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h4>
+<h3 id="new-features-0-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/log_note.html">log_note()</a></code>: free-text annotation entries</li>
+<li>
+<code><a href="../reference/log_signature.html">log_signature()</a></code>: electronic signatures per 21 CFR Part 11 §11.100/§11.200</li>
+<li>
+<code><a href="../reference/filter_log.html">filter_log()</a></code>: query log entries by type, user, action, or date</li>
+<li>
+<code><a href="../reference/as.data.frame.regulog.html">as.data.frame.regulog()</a></code>: convert log to data frame</li>
+<li>
+<code><a href="../reference/log_hooks_enable.html">log_hooks_enable()</a></code> / <code><a href="../reference/log_hooks_disable.html">log_hooks_disable()</a></code> / <code><a href="../reference/with_log.html">with_log()</a></code>: automatic data I/O logging</li>
+<li>Updated IQ/OQ/PQ validation suite (OQ-015–024, PQ-006–007)<br></li>
+<li>Updated RTM with §11.100, §11.200, and automated tracking coverage</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.0" id="regulog-010">regulog 0.1.0<a class="anchor" aria-label="anchor" href="#regulog-010"></a></h2>
+<div class="section level3">
+<h3 id="initial-features-0-1-0">Initial features<a class="anchor" aria-label="anchor" href="#initial-features-0-1-0"></a></h3>
 <ul><li><p><code><a href="../reference/regulog_init.html">regulog_init()</a></code> — initialise a hash-chained audit log session. Writes a genesis record to disk if <code>path</code> is supplied.</p></li>
 <li><p><code><a href="../reference/log_action.html">log_action()</a></code> — log a discrete user action. <code>reason</code> is mandatory with no default — every entry must document why it was made.</p></li>
 <li><p><code><a href="../reference/log_change.html">log_change()</a></code> — log a before/after field change with mandatory <code>reason</code>. Captures what changed, who changed it, when, and why.</p></li>
@@ -51,7 +67,6 @@
 <li><p><code><a href="../reference/regulog_observer.html">regulog_observer()</a></code> — convenience wrapper around <code><a href="https://rdrr.io/pkg/shiny/man/observeEvent.html" class="external-link">shiny::observeEvent()</a></code> that logs an action on every trigger.</p></li>
 <li><p><code>inst/validation/</code> — IQ/OQ/PQ qualification scripts and Requirements Traceability Matrix (RTM) for 21 CFR Part 11 and EU Annex 11. Available as an optional addon for regulated deployments.</p></li>
 </ul></div>
-</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
