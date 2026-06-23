@@ -1,5 +1,5 @@
 # regulog — Operational Qualification (OQ)
-# Protocol: regulog-OQ-v0.1
+# Protocol: regulog-OQ-v0.2
 # Regulation: 21 CFR Part 11 §11.10(a),(e); EU Annex 11 Clauses 9, 11
 #
 # Purpose: Verify that regulog functions correctly under normal and boundary
@@ -13,7 +13,7 @@ library(regulog)
 
 cat("=============================================================\n")
 cat("regulog Operational Qualification (OQ)\n")
-cat("Protocol: regulog-OQ-v0.1\n")
+cat("Protocol: regulog-OQ-v0.2\n")
 cat("Date:    ", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"), "\n")
 cat("regulog: ", as.character(utils::packageVersion("regulog")), "\n")
 cat("=============================================================\n\n")
@@ -30,6 +30,8 @@ cat("=============================================================\n\n")
   if (result) .oq_pass <<- .oq_pass + 1L else .oq_fail <<- .oq_fail + 1L
   invisible(result)
 }
+
+# ── Original tests (OQ-001 to OQ-014) ────────────────────────────────────────
 
 # -- OQ-001: Hash chain formation --------------------------------------------
 .oq_test("OQ-001", "CFR §11.10(e)", "Genesis hash is 64-char hex", {
@@ -145,6 +147,116 @@ cat("=============================================================\n\n")
   ids <- vapply(log$entries, `[[`, integer(1L), "entry_id")
   identical(ids, 1L:5L)
 })
+
+# ── v0.2.0 additions (OQ-015 to OQ-024) ──────────────────────────────────────
+
+# -- OQ-015: NOTE entry type -------------------------------------------------
+.oq_test("OQ-015", "CFR §11.10(e)", "log_note() creates a NOTE entry with mandatory reason", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_note(log, "Baseline window defined as Day -1 to Day 1 per protocol v3")
+  e <- log$entries[[1L]]
+  e$type   == "NOTE" &&
+  e$action == "note" &&
+  e$reason == "Baseline window defined as Day -1 to Day 1 per protocol v3" &&
+  e$user   == "validator"
+})
+
+# -- OQ-016: NOTE chain integrity -------------------------------------------
+.oq_test("OQ-016", "CFR §11.10(e)", "log_note() entries are hash-chained and tamper-evident", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log, action = "run",  object = "analysis.R", reason = "Primary model fitted")
+  log_note(log,   "Outlier in subject 042 retained per SAP section 8.3")
+  log_action(log, action = "done", object = "analysis.R", reason = "Analysis complete")
+  vr <- verify_log(log, verbose = FALSE)
+  vr$intact && vr$n_entries == 3L
+})
+
+# -- OQ-017: NOTE reason is mandatory ----------------------------------------
+.oq_test("OQ-017", "CFR §11.10(e)", "log_note() rejects blank text (no silent entries)", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  tryCatch({
+    log_note(log, "")
+    FALSE
+  }, error = function(e) grepl("reason", tolower(conditionMessage(e))))
+})
+
+# -- OQ-018: SIGNATURE entry structure ---------------------------------------
+.oq_test("OQ-018", "CFR §11.100 / §11.200", "log_signature() records signer identity and meaning", {
+  log <- regulog_init(app = "oq-test", user = "ndoh.penn")
+  log_action(log, action = "run", object = "analysis.R", reason = "Model fitted")
+  log_signature(log,
+    "I certify this analysis is accurate and complete per SAP version 2.0"
+  )
+  e <- log$entries[[2L]]
+  e$type   == "SIGNATURE" &&
+  e$action == "signature" &&
+  e$object == "ndoh.penn" &&
+  e$reason == "I certify this analysis is accurate and complete per SAP version 2.0"
+})
+
+# -- OQ-019: SIGNATURE entries_covered is automatic -------------------------
+.oq_test("OQ-019", "CFR §11.200", "log_signature() records entries_covered without user input", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log, action = "a1", object = "o", reason = "Step 1")
+  log_action(log, action = "a2", object = "o", reason = "Step 2")
+  log_action(log, action = "a3", object = "o", reason = "Step 3")
+  log_signature(log, "Certified complete")
+  sig <- log$entries[[4L]]
+  sig$type == "SIGNATURE" && as.integer(sig$after) == 3L
+})
+
+# -- OQ-020: SIGNATURE hash chain --------------------------------------------
+.oq_test("OQ-020", "CFR §11.10(e)", "log_signature() entry is part of the hash chain", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log, action = "run",    object = "a.R", reason = "Step 1")
+  log_note(log,   "Intermediate annotation")
+  log_signature(log, "Analysis certified accurate")
+  vr <- verify_log(log, verbose = FALSE)
+  vr$intact && vr$n_entries == 3L
+})
+
+# -- OQ-021: Tampering after signature detected ------------------------------
+.oq_test("OQ-021", "CFR §11.10(e)", "Tampering with entry before signature is detected", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log, action = "run",  object = "a.R", reason = "Fitted")
+  log_signature(log, "I certify this analysis is accurate")
+  log$entries[[1L]]$action <- "TAMPERED"
+  !verify_log(log, verbose = FALSE)$intact
+})
+
+# -- OQ-022: filter_log() by type -------------------------------------------
+.oq_test("OQ-022", "CFR §11.10(b)", "filter_log() returns only entries matching the requested type", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log,    action = "run", object = "a.R", reason = "Ran model")
+  log_note(log,      "Decision note")
+  log_signature(log, "Analysis certified")
+  df_sig  <- filter_log(log, type = "SIGNATURE")
+  df_note <- filter_log(log, type = "NOTE")
+  df_act  <- filter_log(log, type = "ACTION")
+  nrow(df_sig)  == 1L && df_sig$type[[1L]]  == "SIGNATURE" &&
+  nrow(df_note) == 1L && df_note$type[[1L]] == "NOTE" &&
+  nrow(df_act)  == 1L && df_act$type[[1L]]  == "ACTION"
+})
+
+# -- OQ-023: as.data.frame() excludes genesis --------------------------------
+.oq_test("OQ-023", "CFR §11.10(b)", "as.data.frame.regulog() excludes genesis record from export", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log, action = "run", object = "a.R", reason = "Ran")
+  df <- as.data.frame(log)
+  nrow(df) == 1L && !any(df$type == "GENESIS")
+})
+
+# -- OQ-024: with_log() restores hooks on error ------------------------------
+.oq_test("OQ-024", "CFR §11.10(e)", "with_log() guarantees hook cleanup even on error", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  tryCatch(
+    with_log(log, { stop("deliberate error") }),
+    error = function(e) NULL
+  )
+  is.null(regulog:::.rl_hooks$log)
+})
+
+# ── Summary ───────────────────────────────────────────────────────────────────
 
 cat("\n=============================================================\n")
 cat(sprintf("OQ RESULT: %d PASS / %d FAIL\n", .oq_pass, .oq_fail))

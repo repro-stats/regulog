@@ -7,3 +7,6 @@
 ^\.github$
 ^ROADMAP\.md$
 ^codecov\.yml$
+^audit\.csv$
+^audit_signed\.csv$
+^logs/
