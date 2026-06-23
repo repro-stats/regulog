@@ -1,6 +1,6 @@
 Package: regulog
 Title: Tamper-Evident Audit Logging for R
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Ndoh", "Penn", email = "ndohpenn9@gmail.com", role = c("aut", "cre"),
        comment = c(ORCID = "0009-0003-9054-465X"))
@@ -21,12 +21,14 @@ Imports:
     digest,
     jsonlite
 Suggests:
-    testthat (>= 3.0.0),
-    shiny,
-    withr,
+    covr,
+    haven,
+    readr,
     knitr,
     rmarkdown,
-    covr
+    shiny,
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog

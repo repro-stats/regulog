@@ -1,8 +1,18 @@
-# regulog (development version)
+## regulog 0.2.0
+
+### New features
+
+* `log_note()`: free-text annotation entries
+* `log_signature()`: electronic signatures per 21 CFR Part 11 §11.100/§11.200
+* `filter_log()`: query log entries by type, user, action, or date
+* `as.data.frame.regulog()`: convert log to data frame
+* `log_hooks_enable()` / `log_hooks_disable()` / `with_log()`: automatic data I/O logging
+* Updated IQ/OQ/PQ validation suite (OQ-015–024, PQ-006–007)  
+* Updated RTM with §11.100, §11.200, and automated tracking coverage
 
 ## regulog 0.1.0
 
-### New features
+### Initial features
 
 * `regulog_init()` — initialise a hash-chained audit log session. Writes a
   genesis record to disk if `path` is supplied.
