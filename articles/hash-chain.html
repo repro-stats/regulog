@@ -84,9 +84,9 @@ entire chain.</p>
 <code class="sourceCode R"><span><span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_init.html">regulog_init</a></span><span class="op">(</span>app <span class="op">=</span> <span class="st">"demo"</span>, version <span class="op">=</span> <span class="st">"1.0"</span>, user <span class="op">=</span> <span class="st">"analyst"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Genesis hash:"</span>, <span class="va">log</span><span class="op">$</span><span class="va">genesis_hash</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Genesis hash: a00983cffb044c853f8b8b56f88e8454f41ec39ef29676b957a621f3bc5065fd</span></span>
+<span><span class="co">#&gt; Genesis hash: 8450e5da41ed6001f8424dc3de516d35f06a90819133e4f21484edade873ca40</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Last hash:   "</span>, <span class="va">log</span><span class="op">$</span><span class="va">last_hash</span>,    <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Last hash:    a00983cffb044c853f8b8b56f88e8454f41ec39ef29676b957a621f3bc5065fd</span></span></code></pre></div>
+<span><span class="co">#&gt; Last hash:    8450e5da41ed6001f8424dc3de516d35f06a90819133e4f21484edade873ca40</span></span></code></pre></div>
 <p>The genesis hash incorporates the app name, version, and creation
 timestamp. Two sessions with the same app and version but different
 creation times will have different genesis hashes.</p>
@@ -113,9 +113,9 @@ hash reproducible during verification.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Entry ID:   "</span>, <span class="va">entry</span><span class="op">$</span><span class="va">entry_id</span>,   <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Entry ID:    1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Prev hash:  "</span>, <span class="va">entry</span><span class="op">$</span><span class="va">prev_hash</span>,  <span class="st">"\n"</span><span class="op">)</span>  <span class="co"># = genesis hash</span></span>
-<span><span class="co">#&gt; Prev hash:   a00983cffb044c853f8b8b56f88e8454f41ec39ef29676b957a621f3bc5065fd</span></span>
+<span><span class="co">#&gt; Prev hash:   8450e5da41ed6001f8424dc3de516d35f06a90819133e4f21484edade873ca40</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Entry hash: "</span>, <span class="va">entry</span><span class="op">$</span><span class="va">entry_hash</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Entry hash:  07eebd18c18b984f540a353eb043cda5e6f275f07d70833738b79b80a12c79e7</span></span></code></pre></div>
+<span><span class="co">#&gt; Entry hash:  f9c0ca3d8cb7e53182e913746b84f2fbb4d7ae27f3a74147cf345b0fb2624f10</span></span></code></pre></div>
 <p>The <code>prev_hash</code> of the first entry matches the
 <code>genesis_hash</code>. The chain has begun.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -125,9 +125,9 @@ hash reproducible during verification.</p>
 <span><span class="co">#&gt; regulog: note logged</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Entry 1 hash:"</span>, <span class="va">log</span><span class="op">$</span><span class="va">entries</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">entry_hash</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Entry 1 hash: 07eebd18c18b984f540a353eb043cda5e6f275f07d70833738b79b80a12c79e7</span></span>
+<span><span class="co">#&gt; Entry 1 hash: f9c0ca3d8cb7e53182e913746b84f2fbb4d7ae27f3a74147cf345b0fb2624f10</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Entry 2 prev:"</span>, <span class="va">log</span><span class="op">$</span><span class="va">entries</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">prev_hash</span>,  <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Entry 2 prev: 07eebd18c18b984f540a353eb043cda5e6f275f07d70833738b79b80a12c79e7</span></span>
+<span><span class="co">#&gt; Entry 2 prev: f9c0ca3d8cb7e53182e913746b84f2fbb4d7ae27f3a74147cf345b0fb2624f10</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Match:       "</span>, <span class="va">log</span><span class="op">$</span><span class="va">entries</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">entry_hash</span> <span class="op">==</span></span>
 <span>                     <span class="va">log</span><span class="op">$</span><span class="va">entries</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">prev_hash</span>,   <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Match:        TRUE</span></span></code></pre></div>
