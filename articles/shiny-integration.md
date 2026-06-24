@@ -1,23 +1,32 @@
 # Shiny integration
 
-## Overview
+`regulog` integrates with Shiny through two dedicated functions and
+works naturally with all the standard `log_*` functions inside server
+logic.
 
-`regulog` integrates with Shiny via
-[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md),
-which:
+| Function | Purpose |
+|----|----|
+| [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md) | Initialise a session inside `server()` — resolves the authenticated user from `session$user` and auto-logs `session_start` / `session_end` |
+| [`regulog_observer()`](https://repro-stats.github.io/regulog/reference/regulog_observer.md) | Wrap [`observeEvent()`](https://rdrr.io/pkg/shiny/man/observeEvent.html) to log an action whenever a reactive input fires |
 
-- Resolves the **authenticated user** from `session$user` (set by Shiny
-  Server Pro or Posit Connect) — not a self-reported name
-- Automatically logs `session_start` and `session_end` events
-- Returns a standard `regulog` object you use with the usual
-  [`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md)
-  /
-  [`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md)
-  API
+All other `regulog` functions —
+[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md),
+[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md),
+[`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md),
+[`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md),
+[`filter_log()`](https://repro-stats.github.io/regulog/reference/filter_log.md),
+[`export_audit_trail()`](https://repro-stats.github.io/regulog/reference/export_audit_trail.md)
+— work identically inside Shiny server functions.
 
-## Basic pattern
+## 1. Basic pattern
+
+Call
+[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
+at the top of `server()`. Store the returned log object as a local
+variable and pass it to `log_*` calls inside observers.
 
 ``` r
+
 library(shiny)
 library(regulog)
 
@@ -27,185 +36,385 @@ server <- function(input, output, session) {
     session = session,
     app     = "clinical-review-tool",
     version = "1.2.0",
-    path    = "logs/audit.rlog"   # shared log file; consider per-session paths
+    path    = "logs/review_audit.rlog"
   )
 
   observeEvent(input$approve, {
+    req(nzchar(input$justification))
     log_action(log,
       action = "approved",
-      object = input$selected_dataset,
-      reason = input$approval_reason
+      object = input$dataset_id,
+      reason = input$justification
     )
+    showNotification("Approval recorded.", type = "message")
   })
 
   observeEvent(input$reject, {
+    req(nzchar(input$rejection_reason))
     log_action(log,
       action = "rejected",
-      object = input$selected_dataset,
+      object = input$dataset_id,
       reason = input$rejection_reason
     )
+    showNotification("Rejection recorded.", type = "warning")
   })
 }
-
-shinyApp(ui = fluidPage(/* ... */), server = server)
 ```
 
-## User resolution
+## 2. User resolution
 
-`session$user` is the authenticated identity provided by:
-
-- **Shiny Server Pro** — the OS or PAM-authenticated user
-- **Posit Connect** — the Connect account username
-
-In development (plain
-[`shiny::runApp()`](https://rdrr.io/pkg/shiny/man/runApp.html)),
-`session$user` is typically `NULL`.
+`session$user` is the authenticated identity set by Shiny Server Pro or
+Posit Connect.
 [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
-warns and falls back to `Sys.info()[["user"]]`.
+resolves the user in this order:
 
-    Warning: regulog_shiny_init(): session$user is NULL or empty.
-      Falling back to system user 'jsmith'.
-      In production, ensure Shiny Server Pro or Posit Connect authentication is configured.
+1.  `session$user` — when Shiny Server Pro / Posit Connect
+    authentication is configured (the value in regulated production
+    deployments)
+2.  `Sys.info()[["user"]]` — OS-level user, as a fallback with a warning
 
-Do not deploy to a regulated context without authentication configured.
-
-## Per-session vs shared log files
-
-### Shared log file (simpler, suitable for low-volume apps)
+In regulated environments, always configure authentication so that
+`session$user` carries a real, non-repudiable identity. The `user` field
+appears on every log entry and is the basis for user attribution under
+21 CFR Part 11 §11.50.
 
 ``` r
 
-log <- regulog_shiny_init(
-  session = session,
-  app     = "my-app",
-  version = "1.0.0",
-  path    = "/opt/logs/my_app_audit.rlog"  # all sessions write to one file
-)
+# In a development context, confirm what user is being captured:
+server <- function(input, output, session) {
+  log <- regulog_shiny_init(
+    session = session,
+    app     = "review-tool",
+    version = "1.0.0"
+  )
+
+  output$debug_user <- renderText({
+    paste("Logging as:", log$user)
+  })
+}
 ```
 
-All sessions append to the same `.rlog` file. The NDJSON append-only
-format makes this safe for concurrent writes on most file systems, but
-for high-concurrency apps consider per-session files.
-
-### Per-session log files (recommended for multi-user production)
-
-``` r
-
-log <- regulog_shiny_init(
-  session = session,
-  app     = "my-app",
-  version = "1.0.0",
-  path    = sprintf("/opt/logs/my_app_%s_%s.rlog",
-                    format(Sys.time(), "%Y%m%d_%H%M%S"),
-                    session$token)
-)
-```
-
-Each session gets its own file, eliminating any concurrency concern.
-
-## Session lifecycle entries
+## 3. Session lifecycle events
 
 [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
-automatically adds two entries:
+automatically adds two entries — no additional code needed:
 
-    {"entry_id":1, ..., "type":"ACTION", "action":"session_start", "object":"<token>", "reason":"Shiny session opened", ...}
-    {"entry_id":N, ..., "type":"ACTION", "action":"session_end",   "object":"<token>", "reason":"Shiny session closed", ...}
+| Entry | Trigger | `action` | `reason` |
+|----|----|----|----|
+| `session_start` | [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md) call | `"session_start"` | `"Shiny session opened"` |
+| `session_end` | `session$onSessionEnded()` | `"session_end"` | `"Shiny session closed"` |
 
-These bracket all user-driven entries, giving auditors a complete view
-of each session.
+These bracket all user-driven entries and give a complete picture of
+each session — who was logged in, when, and for how long.
 
-## Using regulog_observer()
+## 4. Using regulog_observer()
 
-For apps with many loggable inputs,
 [`regulog_observer()`](https://repro-stats.github.io/regulog/reference/regulog_observer.md)
-reduces boilerplate:
+reduces boilerplate when many UI events need auditing. The `object` and
+`reason` arguments accept both fixed strings and reactive expressions.
 
 ``` r
 
 server <- function(input, output, session) {
 
-  log <- regulog_shiny_init(session = session, app = "my-app", version = "1.0")
+  log <- regulog_shiny_init(
+    session = session,
+    app     = "data-review",
+    version = "2.0.0",
+    path    = "logs/review.rlog"
+  )
 
-  # Instead of writing observeEvent + log_action manually for each input:
+  # Static strings
   regulog_observer(log, session,
-    eventExpr = input$approve,
+    eventExpr = input$lock_database,
+    action    = "database_locked",
+    object    = "study_database",
+    reason    = "Database lock confirmed by data manager"
+  )
+
+  # Reactive strings — evaluated at the time the event fires
+  regulog_observer(log, session,
+    eventExpr = input$approve_record,
     action    = "approved",
-    object    = reactive(input$dataset_name),
-    reason    = reactive(input$justification)
+    object    = reactive(paste0("record_", input$record_id)),
+    reason    = reactive(input$approval_reason)
   )
 
   regulog_observer(log, session,
-    eventExpr = input$lock_db,
-    action    = "database_locked",
-    object    = reactive(input$study_id),
-    reason    = reactive(input$lock_reason)
+    eventExpr = input$flag_discrepancy,
+    action    = "flagged",
+    object    = reactive(paste0("record_", input$record_id)),
+    reason    = reactive(paste0("Discrepancy: ", input$discrepancy_detail))
   )
 }
 ```
 
-`object` and `reason` accept either a fixed string or a
-[`reactive()`](https://rdrr.io/pkg/shiny/man/reactive.html).
+## 5. Notes and decisions from Shiny
 
-## Logging data changes from Shiny
-
-When the user edits a value through the UI, capture before and after:
+Use
+[`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md)
+inside observers to document analytical decisions made through the UI —
+retention of outliers, query resolutions, deviations.
 
 ``` r
 
-# Store the pre-edit value reactively
-original_dob <- reactiveVal(NULL)
+observeEvent(input$retain_outlier, {
+  req(nzchar(input$retention_rationale))
 
-observeEvent(input$patient_selected, {
-  # Fetch current value from database
-  original_dob(get_patient_dob(input$patient_id))
+  log_note(log, paste0(
+    "Outlier retained for subject ", input$subject_id, " at ",
+    input$visit_label, ": ", input$outlier_value, ". ",
+    input$retention_rationale
+  ))
+
+  showNotification(
+    paste("Retention decision logged for subject", input$subject_id),
+    type = "message"
+  )
 })
 
-observeEvent(input$save_edit, {
-  log_change(log,
-    object = paste0("patient_", input$patient_id),
-    field  = "dob",
-    before = original_dob(),
-    after  = input$new_dob,
-    reason = input$edit_reason
-  )
-  # Then write to database...
+observeEvent(input$resolve_query, {
+  req(nzchar(input$query_resolution))
+
+  log_note(log, paste0(
+    "Query Q-", input$query_id, " resolved: ",
+    input$query_resolution,
+    " (resolved by: ", session$user, ")"
+  ))
 })
 ```
 
-## Exporting from a Shiny app
+## 6. Logging data changes from Shiny
 
-Add a download handler to allow authorised users to export the audit
-trail:
+When users edit records through a Shiny app,
+[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md)
+documents the before/after values:
+
+``` r
+
+observeEvent(input$save_correction, {
+  req(input$original_value, input$corrected_value, input$correction_reason)
+
+  log_change(log,
+    object = paste0(input$subject_id, "_", input$field_name),
+    field  = input$field_name,
+    before = input$original_value,
+    after  = input$corrected_value,
+    reason = paste0(input$correction_reason,
+                    " — corrected by ", session$user)
+  )
+
+  showNotification("Correction recorded in audit trail.", type = "message")
+})
+```
+
+## 7. Electronic signatures from Shiny
+
+Require a meaningful sign-off before a dataset is locked or an export is
+authorised:
+
+``` r
+
+observeEvent(input$sign_off, {
+  req(nzchar(input$signoff_meaning))
+
+  log_signature(log, meaning = input$signoff_meaning)
+
+  # Export signed audit trail alongside the lock
+  export_path <- sprintf("exports/audit_%s_%s.csv",
+                         gsub("[^a-zA-Z0-9]", "_", input$study_id),
+                         format(Sys.Date(), "%Y%m%d"))
+
+  export_audit_trail(log,
+    format = "csv",
+    signed = TRUE,
+    path   = export_path
+  )
+
+  showModal(modalDialog(
+    title = "Sign-off complete",
+    paste("Signature recorded. Audit trail exported to:", export_path),
+    easyClose = TRUE
+  ))
+})
+```
+
+## 8. Download handler for the audit trail
+
+Let reviewers download a signed CSV of the current session’s log:
 
 ``` r
 
 output$download_audit <- downloadHandler(
   filename = function() {
-    sprintf("audit_%s_%s.csv", app_name, format(Sys.time(), "%Y%m%d"))
+    sprintf("audit_%s.csv", format(Sys.Date(), "%Y%m%d"))
   },
   content = function(file) {
-    export_audit_trail(log,
-      format = "csv",
-      signed = TRUE,
-      path   = file
-    )
+    export_audit_trail(log, format = "csv", signed = TRUE, path = file)
   }
 )
+
+# In UI:
+# downloadButton("download_audit", "Download audit trail (CSV)")
 ```
 
-## Checking integrity on demand
+## 9. Per-session vs shared log
+
+### Per-session (default)
+
+Each browser session gets its own independent audit trail. This is the
+default —
+[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
+creates a new log for each `server()` call. Individual `.rlog` files can
+later be combined for a study-level view.
+
+### Shared log across users
+
+For applications where one audit file covers all user activity:
 
 ``` r
 
-observeEvent(input$verify_log, {
-  result <- verify_log(log, verbose = FALSE)
-  if (result$intact) {
-    showNotification("Audit log intact.", type = "message")
-  } else {
-    showNotification(
-      paste("Log integrity FAILED. First broken entry:", result$first_broken),
-      type = "error"
+# In global.R — outside server(), evaluated once at startup
+shared_log <- regulog_init(
+  app     = "multi-user-review",
+  version = "1.0.0",
+  user    = "system",             # will be overridden per action
+  path    = "logs/shared_audit.rlog"
+)
+
+server <- function(input, output, session) {
+
+  # Resolve per-request user
+  current_user <- reactive({
+    u <- session$user
+    if (is.null(u) || !nzchar(u)) Sys.info()[["user"]] else u
+  })
+
+  observeEvent(input$approve, {
+    req(nzchar(input$reason))
+    log_action(shared_log,
+      action = "approved",
+      object = input$record_id,
+      reason = input$reason,
+      user   = current_user()   # explicit per-action user
     )
-  }
-})
+  })
+}
+```
+
+## 10. Querying and verifying from outside the app
+
+Session logs are plain `.rlog` files and can be verified or queried at
+any time without a running Shiny app — important for QC reviewers who
+may not have access to the application itself.
+
+``` r
+
+# Verify integrity of a session log
+result <- verify_log("logs/review_audit.rlog")
+result$intact
+
+# All signatures
+filter_log("logs/review_audit.rlog", type = "SIGNATURE")
+
+# All actions by a specific user
+filter_log("logs/review_audit.rlog",
+  type = "ACTION",
+  user = "ndoh.penn"
+)
+
+# Changes made within a date range
+filter_log("logs/review_audit.rlog",
+  type = "CHANGE",
+  from = "2026-06-01",
+  to   = "2026-06-30"
+)
+
+# Export signed CSV from file path — no session required
+export_audit_trail("logs/review_audit.rlog",
+  format = "csv",
+  signed = TRUE,
+  path   = "exports/review_audit_signed.csv"
+)
+```
+
+## 11. Complete minimal example
+
+``` r
+
+library(shiny)
+library(regulog)
+
+ui <- fluidPage(
+  titlePanel("Clinical Data Review"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("dataset_id", "Dataset", c("ADSL", "ADAE", "ADLB")),
+      textAreaInput("justification", "Justification", rows = 3),
+      actionButton("approve", "Approve", class = "btn-success"),
+      actionButton("reject",  "Reject",  class = "btn-danger"),
+      hr(),
+      textAreaInput("note_text", "Add note", rows = 3),
+      actionButton("add_note", "Add note"),
+      hr(),
+      textAreaInput("signoff_meaning", "Signature meaning", rows = 3),
+      actionButton("sign_off", "Sign off"),
+      hr(),
+      downloadButton("download_audit", "Download audit trail")
+    ),
+    mainPanel(
+      tableOutput("log_table")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+
+  log <- regulog_shiny_init(
+    session = session,
+    app     = "data-review",
+    version = "1.0.0",
+    path    = tempfile(fileext = ".rlog")
+  )
+
+  observeEvent(input$approve, {
+    req(nzchar(input$justification))
+    log_action(log, "approved", input$dataset_id, input$justification)
+    showNotification("Approval recorded.", type = "message")
+  })
+
+  observeEvent(input$reject, {
+    req(nzchar(input$justification))
+    log_action(log, "rejected", input$dataset_id, input$justification)
+    showNotification("Rejection recorded.", type = "warning")
+  })
+
+  observeEvent(input$add_note, {
+    req(nzchar(input$note_text))
+    log_note(log, input$note_text)
+    showNotification("Note recorded.", type = "message")
+  })
+
+  observeEvent(input$sign_off, {
+    req(nzchar(input$signoff_meaning))
+    log_signature(log, input$signoff_meaning)
+    showNotification("Signature recorded.", type = "message")
+  })
+
+  output$download_audit <- downloadHandler(
+    filename = function() sprintf("audit_%s.csv", Sys.Date()),
+    content  = function(file) {
+      export_audit_trail(log, format = "csv", signed = TRUE, path = file)
+    }
+  )
+
+  output$log_table <- renderTable({
+    input$approve; input$reject; input$add_note; input$sign_off
+    df <- filter_log(log)
+    if (nrow(df) == 0L) return(NULL)
+    df[, c("entry_id", "type", "action", "object", "reason")]
+  })
+}
+
+shinyApp(ui, server)
 ```

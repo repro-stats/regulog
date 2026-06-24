@@ -3,6 +3,7 @@
 <url><loc>https://repro-stats.github.io/regulog/LICENSE-text.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/LICENSE.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/articles/getting-started.html</loc></url>
+<url><loc>https://repro-stats.github.io/regulog/articles/hash-chain.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/articles/index.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/articles/shiny-integration.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/authors.html</loc></url>
@@ -18,6 +19,7 @@
 <url><loc>https://repro-stats.github.io/regulog/reference/log_hooks_enable.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/reference/log_note.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/reference/log_signature.html</loc></url>
+<url><loc>https://repro-stats.github.io/regulog/reference/regulog-package.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/reference/regulog_init.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/reference/regulog_observer.html</loc></url>
 <url><loc>https://repro-stats.github.io/regulog/reference/regulog_shiny_init.html</loc></url>

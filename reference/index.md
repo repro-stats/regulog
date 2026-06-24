@@ -20,6 +20,9 @@
   : Log a free-text note in the audit trail
 - [`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md)
   : Apply an electronic signature to the audit trail
+- [`regulog`](https://repro-stats.github.io/regulog/reference/regulog-package.md)
+  [`regulog-package`](https://repro-stats.github.io/regulog/reference/regulog-package.md)
+  : regulog: Tamper-Evident Audit Logging for R
 - [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
   : Initialise a regulog audit log session
 - [`regulog_observer()`](https://repro-stats.github.io/regulog/reference/regulog_observer.md)
