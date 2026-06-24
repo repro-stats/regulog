@@ -12,151 +12,419 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(regulog)
 ```
 
-## Overview
+R analyses leave no audit trail by default. `regulog` adds one — a
+tamper-evident, hash-chained record of every action, change, decision,
+and signature. Every entry is attributed to a named user, time-stamped
+in UTC, and cryptographically linked to the previous entry so that any
+modification after the fact is detectable.
 
-`regulog` provides tamper-evident, hash-chained audit logging for R
-applications. This vignette covers the core API. For Shiny
-integration, see `vignette("shiny-integration")`.
+This vignette walks through the complete API from session initialisation
+to regulatory export.
 
-## Initialise a session
+## 1. Initialise a session
 
-Every audit log starts with `regulog_init()`. You must supply an application
-name and user identity. Optionally provide a `path` to persist entries to disk
-as a newline-delimited JSON file (`.rlog`).
+`regulog_init()` creates the session object. Every subsequent log call
+is attached to this object.
+
+| Argument | Required | Purpose |
+|---|---|---|
+| `app` | Yes | Application or system name |
+| `version` | No | Application version (default: `"unknown"`) |
+| `user` | No | Acting user (default: `Sys.info()[["user"]]`) |
+| `path` | No | File path for persistent `.rlog` storage |
+| `hash_algo` | No | Hashing algorithm (default: `"sha256"`) |
 
 ```{r init}
 log <- regulog_init(
-  app     = "clinical-review-tool",
-  version = "1.2.0",
-  user    = "jsmith"
-  # path  = "logs/audit.rlog"  # omit for in-memory only
+  app     = "primary-analysis",
+  version = "1.0.0",
+  user    = "ndoh.penn"
+  # Provide path = "logs/audit.rlog" in production for persistent storage
 )
 
 log
 ```
 
-Without a `path`, the log is in-memory only — useful for development and
-testing, but not appropriate for production regulated deployments.
+When `path` is omitted, the log lives in memory only — suitable for
+development and testing. In production, always supply a `path` so entries
+survive the R session.
 
-## Logging actions
+The genesis record is written immediately on `regulog_init()`. Its
+SHA-256 hash anchors the entire chain — see `vignette("hash-chain")` for
+how the cryptographic linking works.
 
-Use `log_action()` for discrete user actions: approvals, rejections, exports,
-sign-offs.
+## 2. Log actions
 
-```{r log-action}
+`log_action()` records a discrete event. The `reason` argument is
+**mandatory with no default** — undocumented entries are rejected.
+
+```{r action-basic}
+log_action(log,
+  action = "data_read",
+  object = "adsl.sas7bdat",
+  reason = "Reading subject-level dataset for primary efficacy analysis"
+)
+```
+
+The `action` and `object` fields accept any strings — choose a controlled
+vocabulary that suits your organisation. Common patterns:
+
+```{r action-examples}
+# Analytical steps
+log_action(log,
+  action = "model_fit",
+  object = "primary_ANCOVA",
+  reason = "Fitting ANCOVA: CHG ~ TRT01P + BASE + SITEID per SAP section 6.1"
+)
+
+# Data exports
+log_action(log,
+  action = "export",
+  object = "Table14_1.rtf",
+  reason = "Primary efficacy table exported for clinical study report"
+)
+
+# Review and approval events
 log_action(log,
   action = "approved",
-  object = "dataset_v3.csv",
-  reason = "QC review complete — no anomalies found"
+  object = "primary_results_v3",
+  reason = "QC review complete — all outputs match SAP-specified formats"
 )
 
+# User can override the session user for a single entry
 log_action(log,
-  action = "exported",
-  object = "dataset_v3.csv",
-  reason = "Sent to statistical analysis team per SAP section 4.1"
+  action = "co_reviewed",
+  object = "primary_results_v3",
+  reason = "Independent statistical review complete",
+  user   = "second.reviewer"
 )
 ```
 
-`reason` is **mandatory with no default**. An empty or blank reason raises an
-error immediately — every entry in the log must document why it was made.
+## 3. Log field changes
 
-```{r reason-error, error = TRUE}
-# This will error:
-log_action(log, action = "approved", object = "file.csv", reason = "")
-```
+`log_change()` captures a before/after modification — the primary
+mechanism for satisfying 21 CFR Part 11 §11.10(e) change documentation.
 
-## Logging data changes
-
-Use `log_change()` when a field value is modified. Both the prior and new value
-are captured, so you have a complete history of what it was, what it became,
-and why.
-
-```{r log-change}
+```{r change-basic}
 log_change(log,
-  object = "patient_10472",
-  field  = "dob",
-  before = "1985-03-01",
-  after  = "1985-03-11",
-  reason = "Transcription error — corrected per source document CRF page 14"
+  object = "alpha",
+  field  = "value",
+  before = "0.05",
+  after  = "0.025",
+  reason = "Significance level updated per protocol amendment 2 (2026-05-01)"
 )
 ```
 
-## Verifying chain integrity
+The `before` and `after` arguments are coerced to character, so they
+accept any R value:
 
-`verify_log()` recomputes every entry hash and checks that chain links are
-unbroken. Run it at any time, on a schedule, or as part of a handoff.
+```{r change-examples}
+# Data correction
+log_change(log,
+  object = "subject_01042",
+  field  = "ae_onset_date",
+  before = "2026-03-01",
+  after  = "2026-03-11",
+  reason = "Transcription error — corrected per source CRF page 47, query Q-0192"
+)
+
+# Configuration update
+log_change(log,
+  object = "model_config",
+  field  = "covariance_structure",
+  before = "compound_symmetry",
+  after  = "unstructured",
+  reason = "Unstructured covariance pre-specified in SAP section 6.1.2"
+)
+
+# Population definition change
+log_change(log,
+  object = "analysis_population",
+  field  = "SAFFL_definition",
+  before = "RANDFL = 'Y'",
+  after  = "RANDFL = 'Y' AND EXOCCUR = 'Y'",
+  reason = "Protocol amendment 3: safety population requires confirmed dosing"
+)
+```
+
+## 4. Log notes and decisions
+
+`log_note()` captures free-text annotations — any rationale, observation,
+or decision that does not fit a discrete action verb or a before/after
+field change. Common uses:
+
+```{r note-examples}
+# Outlier decision
+log_note(log,
+  "Outlier identified for subject 01-042 at Week 16 (AVAL = 98.4,
+   upper fence = 62.1). Discussed with medical monitor on 2026-06-20.
+   Retained in primary analysis per SAP section 8.3 — no protocol
+   deviation recorded. Sensitivity analysis without outlier pre-specified
+   in SAP section 10.4."
+)
+
+# Protocol deviation
+log_note(log,
+  "Subject 01-007: visit window deviation at Week 8 (visited Day 61,
+   window Day 50-58). Classified as minor deviation per deviation
+   assessment log entry DEV-0031. Subject retained in ITT population."
+)
+
+# Query resolved
+log_note(log,
+  "Data query Q-0047 resolved 2026-06-15: lab value for subject 01-019
+   at Screening confirmed as 4.2 mmol/L per site laboratory report.
+   Original value 42.0 was a decimal error."
+)
+
+# Analysis assumption documented
+log_note(log,
+  "Missing baseline value for subject 01-033: LOCF imputation applied
+   per SAP section 7.2 — previous non-missing value (Visit 1) used.
+   Imputed value: 24.6."
+)
+```
+
+## 5. Automatic data I/O logging
+
+Manually calling `log_action()` for every file read is error-prone.
+`with_log()` patches common read functions automatically for the duration
+of a code block, then restores them on exit — even if the block errors.
+
+```{r hooks-with-log, eval = FALSE}
+with_log(log, {
+  adsl <- haven::read_sas("data/adsl.sas7bdat")   # logged automatically
+  adae <- haven::read_sas("data/adae.sas7bdat")   # logged automatically
+  adlb <- haven::read_sas("data/adlb.sas7bdat")   # logged automatically
+  params <- readr::read_csv("config/parameters.csv") # logged automatically
+})
+```
+
+Functions patched automatically when the package is loaded:
+`haven::read_sas`, `haven::read_xpt`, `readr::read_csv`,
+`data.table::fread`, `utils::read.csv`, `utils::read.table`.
+
+Each auto-logged entry captures the file path, row count, and column
+count. For example:
+
+```
+action: data_read
+object: data/adsl.sas7bdat
+reason: haven::read_sas("data/adsl.sas7bdat") — 298 rows, 47 cols
+```
+
+For persistent hooks across multiple steps, use `log_hooks_enable()` and
+`log_hooks_disable()`:
+
+```{r hooks-manual, eval = FALSE}
+log_hooks_enable(log)
+
+adsl <- haven::read_sas("data/adsl.sas7bdat")
+adae <- haven::read_sas("data/adae.sas7bdat")
+# ... more reads ...
+
+log_hooks_disable()  # always call this; or use with_log() for safety
+```
+
+`with_log()` is preferred over the manual pair because it guarantees
+`log_hooks_disable()` is called via `on.exit()` even if an error occurs.
+
+## 6. Electronic signatures
+
+`log_signature()` records a named, dated, meaningful sign-off. Two things
+happen automatically — no user input required:
+
+- **Signer identity** is resolved from the session user set at
+  `regulog_init()` — it cannot be overridden at signing time
+- **Entries covered** is captured as the count of prior entries in the
+  session at the moment of signing
+
+```{r signature-basic}
+log_signature(log,
+  "I certify that this primary analysis is accurate and complete,
+   conducted in accordance with SAP version 2.0 dated 2026-05-01"
+)
+```
+
+Multiple signatures are supported — for example, a lead statistician and
+an independent reviewer:
+
+```{r signature-multiple, eval = FALSE}
+log_signature(log,
+  "Statistical analysis complete and accurate per SAP v2.0.
+   All deviations documented."
+)
+
+# Second reviewer — create a new log or log against the same path with
+# a different session user
+log2 <- regulog_init(app = "primary-analysis", version = "1.0.0",
+                      user = "second.reviewer",
+                      path = "logs/trial001_audit.rlog")
+
+log_signature(log2,
+  "Independent QC review complete. Results independently verified."
+)
+```
+
+## 7. Verify chain integrity
+
+`verify_log()` recomputes every entry hash and confirms each `prev_hash`
+links correctly to its predecessor. Works on both a live `regulog` object
+and a `.rlog` file path.
 
 ```{r verify}
 verify_log(log)
 ```
 
-It also works directly from a `.rlog` file path — no R object needed:
+The return value carries structured results:
+
+```{r verify-result}
+result <- verify_log(log, verbose = FALSE)
+cat("Intact:        ", result$intact,       "\n")
+cat("Entries checked:", result$n_entries,    "\n")
+cat("First broken:  ", result$first_broken,  "\n")
+```
+
+Tampering is reliably detected:
+
+```{r tamper}
+saved <- log$entries[[2L]]$reason
+log$entries[[2L]]$reason <- "ALTERED REASON"
+
+tamper_result <- suppressWarnings(verify_log(log, verbose = FALSE))
+cat("Intact after tamper:", tamper_result$intact,        "\n")
+cat("First broken entry: ", tamper_result$first_broken,  "\n")
+
+log$entries[[2L]]$reason <- saved  # restore
+```
+
+Verification from a file path requires no live session:
 
 ```{r verify-file, eval = FALSE}
-verify_log("logs/audit.rlog")
+verify_log("logs/trial001_audit.rlog")
 ```
 
-### What tampering looks like
+## 8. Query the log
 
-```{r tamper, error = FALSE, warning = TRUE}
-# Simulate tampering — modifying an entry field after the fact
-log$entries[[1L]]$action <- "ALTERED"
-verify_log(log)
+`filter_log()` returns log entries as a `data.frame`. All arguments are
+optional — omitting all returns every entry.
+
+```{r filter-all}
+all_entries <- filter_log(log)
+all_entries[, c("entry_id", "type", "action", "user", "reason")]
 ```
 
-## Exporting for regulatory submission
+Filter by entry type:
 
-`export_audit_trail()` serialises the log to CSV or JSON. Use `signed = TRUE`
-for regulatory submissions — this runs `verify_log()` and stamps `chain_intact`
-and `verified_at` into every row.
+```{r filter-type}
+filter_log(log, type = "SIGNATURE")[, c("type", "user", "reason", "after")]
+```
+
+Filter by action value:
+
+```{r filter-action}
+filter_log(log, action = "approved")[, c("action", "object", "reason")]
+```
+
+Filter by user:
+
+```{r filter-user}
+filter_log(log, user = "ndoh.penn")[, c("type", "action", "object")]
+```
+
+Filter by date range — useful when querying a long-running shared log:
+
+```{r filter-date}
+# Entries from today onwards
+filter_log(log, from = format(Sys.Date(), "%Y-%m-%d"))[, c("type", "action")]
+
+# Entries before a cutoff (empty for new log)
+filter_log(log, to = "2025-12-31")
+```
+
+Combine filters:
+
+```{r filter-combined}
+filter_log(log,
+  type   = c("ACTION", "NOTE"),
+  user   = "ndoh.penn",
+  from   = "2026-01-01"
+)[, c("type", "action", "reason")]
+```
+
+`filter_log()` also accepts a `.rlog` file path directly — no live
+session or `regulog` object required:
+
+```{r filter-file, eval = FALSE}
+filter_log("logs/trial001_audit.rlog",
+  type = "SIGNATURE",
+  user = "ndoh.penn"
+)
+```
+
+## 9. Convert to data frame
+
+`as.data.frame()` converts all non-genesis entries to a flat data frame —
+same column layout as `export_audit_trail(format = "csv")`:
+
+```{r as-df}
+df <- as.data.frame(log)
+names(df)
+nrow(df)
+```
+
+## 10. Export the audit trail
+
+`export_audit_trail()` serialises the log to CSV or JSON. Use
+`signed = TRUE` to run verification and stamp `chain_intact` and
+`verified_at` on every row.
 
 ```{r export-csv}
-# Reset to a clean log for the export example
-log2 <- regulog_init(app = "clinical-review-tool", version = "1.2.0",
-                      user = "jsmith")
-log_action(log2, action = "approved", object = "report_final.pdf",
-           reason = "All review comments resolved")
-log_change(log2, object = "patient_99", field = "visit_date",
-           before = "2026-04-01", after = "2026-04-11",
-           reason = "Date transposition error per visit log")
-
-df <- export_audit_trail(log2, format = "csv", signed = TRUE)
-df
+df_export <- export_audit_trail(log, format = "csv", signed = TRUE)
+df_export[, c("entry_id", "type", "action", "user", "chain_intact", "verified_at")]
 ```
 
-### Writing to disk
-
-```{r export-disk, eval = FALSE}
-export_audit_trail(log2,
-  format = "csv",
-  from   = "2026-01-01",
-  signed = TRUE,
-  path   = "audit_export.csv"
-)
-
-# JSON format — useful for archival and system integration
-export_audit_trail(log2,
+```{r export-json, eval = FALSE}
+# JSON envelope with metadata header
+export_audit_trail(log,
   format = "json",
   signed = TRUE,
-  path   = "audit_export.json"
+  path   = "outputs/audit_trail.json"
+)
+
+# CSV for regulatory submission or spreadsheet review
+export_audit_trail(log,
+  format = "csv",
+  signed = TRUE,
+  path   = "outputs/audit_trail_TRIAL001_PRIMARY.csv"
 )
 ```
 
-## The .rlog file format
+Date filtering is available on export too:
 
-Entries are written as newline-delimited JSON (one JSON object per line). The
-format is deliberately human-readable — a regulator can inspect an audit log
-with any text editor:
-
+```{r export-filtered, eval = FALSE}
+# Only entries from a specific analysis phase
+export_audit_trail(log,
+  format = "csv",
+  from   = "2026-06-01",
+  to     = "2026-06-30",
+  signed = TRUE,
+  path   = "outputs/audit_june2026.csv"
+)
 ```
-{"entry_id":1,"timestamp":"2026-06-18T14:32:01.123456Z","app":"clinical-review-tool","app_version":"1.2.0","user":"jsmith","type":"ACTION","action":"approved","object":"dataset_v3.csv","reason":"QC review complete","prev_hash":"e3b0c4...","entry_hash":"a87ff6..."}
-```
 
-## Validation
+## 11. Entry type reference
 
-`regulog` ships with IQ/OQ/PQ qualification scripts in `inst/validation/`.
-Run them in sequence to qualify the package for use in a validated
-computerised system:
+| Type | Created by | Mandatory fields | Regulatory purpose |
+|---|---|---|---|
+| `ACTION` | `log_action()` | `action`, `object`, `reason` | Discrete events |
+| `CHANGE` | `log_change()` | `object`, `field`, `before`, `after`, `reason` | Field modifications |
+| `NOTE` | `log_note()` | `text` | Decisions and rationale |
+| `SIGNATURE` | `log_signature()` | `meaning` | Sign-off |
+
+## 12. Validation (regulated environments)
+
+IQ, OQ, and PQ qualification scripts are included with the package:
 
 ```{r validation, eval = FALSE}
 source(system.file("validation/IQ_regulog.R", package = "regulog"))
@@ -164,9 +432,5 @@ source(system.file("validation/OQ_regulog.R", package = "regulog"))
 source(system.file("validation/PQ_regulog.R", package = "regulog"))
 ```
 
-The Requirements Traceability Matrix (RTM) is at:
-
-```{r rtm, eval = FALSE}
-rtm_path <- system.file("validation/RTM_regulog.csv", package = "regulog")
-read.csv(rtm_path)
-```
+See also `vignette("hash-chain")` for a detailed explanation of the
+tamper detection mechanism.
