@@ -1,161 +1,140 @@
-# regulog <a href="https://repro-stats.github.io/regulog/"><img src="man/figures/logo.png" align="right" height="139" alt="regulog website" /></a>
-
-> Tamper-Evident Audit Logging for R
+# regulog <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/repro-stats/regulog/graph/badge.svg)](https://app.codecov.io/gh/repro-stats/regulog)
+[![Codecov](https://codecov.io/gh/repro-stats/regulog/branch/main/graph/badge.svg)](https://codecov.io/gh/repro-stats/regulog)
 <!-- badges: end -->
 
-`regulog` provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Logs are written as plain newline-delimited JSON — readable with any text editor, no special tooling required.
+**Tamper-Evident Audit Logging for R**
 
-Use it anywhere you need a reliable record of **who did what, when, and why**.
+Every analytical action taken in a consequential R environment should be
+documented — who did it, what they did, when, and why. In practice,
+almost none of it is.
+
+`regulog` fills that gap. It records every action, change, note, and
+decision into a tamper-evident, hash-chained audit trail stored as
+newline-delimited JSON. Every entry is attributed to a named user,
+time-stamped in UTC, and linked to the previous entry via SHA-256 — so
+any modification after the fact, however subtle, is detectable by
+`verify_log()`.
+
+Works for regulated pharmaceutical environments (21 CFR Part 11,
+EU Annex 11), internal data pipelines, multi-user Shiny applications,
+and any context where accountability and traceability matter.
 
 ## Installation
 
 ```r
-# Development version
+# Install from GitHub
 remotes::install_github("repro-stats/regulog")
 ```
 
-## How it works
-
-Each entry stores a SHA-256 hash of the previous entry:
-
-```
-[GENESIS: h₀] ← [entry 1, h₁ = SHA256(fields|h₀)] ← [entry 2, h₂ = SHA256(fields|h₁)] ← …
-```
-
-Altering any field — including the timestamp or reason — breaks the hash chain. `verify_log()` detects this across all entries in O(n). Entries are written flat, one JSON object per line:
-
-```json
-{
-  "entry_id":    1,
-  "timestamp":   "2026-06-19T09:00:21.398739Z",
-  "app":         "my-app",
-  "app_version": "1.0.0",
-  "user":        "jsmith",
-  "type":        "ACTION",
-  "action":      "approved",
-  "object":      "model_v3",
-  "reason":      "Validation metrics passed agreed threshold",
-  "prev_hash":   "e3b0c44298fc1c149afb...",
-  "entry_hash":  "a87ff679a2f3e71d9181..."
-}
-```
-
-## Usage
-
-### Initialise a session
+## Quick start
 
 ```r
 library(regulog)
 
+# Initialise a session
 log <- regulog_init(
-  app     = "my-app",
+  app     = "primary-analysis",
   version = "1.0.0",
-  user    = "jsmith",
-  path    = "logs/audit.rlog"   # omit for in-memory only
+  user    = "analyst",
+  path    = "logs/audit.rlog"
 )
-```
 
-### Log an action
+# Log actions, changes, and decisions
+log_action(log, "data_read", "adsl.sas7bdat",
+           "Reading ADSL for primary efficacy analysis")
 
-```r
-log_action(log,
-  action = "approved",
-  object = "model_v3",
-  reason = "Validation metrics passed agreed threshold"
-)
-```
+log_change(log, object = "alpha", field = "value",
+           before = "0.05", after = "0.025",
+           reason = "Updated per protocol amendment 2")
 
-### Log a data change
+log_note(log,
+  "Outlier in subject 01-042 retained per SAP section 8.3 —
+   discussed with medical monitor 2026-06-20")
 
-```r
-log_change(log,
-  object = "experiment_7",
-  field  = "learning_rate",
-  before = "0.01",
-  after  = "0.001",
-  reason = "Loss diverging at 0.01 — reduced per tuning protocol"
-)
-```
+# Automate data I/O logging — no code changes needed
+with_log(log, {
+  adsl <- haven::read_sas("data/adsl.sas7bdat")   # auto-logged
+  adae <- haven::read_sas("data/adae.sas7bdat")   # auto-logged
+})
 
-`reason` is mandatory with no default. Every entry must document why it was made.
+# Apply an electronic signature
+log_signature(log,
+  "I certify this analysis is accurate and complete per SAP version 2.0")
 
-### Verify chain integrity
-
-```r
+# Verify tamper integrity
 verify_log(log)
-#> regulog: Log intact: 2 entries, chain unbroken
+#> regulog: Log intact: 5 entries, chain unbroken
 
-# Verify directly from the log file — no R object required
-verify_log("logs/audit.rlog")
+# Query the log
+filter_log(log, type = "SIGNATURE")
+filter_log(log, action = "data_read", from = "2026-06-01")
+
+# Export for submission
+export_audit_trail(log, format = "csv", signed = TRUE,
+                   path = "outputs/audit_trail.csv")
 ```
 
-### Export
+## Key functions
 
-```r
-# Export to CSV
-export_audit_trail(log, format = "csv", path = "audit.csv")
+| Function | Purpose |
+|---|---|
+| `regulog_init()` | Initialise an audit logging session |
+| `log_action()` | Log a discrete action |
+| `log_change()` | Log a before/after field change |
+| `log_note()` | Log a free-text annotation or analytical decision |
+| `log_signature()` | Apply an electronic signature |
+| `with_log()` | Scoped automatic data I/O logging |
+| `log_hooks_enable()` / `log_hooks_disable()` | Manual hook control |
+| `verify_log()` | Verify SHA-256 hash chain integrity |
+| `filter_log()` | Query entries by type, user, action, or date |
+| `export_audit_trail()` | Export to CSV or JSON, with optional signing |
+| `regulog_shiny_init()` | Initialise inside a Shiny server function |
+| `regulog_observer()` | Auto-log Shiny reactive input events |
 
-# Signed export: verifies the chain and stamps the result on every row
-export_audit_trail(log,
-  format = "csv",
-  signed = TRUE,
-  path   = "audit_signed.csv"
-)
+## The hash chain
+
+Each entry hash is SHA-256 of all entry fields plus the prior hash:
+
+```
+h_0 = SHA256("GENESIS" | app | version | timestamp)
+h_n = SHA256(entry_id | timestamp | app | version | user | type |
+             <payload fields> | h_{n-1})
 ```
 
-## Shiny integration
+Any modification to any field in any entry breaks the chain from that
+point forward. `verify_log()` recomputes every hash and reports the
+first broken link — and works offline from the `.rlog` file, without an
+active R session.
 
-`regulog` integrates directly with Shiny. `regulog_shiny_init()` resolves the authenticated user from `session$user` and automatically records session start and end events.
+## Entry types
 
-```r
-library(shiny)
-library(regulog)
+| Type | Created by | Purpose |
+|---|---|---|
+| `ACTION` | `log_action()` | Discrete events: reads, runs, approvals |
+| `CHANGE` | `log_change()` | Before/after field modifications |
+| `NOTE` | `log_note()` | Decisions and free-text rationale |
+| `SIGNATURE` | `log_signature()` | Named, dated, meaningful sign-off |
 
-server <- function(input, output, session) {
+## Validation
 
-  log <- regulog_shiny_init(
-    session = session,
-    app     = "my-app",
-    version = "1.0.0",
-    path    = "logs/audit.rlog"
-  )
-
-  observeEvent(input$approve, {
-    log_action(log,
-      action = "approved",
-      object = input$item_id,
-      reason = input$reason
-    )
-  })
-}
-```
-
-## Regulated environments
-
-`regulog` includes built-in support for validated computerised systems operating
-under 21 CFR Part 11 or EU Annex 11. Installation, Operational, and Performance
-Qualification (IQ/OQ/PQ) scripts and a Requirements Traceability Matrix are
-included and can be run to formally qualify `regulog` for use in a regulated
-environment:
+IQ, OQ, and PQ qualification scripts are included for regulated use:
 
 ```r
 source(system.file("validation/IQ_regulog.R", package = "regulog"))
 source(system.file("validation/OQ_regulog.R", package = "regulog"))
 source(system.file("validation/PQ_regulog.R", package = "regulog"))
-
-# Requirements Traceability Matrix
-read.csv(system.file("validation/RTM_regulog.csv", package = "regulog"))
 ```
 
-## Design principles
+## Regulatory coverage
 
-- **No silent failures** — every `log_*` call succeeds or errors explicitly
-- **Reason is mandatory** — no default; enforced at the R level, not by convention
-- **Human-readable** — flat NDJSON; inspectable with a text editor
-- **Minimal dependencies** — `digest` and `jsonlite` only
-- **Append-only** — log files are never overwritten, only extended
-- **Verifiable offline** — `verify_log()` works from a file path with no R object needed
+| Regulation | Clause | Coverage |
+|---|---|---|
+| 21 CFR Part 11 | §11.10(e) | Hash-chained, time-stamped, user-attributed entries |
+| 21 CFR Part 11 | §11.10(b) | `export_audit_trail()` CSV and JSON |
+| 21 CFR Part 11 | §11.100 | `log_signature()` signer identity |
+| 21 CFR Part 11 | §11.200 | Signature components: identity, timestamp, meaning |
+| EU Annex 11 | Clause 9 | Date, time, user, action on every entry |
+| EU Annex 11 | Clause 11 | `verify_log()` periodic integrity evaluation |

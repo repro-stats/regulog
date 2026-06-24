@@ -1,42 +1,56 @@
-## regulog 0.2.0
+# regulog (development version)
 
-### New features
+# regulog 0.2.0
 
-* `log_note()`: free-text annotation entries
-* `log_signature()`: electronic signatures per 21 CFR Part 11 §11.100/§11.200
-* `filter_log()`: query log entries by type, user, action, or date
-* `as.data.frame.regulog()`: convert log to data frame
-* `log_hooks_enable()` / `log_hooks_disable()` / `with_log()`: automatic data I/O logging
-* Updated IQ/OQ/PQ validation suite (OQ-015–024, PQ-006–007)  
-* Updated RTM with §11.100, §11.200, and automated tracking coverage
+## New functions
 
-## regulog 0.1.0
+* `log_note()` — log a free-text annotation or analytical decision as a
+  tamper-evident NOTE entry. Every entry is mandatory-reason enforced and
+  included in the hash chain.
 
-### Initial features
+* `log_signature()` — apply an electronic signature per 21 CFR Part 11
+  §11.100/§11.200. Signer identity is resolved from the session user;
+  entries covered is captured automatically.
 
-* `regulog_init()` — initialise a hash-chained audit log session. Writes a
-  genesis record to disk if `path` is supplied.
+* `filter_log()` — query log entries as a `data.frame` by type, user,
+  action, or date range. Also works directly on `.rlog` file paths without
+  an active session.
 
-* `log_action()` — log a discrete user action. `reason` is mandatory with
-  no default — every entry must document why it was made.
+* `as.data.frame.regulog()` — S3 method to convert a `regulog` object to
+  a flat data frame, one row per entry (genesis record excluded).
 
-* `log_change()` — log a before/after field change with mandatory `reason`.
-  Captures what changed, who changed it, when, and why.
+* `log_hooks_enable()` / `log_hooks_disable()` — patch common read
+  functions (`haven::read_sas`, `readr::read_csv`, `data.table::fread`,
+  `utils::read.csv`, etc.) for automatic data I/O logging. Every read
+  is captured as an ACTION entry without any code changes.
 
-* `verify_log()` — recompute every entry hash and confirm chain links.
-  Accepts both a live `regulog` object and a `.rlog` file path.
+* `with_log()` — scoped automatic logging for a code block. Guarantees
+  `log_hooks_disable()` is called on exit even if the block errors.
 
-* `export_audit_trail()` — export entries as CSV or JSON, with optional date
-  filtering. `signed = TRUE` runs verification and stamps `chain_intact` and
-  `verified_at` into the export.
+## Validation
 
-* `regulog_shiny_init()` — Shiny integration. Resolves `session$user` as the
-  authenticated identity and instruments `session_start` / `session_end`
-  events automatically.
+* IQ/OQ/PQ qualification scripts updated to v0.2:
+  * OQ-015 to OQ-024: tests for `log_note`, `log_signature`,
+    `filter_log`, `as.data.frame.regulog`, and `with_log`
+  * PQ-006: annotated clinical analysis workflow with notes and signature
+  * PQ-007: regulatory inspector query workflow using `filter_log`
 
-* `regulog_observer()` — convenience wrapper around `shiny::observeEvent()`
-  that logs an action on every trigger.
+* Requirements Traceability Matrix extended with 5 new rows covering
+  21 CFR Part 11 §11.100 (signer identity), §11.200 (signature
+  components), annotation trail, automated I/O tracking, and audit
+  trail query interface.
 
-* `inst/validation/` — IQ/OQ/PQ qualification scripts and Requirements
-  Traceability Matrix (RTM) for 21 CFR Part 11 and EU Annex 11. Available
-  as an optional addon for regulated deployments.
+## Documentation
+
+* `regulog-package.R` — package-level documentation with complete
+  workflow, entry type reference, and regulatory coverage table.
+* Three vignettes: `getting-started`, `hash-chain`, `shiny-integration`.
+
+# regulog 0.1.0
+
+* Initial release.
+* `regulog_init()`, `log_action()`, `log_change()` — core audit logging.
+* `verify_log()` — SHA-256 hash chain verification.
+* `export_audit_trail()` — CSV and JSON export, with optional signing.
+* `regulog_shiny_init()`, `regulog_observer()` — Shiny integration.
+* IQ/OQ/PQ validation suite (IQ-001–009, OQ-001–014, PQ-001–005).

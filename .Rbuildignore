@@ -10,3 +10,4 @@
 ^audit\.csv$
 ^audit_signed\.csv$
 ^logs/
+^pkgdown$

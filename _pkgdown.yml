@@ -1,4 +1,4 @@
-url: https://repro-stats.github.io/regulog/
+url: https://reprostats.org/regulog/
 
 template:
   bootstrap: 5
@@ -7,3 +7,4 @@ navbar:
   logo:
     image: logo.png
     href: index.html
+    
