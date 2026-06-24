@@ -1,7 +1,7 @@
 # Disable automatic data I/O logging hooks
 
 Restores all functions patched by
-[`log_hooks_enable()`](https://repro-stats.github.io/regulog/reference/log_hooks_enable.md)
+[`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md)
 to their originals. Safe to call even if hooks were never enabled.
 
 ## Usage
@@ -16,8 +16,8 @@ Invisibly `NULL`.
 
 ## See also
 
-[`log_hooks_enable()`](https://repro-stats.github.io/regulog/reference/log_hooks_enable.md),
-[`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md)
+[`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md),
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
 
 ## Examples
 

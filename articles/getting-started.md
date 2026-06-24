@@ -11,7 +11,7 @@ to regulatory export.
 
 ## 1. Initialise a session
 
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
 creates the session object. Every subsequent log call is attached to
 this object.
 
@@ -45,14 +45,14 @@ development and testing. In production, always supply a `path` so
 entries survive the R session.
 
 The genesis record is written immediately on
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md).
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md).
 Its SHA-256 hash anchors the entire chain — see
-[`vignette("hash-chain")`](https://repro-stats.github.io/regulog/articles/hash-chain.md)
+[`vignette("hash-chain")`](https://reprostats.org/regulog/articles/hash-chain.md)
 for how the cryptographic linking works.
 
 ## 2. Log actions
 
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
 records a discrete event. The `reason` argument is **mandatory with no
 default** — undocumented entries are rejected.
 
@@ -107,7 +107,7 @@ log_action(log,
 
 ## 3. Log field changes
 
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md)
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md)
 captures a before/after modification — the primary mechanism for
 satisfying 21 CFR Part 11 §11.10(e) change documentation.
 
@@ -161,7 +161,7 @@ log_change(log,
 
 ## 4. Log notes and decisions
 
-[`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md)
+[`log_note()`](https://reprostats.org/regulog/reference/log_note.md)
 captures free-text annotations — any rationale, observation, or decision
 that does not fit a discrete action verb or a before/after field change.
 Common uses:
@@ -206,9 +206,9 @@ log_note(log,
 ## 5. Automatic data I/O logging
 
 Manually calling
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
 for every file read is error-prone.
-[`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md)
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
 patches common read functions automatically for the duration of a code
 block, then restores them on exit — even if the block errors.
 
@@ -238,9 +238,9 @@ count. For example:
     reason: haven::read_sas("data/adsl.sas7bdat") — 298 rows, 47 cols
 
 For persistent hooks across multiple steps, use
-[`log_hooks_enable()`](https://repro-stats.github.io/regulog/reference/log_hooks_enable.md)
+[`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md)
 and
-[`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md):
+[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md):
 
 ``` r
 
@@ -253,20 +253,20 @@ adae <- haven::read_sas("data/adae.sas7bdat")
 log_hooks_disable()  # always call this; or use with_log() for safety
 ```
 
-[`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md)
-is preferred over the manual pair because it guarantees
-[`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md)
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md) is
+preferred over the manual pair because it guarantees
+[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md)
 is called via [`on.exit()`](https://rdrr.io/r/base/on.exit.html) even if
 an error occurs.
 
 ## 6. Electronic signatures
 
-[`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md)
+[`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md)
 records a named, dated, meaningful sign-off. Two things happen
 automatically — no user input required:
 
 - **Signer identity** is resolved from the session user set at
-  [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+  [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
   — it cannot be overridden at signing time
 - **Entries covered** is captured as the count of prior entries in the
   session at the moment of signing
@@ -303,7 +303,7 @@ log_signature(log2,
 
 ## 7. Verify chain integrity
 
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md)
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md)
 recomputes every entry hash and confirms each `prev_hash` links
 correctly to its predecessor. Works on both a live `regulog` object and
 a `.rlog` file path.
@@ -352,7 +352,7 @@ verify_log("logs/trial001_audit.rlog")
 
 ## 8. Query the log
 
-[`filter_log()`](https://repro-stats.github.io/regulog/reference/filter_log.md)
+[`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md)
 returns log entries as a `data.frame`. All arguments are optional —
 omitting all returns every entry.
 
@@ -496,7 +496,7 @@ filter_log(log,
 #> 8                                                                                                                                             Missing baseline value for subject 01-033: LOCF imputation applied\n   per SAP section 7.2 — previous non-missing value (Visit 1) used.\n   Imputed value: 24.6.
 ```
 
-[`filter_log()`](https://repro-stats.github.io/regulog/reference/filter_log.md)
+[`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md)
 also accepts a `.rlog` file path directly — no live session or `regulog`
 object required:
 
@@ -527,7 +527,7 @@ nrow(df)
 
 ## 10. Export the audit trail
 
-[`export_audit_trail()`](https://repro-stats.github.io/regulog/reference/export_audit_trail.md)
+[`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md)
 serialises the log to CSV or JSON. Use `signed = TRUE` to run
 verification and stamp `chain_intact` and `verified_at` on every row.
 
@@ -551,20 +551,20 @@ df_export[, c("entry_id", "type", "action", "user", "chain_intact", "verified_at
 #> 13       13      NOTE        note       ndoh.penn         TRUE
 #> 14       14 SIGNATURE   signature       ndoh.penn         TRUE
 #>                    verified_at
-#> 1  2026-06-24T10:22:52.526015Z
-#> 2  2026-06-24T10:22:52.526015Z
-#> 3  2026-06-24T10:22:52.526015Z
-#> 4  2026-06-24T10:22:52.526015Z
-#> 5  2026-06-24T10:22:52.526015Z
-#> 6  2026-06-24T10:22:52.526015Z
-#> 7  2026-06-24T10:22:52.526015Z
-#> 8  2026-06-24T10:22:52.526015Z
-#> 9  2026-06-24T10:22:52.526015Z
-#> 10 2026-06-24T10:22:52.526015Z
-#> 11 2026-06-24T10:22:52.526015Z
-#> 12 2026-06-24T10:22:52.526015Z
-#> 13 2026-06-24T10:22:52.526015Z
-#> 14 2026-06-24T10:22:52.526015Z
+#> 1  2026-06-24T22:24:10.365837Z
+#> 2  2026-06-24T22:24:10.365837Z
+#> 3  2026-06-24T22:24:10.365837Z
+#> 4  2026-06-24T22:24:10.365837Z
+#> 5  2026-06-24T22:24:10.365837Z
+#> 6  2026-06-24T22:24:10.365837Z
+#> 7  2026-06-24T22:24:10.365837Z
+#> 8  2026-06-24T22:24:10.365837Z
+#> 9  2026-06-24T22:24:10.365837Z
+#> 10 2026-06-24T22:24:10.365837Z
+#> 11 2026-06-24T22:24:10.365837Z
+#> 12 2026-06-24T22:24:10.365837Z
+#> 13 2026-06-24T22:24:10.365837Z
+#> 14 2026-06-24T22:24:10.365837Z
 ```
 
 ``` r
@@ -602,10 +602,10 @@ export_audit_trail(log,
 
 | Type | Created by | Mandatory fields | Regulatory purpose |
 |----|----|----|----|
-| `ACTION` | [`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md) | `action`, `object`, `reason` | Discrete events |
-| `CHANGE` | [`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md) | `object`, `field`, `before`, `after`, `reason` | Field modifications |
-| `NOTE` | [`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md) | `text` | Decisions and rationale |
-| `SIGNATURE` | [`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md) | `meaning` | Sign-off |
+| `ACTION` | [`log_action()`](https://reprostats.org/regulog/reference/log_action.md) | `action`, `object`, `reason` | Discrete events |
+| `CHANGE` | [`log_change()`](https://reprostats.org/regulog/reference/log_change.md) | `object`, `field`, `before`, `after`, `reason` | Field modifications |
+| `NOTE` | [`log_note()`](https://reprostats.org/regulog/reference/log_note.md) | `text` | Decisions and rationale |
+| `SIGNATURE` | [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md) | `meaning` | Sign-off |
 
 ## 12. Validation (regulated environments)
 
@@ -619,5 +619,5 @@ source(system.file("validation/PQ_regulog.R", package = "regulog"))
 ```
 
 See also
-[`vignette("hash-chain")`](https://repro-stats.github.io/regulog/articles/hash-chain.md)
+[`vignette("hash-chain")`](https://reprostats.org/regulog/articles/hash-chain.md)
 for a detailed explanation of the tamper detection mechanism.

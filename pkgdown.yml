@@ -5,7 +5,7 @@ articles:
   getting-started: getting-started.html
   hash-chain: hash-chain.html
   shiny-integration: shiny-integration.html
-last_built: 2026-06-24T10:22Z
+last_built: 2026-06-24T22:24Z
 urls:
-  reference: https://repro-stats.github.io/regulog/reference
-  article: https://repro-stats.github.io/regulog/articles
+  reference: https://reprostats.org/regulog/reference
+  article: https://reprostats.org/regulog/articles

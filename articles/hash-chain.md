@@ -3,7 +3,7 @@
 Every `regulog` entry is cryptographically linked to the entry before
 it. This means that any modification to any part of any entry — however
 subtle — breaks the chain at that point and is detectable by
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md).
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md).
 
 This vignette explains how the chain is constructed, what it detects,
 what it does not detect, and how to verify logs in a production setting.
@@ -11,7 +11,7 @@ what it does not detect, and how to verify logs in a production setting.
 ## 1. The genesis record
 
 When
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
 is called, a genesis record is created immediately. It is not a log
 entry in the usual sense — it carries no user action — but its SHA-256
 hash becomes the anchor for the entire chain.
@@ -21,9 +21,9 @@ hash becomes the anchor for the entire chain.
 log <- regulog_init(app = "demo", version = "1.0", user = "analyst")
 
 cat("Genesis hash:", log$genesis_hash, "\n")
-#> Genesis hash: 8450e5da41ed6001f8424dc3de516d35f06a90819133e4f21484edade873ca40
+#> Genesis hash: 138d8d12317e0b47caa64a546d1da6f8db89dab78c49eba3bb8c1ff3371aca5f
 cat("Last hash:   ", log$last_hash,    "\n")
-#> Last hash:    8450e5da41ed6001f8424dc3de516d35f06a90819133e4f21484edade873ca40
+#> Last hash:    138d8d12317e0b47caa64a546d1da6f8db89dab78c49eba3bb8c1ff3371aca5f
 ```
 
 The genesis hash incorporates the app name, version, and creation
@@ -56,9 +56,9 @@ entry <- log$entries[[1L]]
 cat("Entry ID:   ", entry$entry_id,   "\n")
 #> Entry ID:    1
 cat("Prev hash:  ", entry$prev_hash,  "\n")  # = genesis hash
-#> Prev hash:   8450e5da41ed6001f8424dc3de516d35f06a90819133e4f21484edade873ca40
+#> Prev hash:   138d8d12317e0b47caa64a546d1da6f8db89dab78c49eba3bb8c1ff3371aca5f
 cat("Entry hash: ", entry$entry_hash, "\n")
-#> Entry hash:  f9c0ca3d8cb7e53182e913746b84f2fbb4d7ae27f3a74147cf345b0fb2624f10
+#> Entry hash:  e0fc7a480c7a5c9e925070ee20ff88d2ed38bc5d287dc387fa1d1ca5414da26c
 ```
 
 The `prev_hash` of the first entry matches the `genesis_hash`. The chain
@@ -72,9 +72,9 @@ log_note(log,   "Outlier in subject 042 retained per SAP section 8.3")
 #> regulog: note logged
 
 cat("Entry 1 hash:", log$entries[[1L]]$entry_hash, "\n")
-#> Entry 1 hash: f9c0ca3d8cb7e53182e913746b84f2fbb4d7ae27f3a74147cf345b0fb2624f10
+#> Entry 1 hash: e0fc7a480c7a5c9e925070ee20ff88d2ed38bc5d287dc387fa1d1ca5414da26c
 cat("Entry 2 prev:", log$entries[[2L]]$prev_hash,  "\n")
-#> Entry 2 prev: f9c0ca3d8cb7e53182e913746b84f2fbb4d7ae27f3a74147cf345b0fb2624f10
+#> Entry 2 prev: e0fc7a480c7a5c9e925070ee20ff88d2ed38bc5d287dc387fa1d1ca5414da26c
 cat("Match:       ", log$entries[[1L]]$entry_hash ==
                      log$entries[[2L]]$prev_hash,   "\n")
 #> Match:        TRUE
@@ -84,7 +84,7 @@ Each entry’s hash is the `prev_hash` of the next. The chain is intact.
 
 ## 3. Verification
 
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md)
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md)
 recomputes every entry hash from scratch and checks that:
 
 1.  The recomputed hash matches the stored `entry_hash` — confirms the
@@ -217,10 +217,10 @@ independently.
 ## 7. Working with persistent .rlog files
 
 When `path` is supplied to
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md),
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md),
 entries are written to disk immediately — each
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md),
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md),
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md),
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md),
 etc. appends one JSON line. The file is append-only from `regulog`’s
 perspective.
 
@@ -283,20 +283,20 @@ file.copy("logs/trial001_audit.rlog",
 The signed CSV is human-readable and importable into any audit
 management system. The `.rlog` file allows the original hash chain to be
 verified at any future point using
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md).
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md).
 
 ## 10. Hash algorithm
 
 The default algorithm is SHA-256 (`hash_algo = "sha256"`). This is set
 at
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
 and stored with the session — do not change it after a `.rlog` file is
 in use, as verification would fail for any entries written with a
 different algorithm.
 
 SHA-256 is the standard for regulated environments. If your organisation
 requires a different algorithm, pass `hash_algo` to
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
 — any algorithm supported by
 [`digest::digest()`](https://eddelbuettel.github.io/digest/man/digest.html)
 is accepted.

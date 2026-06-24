@@ -1,7 +1,7 @@
 # Initialise a regulog session inside a Shiny server
 
 A thin wrapper around
-[`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+[`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
 that resolves the authenticated user from `session$user` (set by Shiny
 Server Pro / Posit Connect) and automatically logs `session_start` and
 `session_end` events.

@@ -15,9 +15,9 @@ log_hooks_enable(log)
 - log:
 
   A `regulog` object from
-  [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+  [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
   or
-  [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md).
+  [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md).
 
 ## Value
 
@@ -34,15 +34,15 @@ log_hooks_enable(log)
 [`utils::read.table`](https://rdrr.io/r/utils/read.table.html)
 
 Call
-[`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md)
+[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md)
 to restore originals when done. For a scoped, exception-safe
 alternative, prefer
-[`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md).
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md).
 
 ## See also
 
-[`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md),
-[`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md)
+[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md),
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
 
 ## Examples
 

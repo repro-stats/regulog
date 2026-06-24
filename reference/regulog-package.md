@@ -9,7 +9,7 @@ decision into a tamper-evident, hash-chained audit trail stored as
 newline-delimited JSON. Every entry is attributed to a named user,
 time-stamped in UTC, and linked to the previous entry via SHA-256 — so
 any modification after the fact, however subtle, is detectable by
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md).
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md).
 
 The design is intentionally general. `regulog` works equally well in
 regulated pharmaceutical environments (21 CFR Part 11, EU Annex 11),
@@ -79,19 +79,19 @@ but are not a prerequisite for general use.
 |  |  |
 |----|----|
 | Function | Purpose |
-| [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md) | Initialise an audit logging session |
-| [`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md) | Log a discrete action (approval, export, run, etc.) |
-| [`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md) | Log a before/after field change |
-| [`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md) | Log a free-text annotation or analytical decision |
-| [`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md) | Apply an electronic signature |
-| [`log_hooks_enable()`](https://repro-stats.github.io/regulog/reference/log_hooks_enable.md) | Patch read functions for automatic I/O logging |
-| [`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md) | Restore original read functions |
-| [`with_log()`](https://repro-stats.github.io/regulog/reference/with_log.md) | Scoped automatic logging for a code block |
-| [`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md) | Verify the SHA-256 hash chain integrity |
-| [`filter_log()`](https://repro-stats.github.io/regulog/reference/filter_log.md) | Query log entries by type, user, action, or date |
-| [`export_audit_trail()`](https://repro-stats.github.io/regulog/reference/export_audit_trail.md) | Export to CSV or JSON, with optional signing |
-| [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md) | Initialise inside a Shiny server function |
-| [`regulog_observer()`](https://repro-stats.github.io/regulog/reference/regulog_observer.md) | Auto-log Shiny reactive input events |
+| [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md) | Initialise an audit logging session |
+| [`log_action()`](https://reprostats.org/regulog/reference/log_action.md) | Log a discrete action (approval, export, run, etc.) |
+| [`log_change()`](https://reprostats.org/regulog/reference/log_change.md) | Log a before/after field change |
+| [`log_note()`](https://reprostats.org/regulog/reference/log_note.md) | Log a free-text annotation or analytical decision |
+| [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md) | Apply an electronic signature |
+| [`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md) | Patch read functions for automatic I/O logging |
+| [`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md) | Restore original read functions |
+| [`with_log()`](https://reprostats.org/regulog/reference/with_log.md) | Scoped automatic logging for a code block |
+| [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md) | Verify the SHA-256 hash chain integrity |
+| [`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md) | Query log entries by type, user, action, or date |
+| [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md) | Export to CSV or JSON, with optional signing |
+| [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md) | Initialise inside a Shiny server function |
+| [`regulog_observer()`](https://reprostats.org/regulog/reference/regulog_observer.md) | Auto-log Shiny reactive input events |
 
 ## The hash chain
 
@@ -103,7 +103,7 @@ Every entry stores the SHA-256 hash of all prior entries:
 
 Altering any field in any entry — including the timestamp or reason —
 breaks the chain from that entry forward.
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md)
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md)
 recomputes every hash and reports the first broken link. This works
 offline, from the raw `.rlog` file, without an active R session.
 
@@ -112,10 +112,10 @@ offline, from the raw `.rlog` file, without an active R session.
 |  |  |  |
 |----|----|----|
 | Type | Created by | Purpose |
-| `ACTION` | [`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md) | Discrete events: reads, runs, approvals |
-| `CHANGE` | [`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md) | Before/after field modifications |
-| `NOTE` | [`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md) | Free-text decisions and annotations |
-| `SIGNATURE` | [`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md) | Named, dated, meaningful sign-off |
+| `ACTION` | [`log_action()`](https://reprostats.org/regulog/reference/log_action.md) | Discrete events: reads, runs, approvals |
+| `CHANGE` | [`log_change()`](https://reprostats.org/regulog/reference/log_change.md) | Before/after field modifications |
+| `NOTE` | [`log_note()`](https://reprostats.org/regulog/reference/log_note.md) | Free-text decisions and annotations |
+| `SIGNATURE` | [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md) | Named, dated, meaningful sign-off |
 
 ## Use in regulated environments
 
@@ -127,12 +127,12 @@ to generate a validation dossier for your specific environment.
 |----|----|----|
 | Regulation | Clause | Coverage |
 | 21 CFR Part 11 | §11.10(e) | Hash-chained, time-stamped, user-attributed entries |
-| 21 CFR Part 11 | §11.10(b) | [`export_audit_trail()`](https://repro-stats.github.io/regulog/reference/export_audit_trail.md) — CSV and JSON |
+| 21 CFR Part 11 | §11.10(b) | [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md) — CSV and JSON |
 | 21 CFR Part 11 | §11.10(c) | Append-only `.rlog` format |
-| 21 CFR Part 11 | §11.100 | [`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md) — named signer identity |
+| 21 CFR Part 11 | §11.100 | [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md) — named signer identity |
 | 21 CFR Part 11 | §11.200 | Signature components: identity, timestamp, meaning |
 | EU Annex 11 | Clause 9 | Date, time, user, and action on every entry |
-| EU Annex 11 | Clause 11 | [`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md) — periodic integrity verification |
+| EU Annex 11 | Clause 11 | [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md) — periodic integrity verification |
 
     source(system.file("validation/IQ_regulog.R", package = "regulog"))
     source(system.file("validation/OQ_regulog.R", package = "regulog"))

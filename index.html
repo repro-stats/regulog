@@ -13,7 +13,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tamper-Evident Audit Logging for R">
 <meta name="description" content="Provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Covers user attribution, timestamp integrity, mandatory reason capture, chain verification, structured export, and Shiny session instrumentation. Suitable for any context where accountability and traceability matter: regulated environments (21 CFR Part 11, EU Annex 11), internal tooling, data pipelines, and multi-user Shiny applications. Ships with optional IQ/OQ/PQ qualification scripts for use in validated computerised systems.">
 <meta property="og:description" content="Provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Covers user attribution, timestamp integrity, mandatory reason capture, chain verification, structured export, and Shiny session instrumentation. Suitable for any context where accountability and traceability matter: regulated environments (21 CFR Part 11, EU Annex 11), internal tooling, data pipelines, and multi-user Shiny applications. Ships with optional IQ/OQ/PQ qualification scripts for use in validated computerised systems.">
-<meta property="og:image" content="https://repro-stats.github.io/regulog/logo.png">
+<meta property="og:image" content="https://reprostats.org/regulog/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -57,163 +57,237 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="regulog-">regulog 
-<a class="anchor" aria-label="anchor" href="#regulog-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="regulog-">regulog <a class="anchor" aria-label="anchor" href="#regulog-"></a>
 </h1>
 </div>
-<blockquote>
-<p>Tamper-Evident Audit Logging for R</p>
-</blockquote>
 <!-- badges: start -->
 
-<p><code>regulog</code> provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Logs are written as plain newline-delimited JSON — readable with any text editor, no special tooling required.</p>
-<p>Use it anywhere you need a reliable record of <strong>who did what, when, and why</strong>.</p>
+<p><strong>Tamper-Evident Audit Logging for R</strong></p>
+<p>Every analytical action taken in a consequential R environment should be documented — who did it, what they did, when, and why. In practice, almost none of it is.</p>
+<p><code>regulog</code> fills that gap. It records every action, change, note, and decision into a tamper-evident, hash-chained audit trail stored as newline-delimited JSON. Every entry is attributed to a named user, time-stamped in UTC, and linked to the previous entry via SHA-256 — so any modification after the fact, however subtle, is detectable by <code><a href="reference/verify_log.html">verify_log()</a></code>.</p>
+<p>Works for regulated pharmaceutical environments (21 CFR Part 11, EU Annex 11), internal data pipelines, multi-user Shiny applications, and any context where accountability and traceability matter.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Development version</span></span>
+<code class="sourceCode R"><span><span class="co"># Install from GitHub</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"repro-stats/regulog"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>Each entry stores a SHA-256 hash of the previous entry:</p>
-<pre><code>[GENESIS: h₀] ← [entry 1, h₁ = SHA256(fields|h₀)] ← [entry 2, h₂ = SHA256(fields|h₁)] ← …</code></pre>
-<p>Altering any field — including the timestamp or reason — breaks the hash chain. <code><a href="reference/verify_log.html">verify_log()</a></code> detects this across all entries in O(n). Entries are written flat, one JSON object per line:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="dt">"entry_id"</span><span class="fu">:</span>    <span class="dv">1</span><span class="fu">,</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="dt">"timestamp"</span><span class="fu">:</span>   <span class="st">"2026-06-19T09:00:21.398739Z"</span><span class="fu">,</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="dt">"app"</span><span class="fu">:</span>         <span class="st">"my-app"</span><span class="fu">,</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="dt">"app_version"</span><span class="fu">:</span> <span class="st">"1.0.0"</span><span class="fu">,</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="dt">"user"</span><span class="fu">:</span>        <span class="st">"jsmith"</span><span class="fu">,</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span>        <span class="st">"ACTION"</span><span class="fu">,</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="dt">"action"</span><span class="fu">:</span>      <span class="st">"approved"</span><span class="fu">,</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="dt">"object"</span><span class="fu">:</span>      <span class="st">"model_v3"</span><span class="fu">,</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="dt">"reason"</span><span class="fu">:</span>      <span class="st">"Validation metrics passed agreed threshold"</span><span class="fu">,</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="dt">"prev_hash"</span><span class="fu">:</span>   <span class="st">"e3b0c44298fc1c149afb..."</span><span class="fu">,</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="dt">"entry_hash"</span><span class="fu">:</span>  <span class="st">"a87ff679a2f3e71d9181..."</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
-</h2>
-<div class="section level3">
-<h3 id="initialise-a-session">Initialise a session<a class="anchor" aria-label="anchor" href="#initialise-a-session"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://repro-stats.github.io/regulog/">regulog</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://repro-stats.github.io/regulog/" class="external-link">regulog</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Initialise a session</span></span>
 <span><span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regulog_init.html">regulog_init</a></span><span class="op">(</span></span>
-<span>  app     <span class="op">=</span> <span class="st">"my-app"</span>,</span>
+<span>  app     <span class="op">=</span> <span class="st">"primary-analysis"</span>,</span>
 <span>  version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
-<span>  user    <span class="op">=</span> <span class="st">"jsmith"</span>,</span>
-<span>  path    <span class="op">=</span> <span class="st">"logs/audit.rlog"</span>   <span class="co"># omit for in-memory only</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="log-an-action">Log an action<a class="anchor" aria-label="anchor" href="#log-an-action"></a>
-</h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>,</span>
-<span>  action <span class="op">=</span> <span class="st">"approved"</span>,</span>
-<span>  object <span class="op">=</span> <span class="st">"model_v3"</span>,</span>
-<span>  reason <span class="op">=</span> <span class="st">"Validation metrics passed agreed threshold"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="log-a-data-change">Log a data change<a class="anchor" aria-label="anchor" href="#log-a-data-change"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/log_change.html">log_change</a></span><span class="op">(</span><span class="va">log</span>,</span>
-<span>  object <span class="op">=</span> <span class="st">"experiment_7"</span>,</span>
-<span>  field  <span class="op">=</span> <span class="st">"learning_rate"</span>,</span>
-<span>  before <span class="op">=</span> <span class="st">"0.01"</span>,</span>
-<span>  after  <span class="op">=</span> <span class="st">"0.001"</span>,</span>
-<span>  reason <span class="op">=</span> <span class="st">"Loss diverging at 0.01 — reduced per tuning protocol"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><code>reason</code> is mandatory with no default. Every entry must document why it was made.</p>
-</div>
-<div class="section level3">
-<h3 id="verify-chain-integrity">Verify chain integrity<a class="anchor" aria-label="anchor" href="#verify-chain-integrity"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/verify_log.html">verify_log</a></span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span>
-<span><span class="co">#&gt; regulog: Log intact: 2 entries, chain unbroken</span></span>
+<span>  user    <span class="op">=</span> <span class="st">"analyst"</span>,</span>
+<span>  path    <span class="op">=</span> <span class="st">"logs/audit.rlog"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Verify directly from the log file — no R object required</span></span>
-<span><span class="fu"><a href="reference/verify_log.html">verify_log</a></span><span class="op">(</span><span class="st">"logs/audit.rlog"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="export">Export<a class="anchor" aria-label="anchor" href="#export"></a>
-</h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Export to CSV</span></span>
-<span><span class="fu"><a href="reference/export_audit_trail.html">export_audit_trail</a></span><span class="op">(</span><span class="va">log</span>, format <span class="op">=</span> <span class="st">"csv"</span>, path <span class="op">=</span> <span class="st">"audit.csv"</span><span class="op">)</span></span>
+<span><span class="co"># Log actions, changes, and decisions</span></span>
+<span><span class="fu"><a href="reference/log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>, <span class="st">"data_read"</span>, <span class="st">"adsl.sas7bdat"</span>,</span>
+<span>           <span class="st">"Reading ADSL for primary efficacy analysis"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Signed export: verifies the chain and stamps the result on every row</span></span>
-<span><span class="fu"><a href="reference/export_audit_trail.html">export_audit_trail</a></span><span class="op">(</span><span class="va">log</span>,</span>
-<span>  format <span class="op">=</span> <span class="st">"csv"</span>,</span>
-<span>  signed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  path   <span class="op">=</span> <span class="st">"audit_signed.csv"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
+<span><span class="fu"><a href="reference/log_change.html">log_change</a></span><span class="op">(</span><span class="va">log</span>, object <span class="op">=</span> <span class="st">"alpha"</span>, field <span class="op">=</span> <span class="st">"value"</span>,</span>
+<span>           before <span class="op">=</span> <span class="st">"0.05"</span>, after <span class="op">=</span> <span class="st">"0.025"</span>,</span>
+<span>           reason <span class="op">=</span> <span class="st">"Updated per protocol amendment 2"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/log_note.html">log_note</a></span><span class="op">(</span><span class="va">log</span>,</span>
+<span>  <span class="st">"Outlier in subject 01-042 retained per SAP section 8.3 —</span></span>
+<span><span class="st">   discussed with medical monitor 2026-06-20"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Automate data I/O logging — no code changes needed</span></span>
+<span><span class="fu"><a href="reference/with_log.html">with_log</a></span><span class="op">(</span><span class="va">log</span>, <span class="op">{</span></span>
+<span>  <span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adsl.sas7bdat"</span><span class="op">)</span>   <span class="co"># auto-logged</span></span>
+<span>  <span class="va">adae</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adae.sas7bdat"</span><span class="op">)</span>   <span class="co"># auto-logged</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply an electronic signature</span></span>
+<span><span class="fu"><a href="reference/log_signature.html">log_signature</a></span><span class="op">(</span><span class="va">log</span>,</span>
+<span>  <span class="st">"I certify this analysis is accurate and complete per SAP version 2.0"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Verify tamper integrity</span></span>
+<span><span class="fu"><a href="reference/verify_log.html">verify_log</a></span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span>
+<span><span class="co">#&gt; regulog: Log intact: 5 entries, chain unbroken</span></span>
+<span></span>
+<span><span class="co"># Query the log</span></span>
+<span><span class="fu"><a href="reference/filter_log.html">filter_log</a></span><span class="op">(</span><span class="va">log</span>, type <span class="op">=</span> <span class="st">"SIGNATURE"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/filter_log.html">filter_log</a></span><span class="op">(</span><span class="va">log</span>, action <span class="op">=</span> <span class="st">"data_read"</span>, from <span class="op">=</span> <span class="st">"2026-06-01"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Export for submission</span></span>
+<span><span class="fu"><a href="reference/export_audit_trail.html">export_audit_trail</a></span><span class="op">(</span><span class="va">log</span>, format <span class="op">=</span> <span class="st">"csv"</span>, signed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   path <span class="op">=</span> <span class="st">"outputs/audit_trail.csv"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="shiny-integration">Shiny integration<a class="anchor" aria-label="anchor" href="#shiny-integration"></a>
+<h2 id="key-functions">Key functions<a class="anchor" aria-label="anchor" href="#key-functions"></a>
 </h2>
-<p><code>regulog</code> integrates directly with Shiny. <code><a href="reference/regulog_shiny_init.html">regulog_shiny_init()</a></code> resolves the authenticated user from <code>session$user</code> and automatically records session start and end events.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://repro-stats.github.io/regulog/">regulog</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
-<span>  <span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/regulog_shiny_init.html">regulog_shiny_init</a></span><span class="op">(</span></span>
-<span>    session <span class="op">=</span> <span class="va">session</span>,</span>
-<span>    app     <span class="op">=</span> <span class="st">"my-app"</span>,</span>
-<span>    version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
-<span>    path    <span class="op">=</span> <span class="st">"logs/audit.rlog"</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/observeEvent.html" class="external-link">observeEvent</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">approve</span>, <span class="op">{</span></span>
-<span>    <span class="fu"><a href="reference/log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>,</span>
-<span>      action <span class="op">=</span> <span class="st">"approved"</span>,</span>
-<span>      object <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">item_id</span>,</span>
-<span>      reason <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">reason</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/regulog_init.html">regulog_init()</a></code></td>
+<td>Initialise an audit logging session</td>
+</tr>
+<tr>
+<td><code><a href="reference/log_action.html">log_action()</a></code></td>
+<td>Log a discrete action</td>
+</tr>
+<tr>
+<td><code><a href="reference/log_change.html">log_change()</a></code></td>
+<td>Log a before/after field change</td>
+</tr>
+<tr>
+<td><code><a href="reference/log_note.html">log_note()</a></code></td>
+<td>Log a free-text annotation or analytical decision</td>
+</tr>
+<tr>
+<td><code><a href="reference/log_signature.html">log_signature()</a></code></td>
+<td>Apply an electronic signature</td>
+</tr>
+<tr>
+<td><code><a href="reference/with_log.html">with_log()</a></code></td>
+<td>Scoped automatic data I/O logging</td>
+</tr>
+<tr>
+<td>
+<code><a href="reference/log_hooks_enable.html">log_hooks_enable()</a></code> / <code><a href="reference/log_hooks_disable.html">log_hooks_disable()</a></code>
+</td>
+<td>Manual hook control</td>
+</tr>
+<tr>
+<td><code><a href="reference/verify_log.html">verify_log()</a></code></td>
+<td>Verify SHA-256 hash chain integrity</td>
+</tr>
+<tr>
+<td><code><a href="reference/filter_log.html">filter_log()</a></code></td>
+<td>Query entries by type, user, action, or date</td>
+</tr>
+<tr>
+<td><code><a href="reference/export_audit_trail.html">export_audit_trail()</a></code></td>
+<td>Export to CSV or JSON, with optional signing</td>
+</tr>
+<tr>
+<td><code><a href="reference/regulog_shiny_init.html">regulog_shiny_init()</a></code></td>
+<td>Initialise inside a Shiny server function</td>
+</tr>
+<tr>
+<td><code><a href="reference/regulog_observer.html">regulog_observer()</a></code></td>
+<td>Auto-log Shiny reactive input events</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
-<h2 id="regulated-environments">Regulated environments<a class="anchor" aria-label="anchor" href="#regulated-environments"></a>
+<h2 id="the-hash-chain">The hash chain<a class="anchor" aria-label="anchor" href="#the-hash-chain"></a>
 </h2>
-<p><code>regulog</code> includes built-in support for validated computerised systems operating under 21 CFR Part 11 or EU Annex 11. Installation, Operational, and Performance Qualification (IQ/OQ/PQ) scripts and a Requirements Traceability Matrix are included and can be run to formally qualify <code>regulog</code> for use in a regulated environment:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>Each entry hash is SHA-256 of all entry fields plus the prior hash:</p>
+<pre><code>h_0 = SHA256("GENESIS" | app | version | timestamp)
+h_n = SHA256(entry_id | timestamp | app | version | user | type |
+             &lt;payload fields&gt; | h_{n-1})</code></pre>
+<p>Any modification to any field in any entry breaks the chain from that point forward. <code><a href="reference/verify_log.html">verify_log()</a></code> recomputes every hash and reports the first broken link — and works offline from the <code>.rlog</code> file, without an active R session.</p>
+</div>
+<div class="section level2">
+<h2 id="entry-types">Entry types<a class="anchor" aria-label="anchor" href="#entry-types"></a>
+</h2>
+<table class="table">
+<thead><tr>
+<th>Type</th>
+<th>Created by</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>ACTION</code></td>
+<td><code><a href="reference/log_action.html">log_action()</a></code></td>
+<td>Discrete events: reads, runs, approvals</td>
+</tr>
+<tr>
+<td><code>CHANGE</code></td>
+<td><code><a href="reference/log_change.html">log_change()</a></code></td>
+<td>Before/after field modifications</td>
+</tr>
+<tr>
+<td><code>NOTE</code></td>
+<td><code><a href="reference/log_note.html">log_note()</a></code></td>
+<td>Decisions and free-text rationale</td>
+</tr>
+<tr>
+<td><code>SIGNATURE</code></td>
+<td><code><a href="reference/log_signature.html">log_signature()</a></code></td>
+<td>Named, dated, meaningful sign-off</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
+</h2>
+<p>IQ, OQ, and PQ qualification scripts are included for regulated use:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"validation/IQ_regulog.R"</span>, package <span class="op">=</span> <span class="st">"regulog"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"validation/OQ_regulog.R"</span>, package <span class="op">=</span> <span class="st">"regulog"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"validation/PQ_regulog.R"</span>, package <span class="op">=</span> <span class="st">"regulog"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Requirements Traceability Matrix</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"validation/RTM_regulog.csv"</span>, package <span class="op">=</span> <span class="st">"regulog"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"validation/PQ_regulog.R"</span>, package <span class="op">=</span> <span class="st">"regulog"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="design-principles">Design principles<a class="anchor" aria-label="anchor" href="#design-principles"></a>
+<h2 id="regulatory-coverage">Regulatory coverage<a class="anchor" aria-label="anchor" href="#regulatory-coverage"></a>
 </h2>
-<ul>
-<li>
-<strong>No silent failures</strong> — every <code>log_*</code> call succeeds or errors explicitly</li>
-<li>
-<strong>Reason is mandatory</strong> — no default; enforced at the R level, not by convention</li>
-<li>
-<strong>Human-readable</strong> — flat NDJSON; inspectable with a text editor</li>
-<li>
-<strong>Minimal dependencies</strong> — <code>digest</code> and <code>jsonlite</code> only</li>
-<li>
-<strong>Append-only</strong> — log files are never overwritten, only extended</li>
-<li>
-<strong>Verifiable offline</strong> — <code><a href="reference/verify_log.html">verify_log()</a></code> works from a file path with no R object needed</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>Regulation</th>
+<th>Clause</th>
+<th>Coverage</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>21 CFR Part 11</td>
+<td>§11.10(e)</td>
+<td>Hash-chained, time-stamped, user-attributed entries</td>
+</tr>
+<tr>
+<td>21 CFR Part 11</td>
+<td>§11.10(b)</td>
+<td>
+<code><a href="reference/export_audit_trail.html">export_audit_trail()</a></code> CSV and JSON</td>
+</tr>
+<tr>
+<td>21 CFR Part 11</td>
+<td>§11.100</td>
+<td>
+<code><a href="reference/log_signature.html">log_signature()</a></code> signer identity</td>
+</tr>
+<tr>
+<td>21 CFR Part 11</td>
+<td>§11.200</td>
+<td>Signature components: identity, timestamp, meaning</td>
+</tr>
+<tr>
+<td>EU Annex 11</td>
+<td>Clause 9</td>
+<td>Date, time, user, action on every entry</td>
+</tr>
+<tr>
+<td>EU Annex 11</td>
+<td>Clause 11</td>
+<td>
+<code><a href="reference/verify_log.html">verify_log()</a></code> periodic integrity evaluation</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -251,7 +325,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://app.codecov.io/gh/repro-stats/regulog" class="external-link"><img src="https://codecov.io/gh/repro-stats/regulog/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://codecov.io/gh/repro-stats/regulog" class="external-link"><img src="https://codecov.io/gh/repro-stats/regulog/branch/main/graph/badge.svg" alt="Codecov"></a></li>
 </ul>
 </div>
 

@@ -16,9 +16,9 @@ log_signature(log, meaning)
 - log:
 
   A `regulog` object returned by
-  [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+  [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
   or
-  [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md).
+  [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md).
 
 - meaning:
 
@@ -33,7 +33,7 @@ The `regulog` object, invisibly (pipe-friendly).
 ## Details
 
 - **Identity** — resolved from the session user set in
-  [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+  [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
 
 - **Date and time** — UTC timestamp generated automatically at call time
 
@@ -45,13 +45,13 @@ The `regulog` object, invisibly (pipe-friendly).
 The SIGNATURE entry is part of the hash chain: any tampering with
 entries preceding the signature, or with the signature entry itself, is
 detectable by
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md).
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md).
 
 ## See also
 
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md),
-[`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md),
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md),
+[`log_note()`](https://reprostats.org/regulog/reference/log_note.md),
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md)
 
 ## Examples
 

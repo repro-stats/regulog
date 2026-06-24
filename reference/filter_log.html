@@ -3,7 +3,7 @@
 as a plain data.frame. All filter arguments are optional — omitting all
 returns every entry."><meta property="og:description" content="Extracts a subset of entries from a regulog object or a .rlog file
 as a plain data.frame. All filter arguments are optional — omitting all
-returns every entry."><meta property="og:image" content="https://repro-stats.github.io/regulog/logo.png"></head><body>
+returns every entry."><meta property="og:image" content="https://reprostats.org/regulog/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -119,10 +119,10 @@ Returns a zero-row data frame when nothing matches.</p>
 <span class="r-in"><span><span class="co"># All entries as a data frame</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version      user      type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-24T10:22:47.759002Z analysis         1.0 ndoh.penn    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-24T10:22:47.759625Z analysis         1.0 ndoh.penn      NOTE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-24T10:22:47.760246Z analysis         1.0 ndoh.penn    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-06-24T10:22:47.760893Z analysis         1.0 ndoh.penn SIGNATURE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-24T22:24:03.847330Z analysis         1.0 ndoh.penn    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-24T22:24:03.848152Z analysis         1.0 ndoh.penn      NOTE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-24T22:24:03.848875Z analysis         1.0 ndoh.penn    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-06-24T22:24:03.849667Z analysis         1.0 ndoh.penn SIGNATURE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      action      object           field before after</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       run   primary.R            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      note        &lt;NA&gt;            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
@@ -134,55 +134,55 @@ Returns a zero-row data frame when nothing matches.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Sent to sponsor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 Analysis complete and accurate per SAP v2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 6751e95b51cfc5da88000956a9f037d0f1a555f2d348354ffd1924d1c6c2298c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 7acde28f9118768270d512d4fc6152068c2c6d84633d0d4d43def2d955f6767c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 996f93efd883f75b6777a1808281f7c6c72eb693d26dadf9be3c001c67362e80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 8a19856e905d72064a4f4eaf1e1ddfed6eb08e9b0ea07311415e089c85e15aa7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 f528c0349a3154a4b2caf32ad9bc32330bff00e5d9dc756293ded49a650d41b3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 4706dfd080fb69374f220f4cac68385380bebbe2edec479014af795429455c0f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 302fea6c63f2fd38d4cd339285391c81b221bddf87d44d163a9abc7cc24895e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 256aa9f8975e1f099a6e6286f2a1af26c6eb9eecab346398246310aec2502d86</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 08681994792b0058b01bb937001350508f1fa4e8b98aa7811099a73005474fe4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 6751e95b51cfc5da88000956a9f037d0f1a555f2d348354ffd1924d1c6c2298c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 7acde28f9118768270d512d4fc6152068c2c6d84633d0d4d43def2d955f6767c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 996f93efd883f75b6777a1808281f7c6c72eb693d26dadf9be3c001c67362e80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 f831cfe06cab2cd853d945eaffc06b183801b1a77bc0843be34d941d0cf81f36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 f528c0349a3154a4b2caf32ad9bc32330bff00e5d9dc756293ded49a650d41b3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 4706dfd080fb69374f220f4cac68385380bebbe2edec479014af795429455c0f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 302fea6c63f2fd38d4cd339285391c81b221bddf87d44d163a9abc7cc24895e9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Only signatures</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span>, type <span class="op">=</span> <span class="st">"SIGNATURE"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version      user      type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        4 2026-06-24T10:22:47.760893Z analysis         1.0 ndoh.penn SIGNATURE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        4 2026-06-24T22:24:03.849667Z analysis         1.0 ndoh.penn SIGNATURE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      action    object           field before after</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 signature ndoh.penn entries_covered   &lt;NA&gt;     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 Analysis complete and accurate per SAP v2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 8a19856e905d72064a4f4eaf1e1ddfed6eb08e9b0ea07311415e089c85e15aa7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 256aa9f8975e1f099a6e6286f2a1af26c6eb9eecab346398246310aec2502d86</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 996f93efd883f75b6777a1808281f7c6c72eb693d26dadf9be3c001c67362e80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 302fea6c63f2fd38d4cd339285391c81b221bddf87d44d163a9abc7cc24895e9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Actions and notes by a specific user</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ACTION"</span>, <span class="st">"NOTE"</span><span class="op">)</span>, user <span class="op">=</span> <span class="st">"ndoh.penn"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version      user   type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-24T10:22:47.759002Z analysis         1.0 ndoh.penn ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-24T10:22:47.759625Z analysis         1.0 ndoh.penn   NOTE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-24T10:22:47.760246Z analysis         1.0 ndoh.penn ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-24T22:24:03.847330Z analysis         1.0 ndoh.penn ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-24T22:24:03.848152Z analysis         1.0 ndoh.penn   NOTE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-24T22:24:03.848875Z analysis         1.0 ndoh.penn ACTION</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   action      object field before after                                  reason</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    run   primary.R  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;                    Primary model fitted</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   note        &lt;NA&gt;  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; Outlier in subject 042 retained per SAP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 export results.csv  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;                         Sent to sponsor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 6751e95b51cfc5da88000956a9f037d0f1a555f2d348354ffd1924d1c6c2298c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 7acde28f9118768270d512d4fc6152068c2c6d84633d0d4d43def2d955f6767c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 996f93efd883f75b6777a1808281f7c6c72eb693d26dadf9be3c001c67362e80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 f528c0349a3154a4b2caf32ad9bc32330bff00e5d9dc756293ded49a650d41b3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 4706dfd080fb69374f220f4cac68385380bebbe2edec479014af795429455c0f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 302fea6c63f2fd38d4cd339285391c81b221bddf87d44d163a9abc7cc24895e9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 08681994792b0058b01bb937001350508f1fa4e8b98aa7811099a73005474fe4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 6751e95b51cfc5da88000956a9f037d0f1a555f2d348354ffd1924d1c6c2298c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 7acde28f9118768270d512d4fc6152068c2c6d84633d0d4d43def2d955f6767c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 f831cfe06cab2cd853d945eaffc06b183801b1a77bc0843be34d941d0cf81f36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 f528c0349a3154a4b2caf32ad9bc32330bff00e5d9dc756293ded49a650d41b3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 4706dfd080fb69374f220f4cac68385380bebbe2edec479014af795429455c0f</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Entries within a date range</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span>, from <span class="op">=</span> <span class="st">"2026-06-01"</span>, to <span class="op">=</span> <span class="st">"2026-12-31"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version      user      type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-24T10:22:47.759002Z analysis         1.0 ndoh.penn    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-24T10:22:47.759625Z analysis         1.0 ndoh.penn      NOTE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-24T10:22:47.760246Z analysis         1.0 ndoh.penn    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-06-24T10:22:47.760893Z analysis         1.0 ndoh.penn SIGNATURE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-24T22:24:03.847330Z analysis         1.0 ndoh.penn    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-24T22:24:03.848152Z analysis         1.0 ndoh.penn      NOTE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-24T22:24:03.848875Z analysis         1.0 ndoh.penn    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-06-24T22:24:03.849667Z analysis         1.0 ndoh.penn SIGNATURE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      action      object           field before after</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       run   primary.R            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      note        &lt;NA&gt;            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
@@ -194,15 +194,15 @@ Returns a zero-row data frame when nothing matches.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Sent to sponsor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 Analysis complete and accurate per SAP v2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 6751e95b51cfc5da88000956a9f037d0f1a555f2d348354ffd1924d1c6c2298c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 7acde28f9118768270d512d4fc6152068c2c6d84633d0d4d43def2d955f6767c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 996f93efd883f75b6777a1808281f7c6c72eb693d26dadf9be3c001c67362e80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 8a19856e905d72064a4f4eaf1e1ddfed6eb08e9b0ea07311415e089c85e15aa7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 f528c0349a3154a4b2caf32ad9bc32330bff00e5d9dc756293ded49a650d41b3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 4706dfd080fb69374f220f4cac68385380bebbe2edec479014af795429455c0f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 302fea6c63f2fd38d4cd339285391c81b221bddf87d44d163a9abc7cc24895e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 256aa9f8975e1f099a6e6286f2a1af26c6eb9eecab346398246310aec2502d86</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 08681994792b0058b01bb937001350508f1fa4e8b98aa7811099a73005474fe4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 6751e95b51cfc5da88000956a9f037d0f1a555f2d348354ffd1924d1c6c2298c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 7acde28f9118768270d512d4fc6152068c2c6d84633d0d4d43def2d955f6767c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 996f93efd883f75b6777a1808281f7c6c72eb693d26dadf9be3c001c67362e80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 f831cfe06cab2cd853d945eaffc06b183801b1a77bc0843be34d941d0cf81f36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 f528c0349a3154a4b2caf32ad9bc32330bff00e5d9dc756293ded49a650d41b3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 4706dfd080fb69374f220f4cac68385380bebbe2edec479014af795429455c0f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 302fea6c63f2fd38d4cd339285391c81b221bddf87d44d163a9abc7cc24895e9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Works directly on a .rlog file — no live session needed</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>

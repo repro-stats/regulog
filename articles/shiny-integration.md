@@ -6,22 +6,22 @@ logic.
 
 | Function | Purpose |
 |----|----|
-| [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md) | Initialise a session inside `server()` — resolves the authenticated user from `session$user` and auto-logs `session_start` / `session_end` |
-| [`regulog_observer()`](https://repro-stats.github.io/regulog/reference/regulog_observer.md) | Wrap [`observeEvent()`](https://rdrr.io/pkg/shiny/man/observeEvent.html) to log an action whenever a reactive input fires |
+| [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md) | Initialise a session inside `server()` — resolves the authenticated user from `session$user` and auto-logs `session_start` / `session_end` |
+| [`regulog_observer()`](https://reprostats.org/regulog/reference/regulog_observer.md) | Wrap [`observeEvent()`](https://rdrr.io/pkg/shiny/man/observeEvent.html) to log an action whenever a reactive input fires |
 
 All other `regulog` functions —
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md),
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md),
-[`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md),
-[`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md),
-[`filter_log()`](https://repro-stats.github.io/regulog/reference/filter_log.md),
-[`export_audit_trail()`](https://repro-stats.github.io/regulog/reference/export_audit_trail.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md),
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md),
+[`log_note()`](https://reprostats.org/regulog/reference/log_note.md),
+[`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md),
+[`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md),
+[`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md)
 — work identically inside Shiny server functions.
 
 ## 1. Basic pattern
 
 Call
-[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
+[`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md)
 at the top of `server()`. Store the returned log object as a local
 variable and pass it to `log_*` calls inside observers.
 
@@ -65,7 +65,7 @@ server <- function(input, output, session) {
 
 `session$user` is the authenticated identity set by Shiny Server Pro or
 Posit Connect.
-[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
+[`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md)
 resolves the user in this order:
 
 1.  `session$user` — when Shiny Server Pro / Posit Connect
@@ -96,12 +96,12 @@ server <- function(input, output, session) {
 
 ## 3. Session lifecycle events
 
-[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
+[`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md)
 automatically adds two entries — no additional code needed:
 
 | Entry | Trigger | `action` | `reason` |
 |----|----|----|----|
-| `session_start` | [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md) call | `"session_start"` | `"Shiny session opened"` |
+| `session_start` | [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md) call | `"session_start"` | `"Shiny session opened"` |
 | `session_end` | `session$onSessionEnded()` | `"session_end"` | `"Shiny session closed"` |
 
 These bracket all user-driven entries and give a complete picture of
@@ -109,7 +109,7 @@ each session — who was logged in, when, and for how long.
 
 ## 4. Using regulog_observer()
 
-[`regulog_observer()`](https://repro-stats.github.io/regulog/reference/regulog_observer.md)
+[`regulog_observer()`](https://reprostats.org/regulog/reference/regulog_observer.md)
 reduces boilerplate when many UI events need auditing. The `object` and
 `reason` arguments accept both fixed strings and reactive expressions.
 
@@ -151,8 +151,7 @@ server <- function(input, output, session) {
 
 ## 5. Notes and decisions from Shiny
 
-Use
-[`log_note()`](https://repro-stats.github.io/regulog/reference/log_note.md)
+Use [`log_note()`](https://reprostats.org/regulog/reference/log_note.md)
 inside observers to document analytical decisions made through the UI —
 retention of outliers, query resolutions, deviations.
 
@@ -187,7 +186,7 @@ observeEvent(input$resolve_query, {
 ## 6. Logging data changes from Shiny
 
 When users edit records through a Shiny app,
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md)
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md)
 documents the before/after values:
 
 ``` r
@@ -264,7 +263,7 @@ output$download_audit <- downloadHandler(
 
 Each browser session gets its own independent audit trail. This is the
 default —
-[`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md)
+[`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md)
 creates a new log for each `server()` call. Individual `.rlog` files can
 later be combined for a study-level view.
 

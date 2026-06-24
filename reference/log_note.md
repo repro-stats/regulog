@@ -4,9 +4,9 @@ Records a NOTE entry — a free-text annotation that adds context, intent,
 or an observation without requiring a discrete action verb or a
 before/after value. Use it to document analytical decisions,
 assumptions, or rationale that do not fit
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
 or
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md).
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md).
 
 ## Usage
 
@@ -19,9 +19,9 @@ log_note(log, text)
 - log:
 
   A `regulog` object returned by
-  [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md)
+  [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
   or
-  [`regulog_shiny_init()`](https://repro-stats.github.io/regulog/reference/regulog_shiny_init.md).
+  [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md).
 
 - text:
 
@@ -38,9 +38,9 @@ included in the hash chain, making it tamper-evident.
 
 ## See also
 
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md),
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md),
-[`log_signature()`](https://repro-stats.github.io/regulog/reference/log_signature.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md),
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md),
+[`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md)
 
 ## Examples
 

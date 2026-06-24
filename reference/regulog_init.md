@@ -1,9 +1,9 @@
 # Initialise a regulog audit log session
 
 Creates a new audit log session object. Subsequent calls to
-[`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
 and
-[`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md)
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md)
 append hash-chained entries. If `path` is supplied, entries are written
 to a newline-delimited JSON file (`.rlog`).
 
@@ -77,7 +77,7 @@ text editor, without any specialist software.
 Each `entry_hash` is SHA-256 of a canonical string encoding all fields
 plus `prev_hash`. Altering any field — including the timestamp or reason
 — invalidates the hash and all subsequent chain links, detectable by
-[`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md).
+[`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md).
 
 ### What the chain captures
 
@@ -88,9 +88,9 @@ plus `prev_hash`. Altering any field — including the timestamp or reason
 | What happened | `action` + `object` fields |
 | When | ISO-8601 UTC timestamp, microsecond resolution |
 | Why | Mandatory `reason` — no default |
-| What changed | `before`/`after` in [`log_change()`](https://repro-stats.github.io/regulog/reference/log_change.md) |
-| Tamper evidence | SHA-256 hash chain; verified by [`verify_log()`](https://repro-stats.github.io/regulog/reference/verify_log.md) |
-| Portable export | [`export_audit_trail()`](https://repro-stats.github.io/regulog/reference/export_audit_trail.md) to CSV or JSON |
+| What changed | `before`/`after` in [`log_change()`](https://reprostats.org/regulog/reference/log_change.md) |
+| Tamper evidence | SHA-256 hash chain; verified by [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md) |
+| Portable export | [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md) to CSV or JSON |
 
 ## Examples
 

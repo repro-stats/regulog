@@ -27,8 +27,8 @@ The value of `expr`, invisibly.
 
 ## See also
 
-[`log_hooks_enable()`](https://repro-stats.github.io/regulog/reference/log_hooks_enable.md),
-[`log_hooks_disable()`](https://repro-stats.github.io/regulog/reference/log_hooks_disable.md)
+[`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md),
+[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md)
 
 ## Examples
 

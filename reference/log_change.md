@@ -15,7 +15,7 @@ log_change(log, object, field, before, after, reason, user = log$user)
 - log:
 
   A `regulog` object from
-  [`regulog_init()`](https://repro-stats.github.io/regulog/reference/regulog_init.md).
+  [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md).
 
 - object:
 

@@ -40,7 +40,7 @@ regulog_observer(log, session, eventExpr, action, object, reason, ...)
 - ...:
 
   Additional arguments passed to
-  [`log_action()`](https://repro-stats.github.io/regulog/reference/log_action.md).
+  [`log_action()`](https://reprostats.org/regulog/reference/log_action.md).
 
 ## Value
 
