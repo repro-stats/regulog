@@ -28,14 +28,14 @@ this object.
 log <- regulog_init(
   app     = "primary-analysis",
   version = "1.0.0",
-  user    = "ndoh.penn"
+  user    = "jsmith"
   # Provide path = "logs/audit.rlog" in production for persistent storage
 )
 
 log
 #> <regulog>
 #>   App:     primary-analysis v1.0.0
-#>   User:    ndoh.penn
+#>   User:    jsmith
 #>   Entries: 0
 #>   Path:    (in-memory only)
 ```
@@ -169,7 +169,8 @@ Common uses:
 ``` r
 
 # Outlier decision
-log_note(log,
+log_note(
+  log,
   "Outlier identified for subject 01-042 at Week 16 (AVAL = 98.4,
    upper fence = 62.1). Discussed with medical monitor on 2026-06-20.
    Retained in primary analysis per SAP section 8.3 — no protocol
@@ -179,7 +180,8 @@ log_note(log,
 #> regulog: note logged
 
 # Protocol deviation
-log_note(log,
+log_note(
+  log,
   "Subject 01-007: visit window deviation at Week 8 (visited Day 61,
    window Day 50-58). Classified as minor deviation per deviation
    assessment log entry DEV-0031. Subject retained in ITT population."
@@ -187,7 +189,8 @@ log_note(log,
 #> regulog: note logged
 
 # Query resolved
-log_note(log,
+log_note(
+  log,
   "Data query Q-0047 resolved 2026-06-15: lab value for subject 01-019
    at Screening confirmed as 4.2 mmol/L per site laboratory report.
    Original value 42.0 was a decimal error."
@@ -195,7 +198,8 @@ log_note(log,
 #> regulog: note logged
 
 # Analysis assumption documented
-log_note(log,
+log_note(
+  log,
   "Missing baseline value for subject 01-033: LOCF imputation applied
    per SAP section 7.2 — previous non-missing value (Visit 1) used.
    Imputed value: 24.6."
@@ -203,61 +207,85 @@ log_note(log,
 #> regulog: note logged
 ```
 
-## 5. Automatic data I/O logging
+## 5. Logging data reads
 
 Manually calling
 [`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
-for every file read is error-prone.
+for every file read is error-prone and easy to forget. `regulog`
+provides two ways to log reads explicitly:
+[`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md) for a
+single call, and
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md) for
+a scoped block where multiple reads share the same logging context.
+
+### Single reads with `rl_read()`
+
+`rl_read(log, reader, ...)` calls `reader(...)` and logs the result as a
+`data_read` ACTION entry — capturing the resolved file path, row count,
+and column count automatically.
+
+``` r
+
+adsl <- rl_read(log, haven::read_sas, "data/adsl.sas7bdat")
+adae <- rl_read(log, haven::read_sas, "data/adae.sas7bdat")
+```
+
+[`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md) works
+with any reader function —
+[`haven::read_sas`](https://haven.tidyverse.org/reference/read_sas.html),
+[`readr::read_csv`](https://readr.tidyverse.org/reference/read_delim.html),
+`data.table::fread`,
+[`utils::read.csv`](https://rdrr.io/r/utils/read.table.html), or a
+custom function — since it wraps the call explicitly rather than
+depending on a fixed list of patched functions.
+
+The file path is resolved from a named argument (`file`, `path`,
+`data_file`, or `input`) if present, falling back to the first unnamed
+argument — so reordered named calls still record the correct path:
+
+``` r
+
+adae <- rl_read(log, readr::read_csv, col_types = "ccd", file = "data/adae.csv")
+```
+
+### Scoped logging with `with_log()`
+
+For a block containing several reads,
 [`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
-patches common read functions automatically for the duration of a code
-block, then restores them on exit — even if the block errors.
+provides a local `read()` binding so the `log` argument doesn’t need to
+be repeated at every call:
 
 ``` r
 
 with_log(log, {
-  adsl <- haven::read_sas("data/adsl.sas7bdat")   # logged automatically
-  adae <- haven::read_sas("data/adae.sas7bdat")   # logged automatically
-  adlb <- haven::read_sas("data/adlb.sas7bdat")   # logged automatically
-  params <- readr::read_csv("config/parameters.csv") # logged automatically
+  adsl   <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae   <- read(haven::read_sas, "data/adae.sas7bdat")
+  adlb   <- read(haven::read_sas, "data/adlb.sas7bdat")
+  params <- read(readr::read_csv, "config/parameters.csv")
 })
 ```
 
-Functions patched automatically when the package is loaded:
-[`haven::read_sas`](https://haven.tidyverse.org/reference/read_sas.html),
-[`haven::read_xpt`](https://haven.tidyverse.org/reference/read_xpt.html),
-[`readr::read_csv`](https://readr.tidyverse.org/reference/read_delim.html),
-`data.table::fread`,
-[`utils::read.csv`](https://rdrr.io/r/utils/read.table.html),
-[`utils::read.table`](https://rdrr.io/r/utils/read.table.html).
+`read()` is only available inside the
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
+block — calling a reader function bare (without `read(...)`) is not
+logged. This is deliberate: every logged read is visible at its call
+site, with no implicit or hidden logging behaviour.
 
-Each auto-logged entry captures the file path, row count, and column
-count. For example:
+Each logged entry captures the file path, row count, and column count.
+For example:
 
     action: data_read
     object: data/adsl.sas7bdat
     reason: haven::read_sas("data/adsl.sas7bdat") — 298 rows, 47 cols
 
-For persistent hooks across multiple steps, use
-[`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md)
-and
-[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md):
-
-``` r
-
-log_hooks_enable(log)
-
-adsl <- haven::read_sas("data/adsl.sas7bdat")
-adae <- haven::read_sas("data/adae.sas7bdat")
-# ... more reads ...
-
-log_hooks_disable()  # always call this; or use with_log() for safety
-```
-
-[`with_log()`](https://reprostats.org/regulog/reference/with_log.md) is
-preferred over the manual pair because it guarantees
-[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md)
-is called via [`on.exit()`](https://rdrr.io/r/base/on.exit.html) even if
-an error occurs.
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
+guarantees `expr` is evaluated in an isolated scope: the `read()`
+binding for one
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
+call cannot interfere with another, even across concurrent sessions (for
+example, two users in the same Shiny application). If `expr` errors, the
+error propagates normally and any entries logged before the error remain
+intact in the chain.
 
 ## 6. Electronic signatures
 
@@ -273,11 +301,12 @@ automatically — no user input required:
 
 ``` r
 
-log_signature(log,
+log_signature(
+  log,
   "I certify that this primary analysis is accurate and complete,
    conducted in accordance with SAP version 2.0 dated 2026-05-01"
 )
-#> regulog: signature applied by 'ndoh.penn' covering 13 entries
+#> regulog: signature applied by 'jsmith' covering 13 entries
 ```
 
 Multiple signatures are supported — for example, a lead statistician and
@@ -285,18 +314,22 @@ an independent reviewer:
 
 ``` r
 
-log_signature(log,
+log_signature(
+  log,
   "Statistical analysis complete and accurate per SAP v2.0.
    All deviations documented."
 )
 
 # Second reviewer — create a new log or log against the same path with
 # a different session user
-log2 <- regulog_init(app = "primary-analysis", version = "1.0.0",
-                      user = "second.reviewer",
-                      path = "logs/trial001_audit.rlog")
+log2 <- regulog_init(
+  app = "primary-analysis", version = "1.0.0",
+  user = "second.reviewer",
+  path = "logs/trial001_audit.rlog"
+)
 
-log_signature(log2,
+log_signature(
+  log2,
   "Independent QC review complete. Results independently verified."
 )
 ```
@@ -319,11 +352,11 @@ The return value carries structured results:
 ``` r
 
 result <- verify_log(log, verbose = FALSE)
-cat("Intact:        ", result$intact,       "\n")
+cat("Intact:        ", result$intact, "\n")
 #> Intact:         TRUE
-cat("Entries checked:", result$n_entries,    "\n")
+cat("Entries checked:", result$n_entries, "\n")
 #> Entries checked: 14
-cat("First broken:  ", result$first_broken,  "\n")
+cat("First broken:  ", result$first_broken, "\n")
 #> First broken:   NA
 ```
 
@@ -335,12 +368,12 @@ saved <- log$entries[[2L]]$reason
 log$entries[[2L]]$reason <- "ALTERED REASON"
 
 tamper_result <- suppressWarnings(verify_log(log, verbose = FALSE))
-cat("Intact after tamper:", tamper_result$intact,        "\n")
+cat("Intact after tamper:", tamper_result$intact, "\n")
 #> Intact after tamper: FALSE
-cat("First broken entry: ", tamper_result$first_broken,  "\n")
+cat("First broken entry: ", tamper_result$first_broken, "\n")
 #> First broken entry:  2
 
-log$entries[[2L]]$reason <- saved  # restore
+log$entries[[2L]]$reason <- saved # restore
 ```
 
 Verification from a file path requires no live session:
@@ -361,20 +394,20 @@ omitting all returns every entry.
 all_entries <- filter_log(log)
 all_entries[, c("entry_id", "type", "action", "user", "reason")]
 #>    entry_id      type      action            user
-#> 1         1    ACTION   data_read       ndoh.penn
-#> 2         2    ACTION   model_fit       ndoh.penn
-#> 3         3    ACTION      export       ndoh.penn
-#> 4         4    ACTION    approved       ndoh.penn
+#> 1         1    ACTION   data_read          jsmith
+#> 2         2    ACTION   model_fit          jsmith
+#> 3         3    ACTION      export          jsmith
+#> 4         4    ACTION    approved          jsmith
 #> 5         5    ACTION co_reviewed second.reviewer
-#> 6         6    CHANGE        <NA>       ndoh.penn
-#> 7         7    CHANGE        <NA>       ndoh.penn
-#> 8         8    CHANGE        <NA>       ndoh.penn
-#> 9         9    CHANGE        <NA>       ndoh.penn
-#> 10       10      NOTE        note       ndoh.penn
-#> 11       11      NOTE        note       ndoh.penn
-#> 12       12      NOTE        note       ndoh.penn
-#> 13       13      NOTE        note       ndoh.penn
-#> 14       14 SIGNATURE   signature       ndoh.penn
+#> 6         6    CHANGE        <NA>          jsmith
+#> 7         7    CHANGE        <NA>          jsmith
+#> 8         8    CHANGE        <NA>          jsmith
+#> 9         9    CHANGE        <NA>          jsmith
+#> 10       10      NOTE        note          jsmith
+#> 11       11      NOTE        note          jsmith
+#> 12       12      NOTE        note          jsmith
+#> 13       13      NOTE        note          jsmith
+#> 14       14 SIGNATURE   signature          jsmith
 #>                                                                                                                                                                                                                                                                                                          reason
 #> 1                                                                                                                                                                                                                                                   Reading subject-level dataset for primary efficacy analysis
 #> 2                                                                                                                                                                                                                                              Fitting ANCOVA: CHG ~ TRT01P + BASE + SITEID per SAP section 6.1
@@ -397,8 +430,8 @@ Filter by entry type:
 ``` r
 
 filter_log(log, type = "SIGNATURE")[, c("type", "user", "reason", "after")]
-#>        type      user
-#> 1 SIGNATURE ndoh.penn
+#>        type   user
+#> 1 SIGNATURE jsmith
 #>                                                                                                                             reason
 #> 1 I certify that this primary analysis is accurate and complete,\n   conducted in accordance with SAP version 2.0 dated 2026-05-01
 #>   after
@@ -420,7 +453,7 @@ Filter by user:
 
 ``` r
 
-filter_log(log, user = "ndoh.penn")[, c("type", "action", "object")]
+filter_log(log, user = "jsmith")[, c("type", "action", "object")]
 #>         type    action              object
 #> 1     ACTION data_read       adsl.sas7bdat
 #> 2     ACTION model_fit      primary_ANCOVA
@@ -434,7 +467,7 @@ filter_log(log, user = "ndoh.penn")[, c("type", "action", "object")]
 #> 10      NOTE      note                <NA>
 #> 11      NOTE      note                <NA>
 #> 12      NOTE      note                <NA>
-#> 13 SIGNATURE signature           ndoh.penn
+#> 13 SIGNATURE signature              jsmith
 ```
 
 Filter by date range — useful when querying a long-running shared log:
@@ -473,7 +506,7 @@ Combine filters:
 
 filter_log(log,
   type   = c("ACTION", "NOTE"),
-  user   = "ndoh.penn",
+  user   = "jsmith",
   from   = "2026-01-01"
 )[, c("type", "action", "reason")]
 #>     type    action
@@ -504,7 +537,7 @@ object required:
 
 filter_log("logs/trial001_audit.rlog",
   type = "SIGNATURE",
-  user = "ndoh.penn"
+  user = "jsmith"
 )
 ```
 
@@ -536,35 +569,35 @@ verification and stamp `chain_intact` and `verified_at` on every row.
 df_export <- export_audit_trail(log, format = "csv", signed = TRUE)
 df_export[, c("entry_id", "type", "action", "user", "chain_intact", "verified_at")]
 #>    entry_id      type      action            user chain_intact
-#> 1         1    ACTION   data_read       ndoh.penn         TRUE
-#> 2         2    ACTION   model_fit       ndoh.penn         TRUE
-#> 3         3    ACTION      export       ndoh.penn         TRUE
-#> 4         4    ACTION    approved       ndoh.penn         TRUE
+#> 1         1    ACTION   data_read          jsmith         TRUE
+#> 2         2    ACTION   model_fit          jsmith         TRUE
+#> 3         3    ACTION      export          jsmith         TRUE
+#> 4         4    ACTION    approved          jsmith         TRUE
 #> 5         5    ACTION co_reviewed second.reviewer         TRUE
-#> 6         6    CHANGE        <NA>       ndoh.penn         TRUE
-#> 7         7    CHANGE        <NA>       ndoh.penn         TRUE
-#> 8         8    CHANGE        <NA>       ndoh.penn         TRUE
-#> 9         9    CHANGE        <NA>       ndoh.penn         TRUE
-#> 10       10      NOTE        note       ndoh.penn         TRUE
-#> 11       11      NOTE        note       ndoh.penn         TRUE
-#> 12       12      NOTE        note       ndoh.penn         TRUE
-#> 13       13      NOTE        note       ndoh.penn         TRUE
-#> 14       14 SIGNATURE   signature       ndoh.penn         TRUE
+#> 6         6    CHANGE        <NA>          jsmith         TRUE
+#> 7         7    CHANGE        <NA>          jsmith         TRUE
+#> 8         8    CHANGE        <NA>          jsmith         TRUE
+#> 9         9    CHANGE        <NA>          jsmith         TRUE
+#> 10       10      NOTE        note          jsmith         TRUE
+#> 11       11      NOTE        note          jsmith         TRUE
+#> 12       12      NOTE        note          jsmith         TRUE
+#> 13       13      NOTE        note          jsmith         TRUE
+#> 14       14 SIGNATURE   signature          jsmith         TRUE
 #>                    verified_at
-#> 1  2026-06-30T09:48:37.119812Z
-#> 2  2026-06-30T09:48:37.119812Z
-#> 3  2026-06-30T09:48:37.119812Z
-#> 4  2026-06-30T09:48:37.119812Z
-#> 5  2026-06-30T09:48:37.119812Z
-#> 6  2026-06-30T09:48:37.119812Z
-#> 7  2026-06-30T09:48:37.119812Z
-#> 8  2026-06-30T09:48:37.119812Z
-#> 9  2026-06-30T09:48:37.119812Z
-#> 10 2026-06-30T09:48:37.119812Z
-#> 11 2026-06-30T09:48:37.119812Z
-#> 12 2026-06-30T09:48:37.119812Z
-#> 13 2026-06-30T09:48:37.119812Z
-#> 14 2026-06-30T09:48:37.119812Z
+#> 1  2026-06-30T19:02:24.191643Z
+#> 2  2026-06-30T19:02:24.191643Z
+#> 3  2026-06-30T19:02:24.191643Z
+#> 4  2026-06-30T19:02:24.191643Z
+#> 5  2026-06-30T19:02:24.191643Z
+#> 6  2026-06-30T19:02:24.191643Z
+#> 7  2026-06-30T19:02:24.191643Z
+#> 8  2026-06-30T19:02:24.191643Z
+#> 9  2026-06-30T19:02:24.191643Z
+#> 10 2026-06-30T19:02:24.191643Z
+#> 11 2026-06-30T19:02:24.191643Z
+#> 12 2026-06-30T19:02:24.191643Z
+#> 13 2026-06-30T19:02:24.191643Z
+#> 14 2026-06-30T19:02:24.191643Z
 ```
 
 ``` r

@@ -1,9 +1,11 @@
-# Run an expression with automatic data I/O logging
+# Run an expression with automatic data read logging
 
-Enables hooks for the duration of `expr` and guarantees they are
-disabled on exit – whether the expression completes normally, errors, or
-is interrupted. The recommended way to scope automatic logging to a
-block of analysis code.
+Evaluates `expr` with a local `read()` binding tied to `log`, so calls
+inside the block don't need to repeat the `log` argument. Reads must use
+`read()` explicitly inside the block; calling a reader function directly
+(e.g. bare `haven::read_sas(...)`) is not logged. This keeps logging
+coverage unambiguous: every logged read is visible at the call site, and
+there are no implicit gaps.
 
 ## Usage
 
@@ -19,7 +21,9 @@ with_log(log, expr)
 
 - expr:
 
-  An R expression. Curly-brace blocks work as expected.
+  An expression, typically a [`{}`](https://rdrr.io/r/base/Paren.html)
+  block. Inside the block, `read(reader, ...)` is available and logs to
+  `log` automatically.
 
 ## Value
 
@@ -27,22 +31,19 @@ The value of `expr`, invisibly.
 
 ## See also
 
-[`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md),
-[`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md)
+[`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md)
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-log <- regulog_init(app = "pipeline", version = "1.0", user = "ndoh.penn",
-                    path = "logs/audit.rlog")
+log <- regulog_init(app = "pipeline", version = "1.0", user = "jsmith")
 
+if (FALSE) { # \dontrun{
 with_log(log, {
-  adsl <- haven::read_sas("data/adsl.sas7bdat")
-  adae <- haven::read_sas("data/adae.sas7bdat")
+  adsl <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae <- read(haven::read_sas, "data/adae.sas7bdat")
 })
 
-# Hooks are always restored, even on error
 filter_log(log, action = "data_read")
 } # }
 ```

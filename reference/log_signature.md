@@ -56,13 +56,16 @@ detectable by
 ## Examples
 
 ``` r
-log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
-log_action(log, "run", "primary_analysis.R",
-           "Primary ANCOVA model executed per SAP section 6.1")
+log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
+log_action(
+  log, "run", "primary_analysis.R",
+  "Primary ANCOVA model executed per SAP section 6.1"
+)
 #> regulog: logged action 'run' on 'primary_analysis.R'
 
-log_signature(log,
+log_signature(
+  log,
   "I certify that this analysis is accurate and complete per SAP version 2.0"
 )
-#> regulog: signature applied by 'ndoh.penn' covering 1 entry
+#> regulog: signature applied by 'jsmith' covering 1 entry
 ```

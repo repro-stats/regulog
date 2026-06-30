@@ -25,7 +25,7 @@ but are not a prerequisite for general use.
     log <- regulog_init(
       app     = "primary-analysis",
       version = "1.0.0",
-      user    = "ndoh.penn",
+      user    = "jsmith",
       path    = "logs/trial001_audit.rlog"
     )
 
@@ -41,18 +41,16 @@ but are not a prerequisite for general use.
     log_note(log, "Outlier in subject 042 at Week 16 retained per SAP
                   section 8.3 after discussion with medical monitor")
 
-**Step 3 — Automate data I/O logging**
+**Step 3 — Log data reads, explicitly or scoped to a block**
 
-    # Scoped: hooks on for the block, guaranteed off on exit
+    # Single read
+    adsl <- rl_read(log, haven::read_sas, "data/adsl.sas7bdat")
+
+    # Scoped block — read() calls inside resolve to `log` automatically
     with_log(log, {
-      adsl <- haven::read_sas("data/adsl.sas7bdat")   # auto-logged
-      adae <- haven::read_sas("data/adae.sas7bdat")   # auto-logged
+      adae <- read(haven::read_sas, "data/adae.sas7bdat")
+      adlb <- read(haven::read_sas, "data/adlb.sas7bdat")
     })
-
-    # Manual: enable then disable explicitly
-    log_hooks_enable(log)
-    adlb <- haven::read_sas("data/adlb.sas7bdat")
-    log_hooks_disable()
 
 **Step 4 — Apply an electronic signature**
 
@@ -84,9 +82,8 @@ but are not a prerequisite for general use.
 | [`log_change()`](https://reprostats.org/regulog/reference/log_change.md) | Log a before/after field change |
 | [`log_note()`](https://reprostats.org/regulog/reference/log_note.md) | Log a free-text annotation or analytical decision |
 | [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md) | Apply an electronic signature |
-| [`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md) | Patch read functions for automatic I/O logging |
-| [`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md) | Restore original read functions |
-| [`with_log()`](https://reprostats.org/regulog/reference/with_log.md) | Scoped automatic logging for a code block |
+| [`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md) | Explicit, logged read of any data source |
+| [`with_log()`](https://reprostats.org/regulog/reference/with_log.md) | Scoped logging: `read()` calls inside the block log automatically |
 | [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md) | Verify the SHA-256 hash chain integrity |
 | [`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md) | Query log entries by type, user, action, or date |
 | [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md) | Export to CSV or JSON, with optional signing |

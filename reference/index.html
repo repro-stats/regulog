@@ -21,6 +21,8 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with regulog</a></li>
     <li><a class="dropdown-item" href="../articles/hash-chain.html">The hash chain: how tamper detection works</a></li>
     <li><a class="dropdown-item" href="../articles/shiny-integration.html">Shiny integration</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -37,7 +39,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="session-lifecycle">Session lifecycle<a class="anchor" aria-label="anchor" href="#session-lifecycle"></a></h2>
 
 
 
@@ -48,26 +50,28 @@
 
       <dl><dt>
 
-          <code><a href="as.data.frame.regulog.html">as.data.frame(<i>&lt;regulog&gt;</i>)</a></code>
+          <code><a href="regulog_init.html">regulog_init()</a></code>
 
         </dt>
-        <dd>Convert a regulog object to a data frame</dd>
+        <dd>Initialise a regulog audit log session</dd>
 
         <dt>
 
-          <code><a href="export_audit_trail.html">export_audit_trail()</a></code>
+          <code><a href="regulog-package.html">regulog</a></code> <code><a href="regulog-package.html">regulog-package</a></code>
 
         </dt>
-        <dd>Export the audit trail</dd>
+        <dd>regulog: Tamper-Evident Audit Logging for R</dd>
+      </dl></div><div class="section level2">
+      <h2 id="logging">Logging<a class="anchor" aria-label="anchor" href="#logging"></a></h2>
 
-        <dt>
 
-          <code><a href="filter_log.html">filter_log()</a></code>
 
-        </dt>
-        <dd>Filter audit log entries</dd>
+      <dl></dl></div><div class="section level2">
 
-        <dt>
+
+
+
+      <dl><dt>
 
           <code><a href="log_action.html">log_action()</a></code>
 
@@ -83,20 +87,6 @@
 
         <dt>
 
-          <code><a href="log_hooks_disable.html">log_hooks_disable()</a></code>
-
-        </dt>
-        <dd>Disable automatic data I/O logging hooks</dd>
-
-        <dt>
-
-          <code><a href="log_hooks_enable.html">log_hooks_enable()</a></code>
-
-        </dt>
-        <dd>Enable automatic logging of data read operations</dd>
-
-        <dt>
-
           <code><a href="log_note.html">log_note()</a></code>
 
         </dt>
@@ -108,36 +98,40 @@
 
         </dt>
         <dd>Apply an electronic signature to the audit trail</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data-reads">Data reads<a class="anchor" aria-label="anchor" href="#data-reads"></a></h2>
 
-        <dt>
 
-          <code><a href="regulog-package.html">regulog</a></code> <code><a href="regulog-package.html">regulog-package</a></code>
 
-        </dt>
-        <dd>regulog: Tamper-Evident Audit Logging for R</dd>
+      <dl></dl></div><div class="section level2">
 
-        <dt>
 
-          <code><a href="regulog_init.html">regulog_init()</a></code>
 
-        </dt>
-        <dd>Initialise a regulog audit log session</dd>
 
-        <dt>
+      <dl><dt>
 
-          <code><a href="regulog_observer.html">regulog_observer()</a></code>
+          <code><a href="rl_read.html">rl_read()</a></code>
 
         </dt>
-        <dd>Create a logging observer for a reactive Shiny input</dd>
+        <dd>Log a data read operation</dd>
 
         <dt>
 
-          <code><a href="regulog_shiny_init.html">regulog_shiny_init()</a></code>
+          <code><a href="with_log.html">with_log()</a></code>
 
         </dt>
-        <dd>Initialise a regulog session inside a Shiny server</dd>
+        <dd>Run an expression with automatic data read logging</dd>
+      </dl></div><div class="section level2">
+      <h2 id="verification-and-query">Verification and query<a class="anchor" aria-label="anchor" href="#verification-and-query"></a></h2>
 
-        <dt>
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="verify_log.html">verify_log()</a></code>
 
@@ -146,12 +140,59 @@
 
         <dt>
 
-          <code><a href="with_log.html">with_log()</a></code>
+          <code><a href="filter_log.html">filter_log()</a></code>
 
         </dt>
-        <dd>Run an expression with automatic data I/O logging</dd>
+        <dd>Filter audit log entries</dd>
+
+        <dt>
+
+          <code><a href="as.data.frame.regulog.html">as.data.frame(<i>&lt;regulog&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Convert a regulog object to a data frame</dd>
+      </dl></div><div class="section level2">
+      <h2 id="export">Export<a class="anchor" aria-label="anchor" href="#export"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="export_audit_trail.html">export_audit_trail()</a></code>
+
+        </dt>
+        <dd>Export the audit trail</dd>
+      </dl></div><div class="section level2">
+      <h2 id="shiny-integration">Shiny integration<a class="anchor" aria-label="anchor" href="#shiny-integration"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="regulog_shiny_init.html">regulog_shiny_init()</a></code>
+
+        </dt>
+        <dd>Initialise a regulog session inside a Shiny server</dd>
+
+        <dt>
+
+          <code><a href="regulog_observer.html">regulog_observer()</a></code>
+
+        </dt>
+        <dd>Create a logging observer for a reactive Shiny input</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

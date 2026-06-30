@@ -51,10 +51,10 @@ log_note(log,
   "Outlier in subject 01-042 retained per SAP section 8.3 —
    discussed with medical monitor 2026-06-20")
 
-# Automate data I/O logging — no code changes needed
+# Log data reads, scoped to a block — read() is logged automatically
 with_log(log, {
-  adsl <- haven::read_sas("data/adsl.sas7bdat")   # auto-logged
-  adae <- haven::read_sas("data/adae.sas7bdat")   # auto-logged
+  adsl <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae <- read(haven::read_sas, "data/adae.sas7bdat")
 })
 
 # Apply an electronic signature
@@ -83,8 +83,8 @@ export_audit_trail(log, format = "csv", signed = TRUE,
 | [`log_change()`](https://reprostats.org/regulog/reference/log_change.md) | Log a before/after field change |
 | [`log_note()`](https://reprostats.org/regulog/reference/log_note.md) | Log a free-text annotation or analytical decision |
 | [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md) | Apply an electronic signature |
-| [`with_log()`](https://reprostats.org/regulog/reference/with_log.md) | Scoped automatic data I/O logging |
-| [`log_hooks_enable()`](https://reprostats.org/regulog/reference/log_hooks_enable.md) / [`log_hooks_disable()`](https://reprostats.org/regulog/reference/log_hooks_disable.md) | Manual hook control |
+| [`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md) | Explicit, logged read of any data source |
+| [`with_log()`](https://reprostats.org/regulog/reference/with_log.md) | Scoped convenience: `read()` calls inside the block log automatically |
 | [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md) | Verify SHA-256 hash chain integrity |
 | [`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md) | Query entries by type, user, action, or date |
 | [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md) | Export to CSV or JSON, with optional signing |

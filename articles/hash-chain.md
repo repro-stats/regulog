@@ -21,9 +21,9 @@ hash becomes the anchor for the entire chain.
 log <- regulog_init(app = "demo", version = "1.0", user = "analyst")
 
 cat("Genesis hash:", log$genesis_hash, "\n")
-#> Genesis hash: b2c481373aaa076f1ec780c324f4c7a702fdf4a985c7a1bd4f92bf71260677d8
-cat("Last hash:   ", log$last_hash,    "\n")
-#> Last hash:    b2c481373aaa076f1ec780c324f4c7a702fdf4a985c7a1bd4f92bf71260677d8
+#> Genesis hash: ef293d2aaff2a9c9daed854752b52d4adafc1df0742df798f569142a07ab8483
+cat("Last hash:   ", log$last_hash, "\n")
+#> Last hash:    ef293d2aaff2a9c9daed854752b52d4adafc1df0742df798f569142a07ab8483
 ```
 
 The genesis hash incorporates the app name, version, and creation
@@ -48,17 +48,19 @@ Let us look at what this looks like in practice:
 
 ``` r
 
-log_action(log, "approved", "dataset_v1",
-           "All quality checks passed — dataset approved for analysis")
+log_action(
+  log, "approved", "dataset_v1",
+  "All quality checks passed — dataset approved for analysis"
+)
 #> regulog: logged action 'approved' on 'dataset_v1'
 
 entry <- log$entries[[1L]]
-cat("Entry ID:   ", entry$entry_id,   "\n")
+cat("Entry ID:   ", entry$entry_id, "\n")
 #> Entry ID:    1
-cat("Prev hash:  ", entry$prev_hash,  "\n")  # = genesis hash
-#> Prev hash:   b2c481373aaa076f1ec780c324f4c7a702fdf4a985c7a1bd4f92bf71260677d8
+cat("Prev hash:  ", entry$prev_hash, "\n") # = genesis hash
+#> Prev hash:   ef293d2aaff2a9c9daed854752b52d4adafc1df0742df798f569142a07ab8483
 cat("Entry hash: ", entry$entry_hash, "\n")
-#> Entry hash:  5009f6ced59d752677fa2187b62506e61495215135aa0f41f597ab1b45a26cb5
+#> Entry hash:  252fcbaccd9209816b77a04d358a8f1375ce9af6c4ace104ab826b08ac2d1011
 ```
 
 The `prev_hash` of the first entry matches the `genesis_hash`. The chain
@@ -68,15 +70,15 @@ has begun.
 
 log_action(log, "model_fit", "ANCOVA_v1", "Primary ANCOVA fitted per SAP")
 #> regulog: logged action 'model_fit' on 'ANCOVA_v1'
-log_note(log,   "Outlier in subject 042 retained per SAP section 8.3")
+log_note(log, "Outlier in subject 042 retained per SAP section 8.3")
 #> regulog: note logged
 
 cat("Entry 1 hash:", log$entries[[1L]]$entry_hash, "\n")
-#> Entry 1 hash: 5009f6ced59d752677fa2187b62506e61495215135aa0f41f597ab1b45a26cb5
-cat("Entry 2 prev:", log$entries[[2L]]$prev_hash,  "\n")
-#> Entry 2 prev: 5009f6ced59d752677fa2187b62506e61495215135aa0f41f597ab1b45a26cb5
+#> Entry 1 hash: 252fcbaccd9209816b77a04d358a8f1375ce9af6c4ace104ab826b08ac2d1011
+cat("Entry 2 prev:", log$entries[[2L]]$prev_hash, "\n")
+#> Entry 2 prev: 252fcbaccd9209816b77a04d358a8f1375ce9af6c4ace104ab826b08ac2d1011
 cat("Match:       ", log$entries[[1L]]$entry_hash ==
-                     log$entries[[2L]]$prev_hash,   "\n")
+  log$entries[[2L]]$prev_hash, "\n")
 #> Match:        TRUE
 ```
 
@@ -126,14 +128,14 @@ original_reason <- log$entries[[1L]]$reason
 log$entries[[1L]]$reason <- "ALTERED"
 
 result <- suppressWarnings(verify_log(log, verbose = FALSE))
-cat("Intact:       ", result$intact,       "\n")
+cat("Intact:       ", result$intact, "\n")
 #> Intact:        FALSE
-cat("First broken: ", result$first_broken,  "\n")
+cat("First broken: ", result$first_broken, "\n")
 #> First broken:  1
-cat("Error:        ", result$errors[[1L]],  "\n")
+cat("Error:        ", result$errors[[1L]], "\n")
 #> Error:         Entry #1: entry_hash mismatch — content may have been modified
 
-log$entries[[1L]]$reason <- original_reason  # restore
+log$entries[[1L]]$reason <- original_reason # restore
 ```
 
 ### 4b. Deleting an entry
@@ -144,15 +146,15 @@ If entry 2 is deleted, entry 3’s `prev_hash` will no longer match entry
 ``` r
 
 saved <- log$entries
-log$entries <- log$entries[-2L]   # remove entry 2
+log$entries <- log$entries[-2L] # remove entry 2
 
 result <- suppressWarnings(verify_log(log, verbose = FALSE))
-cat("Intact:       ", result$intact,       "\n")
+cat("Intact:       ", result$intact, "\n")
 #> Intact:        FALSE
-cat("First broken: ", result$first_broken,  "\n")
+cat("First broken: ", result$first_broken, "\n")
 #> First broken:  3
 
-log$entries <- saved  # restore
+log$entries <- saved # restore
 ```
 
 ### 4c. Breaking the prev_hash directly
@@ -168,8 +170,8 @@ cat("Intact:       ", result$intact, "\n")
 cat("First broken: ", result$first_broken, "\n")
 #> First broken:  2
 
-log$entries[[2L]]$prev_hash <- saved_prev  # restore
-verify_log(log, verbose = FALSE)$intact    # confirm restored
+log$entries[[2L]]$prev_hash <- saved_prev # restore
+verify_log(log, verbose = FALSE)$intact # confirm restored
 #> [1] TRUE
 ```
 
@@ -179,7 +181,7 @@ The hash chain proves that entries have not been modified after writing.
 It does not:
 
 - **Authenticate the user** — `user` is a string; `regulog` does not
-  verify that the person who set `user = "ndoh.penn"` is actually that
+  verify that the person who set `user = "jsmith"` is actually that
   person. Authentication is the responsibility of the calling system (OS
   login, Shiny Server Pro, Posit Connect).
 - **Prevent future entries** — anyone with write access to the `.rlog`
@@ -229,7 +231,7 @@ perspective.
 log <- regulog_init(
   app     = "trial-analysis",
   version = "1.0.0",
-  user    = "ndoh.penn",
+  user    = "jsmith",
   path    = "logs/trial001_audit.rlog"
 )
 
@@ -250,8 +252,8 @@ Each line is a complete, self-contained JSON object.
 entry:
 
 ``` json
-{"entry_id":0,"timestamp":"2026-06-23T10:00:00.000Z","app":"trial-analysis","app_version":"1.0.0","user":"ndoh.penn","type":"GENESIS","prev_hash":"0","entry_hash":"a3f8c2..."}
-{"entry_id":1,"timestamp":"2026-06-23T10:01:22.841Z","app":"trial-analysis","app_version":"1.0.0","user":"ndoh.penn","type":"ACTION","action":"data_read","object":"adsl.sas7bdat","reason":"Reading ADSL","prev_hash":"a3f8c2...","entry_hash":"b7d94e..."}
+{"entry_id":0,"timestamp":"2026-06-23T10:00:00.000Z","app":"trial-analysis","app_version":"1.0.0","user":"jsmith","type":"GENESIS","prev_hash":"0","entry_hash":"a3f8c2..."}
+{"entry_id":1,"timestamp":"2026-06-23T10:01:22.841Z","app":"trial-analysis","app_version":"1.0.0","user":"jsmith","type":"ACTION","action":"data_read","object":"adsl.sas7bdat","reason":"Reading ADSL","prev_hash":"a3f8c2...","entry_hash":"b7d94e..."}
 ```
 
 This format was chosen deliberately:
@@ -276,8 +278,10 @@ export_audit_trail(log,
 )
 
 # Original .rlog — keep this too; it allows re-verification later
-file.copy("logs/trial001_audit.rlog",
-          "archive/trial001_audit_2026-06-23.rlog")
+file.copy(
+  "logs/trial001_audit.rlog",
+  "archive/trial001_audit_2026-06-23.rlog"
+)
 ```
 
 The signed CSV is human-readable and importable into any audit

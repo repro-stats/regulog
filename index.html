@@ -5,14 +5,16 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Tamper-Evident Audit Logging for R • regulog</title>
+<title>regulog: Tamper-Evident Audit Logging for R • regulog</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tamper-Evident Audit Logging for R">
-<meta name="description" content="Provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Covers user attribution, timestamp integrity, mandatory reason capture, chain verification, structured export, and Shiny session instrumentation. Suitable for any context where accountability and traceability matter: regulated environments (21 CFR Part 11, EU Annex 11), internal tooling, data pipelines, and multi-user Shiny applications. Ships with optional IQ/OQ/PQ qualification scripts for use in validated computerised systems.">
-<meta property="og:description" content="Provides tamper-evident, hash-chained audit logging for R applications. Every log entry is cryptographically linked to its predecessor, making insertions, deletions, and modifications detectable. Covers user attribution, timestamp integrity, mandatory reason capture, chain verification, structured export, and Shiny session instrumentation. Suitable for any context where accountability and traceability matter: regulated environments (21 CFR Part 11, EU Annex 11), internal tooling, data pipelines, and multi-user Shiny applications. Ships with optional IQ/OQ/PQ qualification scripts for use in validated computerised systems.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="regulog: Tamper-Evident Audit Logging for R">
+<meta name="description" content="Hash-chained, electronically signed audit logging for R analyses in regulated and accountability-critical environments.
+">
+<meta property="og:description" content="Hash-chained, electronically signed audit logging for R analyses in regulated and accountability-critical environments.
+">
 <meta property="og:image" content="https://reprostats.org/regulog/logo.png">
 </head>
 <body>
@@ -39,6 +41,8 @@
 <li><a class="dropdown-item" href="articles/getting-started.html">Getting started with regulog</a></li>
     <li><a class="dropdown-item" href="articles/hash-chain.html">The hash chain: how tamper detection works</a></li>
     <li><a class="dropdown-item" href="articles/shiny-integration.html">Shiny integration</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -99,10 +103,10 @@
 <span>  <span class="st">"Outlier in subject 01-042 retained per SAP section 8.3 —</span></span>
 <span><span class="st">   discussed with medical monitor 2026-06-20"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Automate data I/O logging — no code changes needed</span></span>
+<span><span class="co"># Log data reads, scoped to a block — read() is logged automatically</span></span>
 <span><span class="fu"><a href="reference/with_log.html">with_log</a></span><span class="op">(</span><span class="va">log</span>, <span class="op">{</span></span>
-<span>  <span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adsl.sas7bdat"</span><span class="op">)</span>   <span class="co"># auto-logged</span></span>
-<span>  <span class="va">adae</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adae.sas7bdat"</span><span class="op">)</span>   <span class="co"># auto-logged</span></span>
+<span>  <span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu">read</span><span class="op">(</span><span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="st">"data/adsl.sas7bdat"</span><span class="op">)</span></span>
+<span>  <span class="va">adae</span> <span class="op">&lt;-</span> <span class="fu">read</span><span class="op">(</span><span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="st">"data/adae.sas7bdat"</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Apply an electronic signature</span></span>
@@ -155,14 +159,12 @@
 <td>Apply an electronic signature</td>
 </tr>
 <tr>
-<td><code><a href="reference/with_log.html">with_log()</a></code></td>
-<td>Scoped automatic data I/O logging</td>
+<td><code><a href="reference/rl_read.html">rl_read()</a></code></td>
+<td>Explicit, logged read of any data source</td>
 </tr>
 <tr>
-<td>
-<code><a href="reference/log_hooks_enable.html">log_hooks_enable()</a></code> / <code><a href="reference/log_hooks_disable.html">log_hooks_disable()</a></code>
-</td>
-<td>Manual hook control</td>
+<td><code><a href="reference/with_log.html">with_log()</a></code></td>
+<td>Scoped convenience: <code>read()</code> calls inside the block log automatically</td>
 </tr>
 <tr>
 <td><code><a href="reference/verify_log.html">verify_log()</a></code></td>

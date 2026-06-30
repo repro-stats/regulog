@@ -49,6 +49,8 @@ but are not a prerequisite for general use."><meta property="og:image" content="
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with regulog</a></li>
     <li><a class="dropdown-item" href="../articles/hash-chain.html">The hash chain: how tamper detection works</a></li>
     <li><a class="dropdown-item" href="../articles/shiny-integration.html">Shiny integration</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -94,7 +96,7 @@ but are not a prerequisite for general use.</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_init.html">regulog_init</a></span><span class="op">(</span></span>
 <span>  app     <span class="op">=</span> <span class="st">"primary-analysis"</span>,</span>
 <span>  version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
-<span>  user    <span class="op">=</span> <span class="st">"ndoh.penn"</span>,</span>
+<span>  user    <span class="op">=</span> <span class="st">"jsmith"</span>,</span>
 <span>  path    <span class="op">=</span> <span class="st">"logs/trial001_audit.rlog"</span></span>
 <span><span class="op">)</span></span></code></pre><p></p></div>
 <p><strong>Step 2 — Log actions, changes, notes, and decisions</strong></p>
@@ -107,17 +109,15 @@ but are not a prerequisite for general use.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/log_note.html">log_note</a></span><span class="op">(</span><span class="va">log</span>, <span class="st">"Outlier in subject 042 at Week 16 retained per SAP</span></span>
 <span><span class="st">              section 8.3 after discussion with medical monitor"</span><span class="op">)</span></span></code></pre><p></p></div>
-<p><strong>Step 3 — Automate data I/O logging</strong></p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># Scoped: hooks on for the block, guaranteed off on exit</span></span>
-<span><span class="fu"><a href="../reference/with_log.html">with_log</a></span><span class="op">(</span><span class="va">log</span>, <span class="op">{</span></span>
-<span>  <span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adsl.sas7bdat"</span><span class="op">)</span>   <span class="co"># auto-logged</span></span>
-<span>  <span class="va">adae</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adae.sas7bdat"</span><span class="op">)</span>   <span class="co"># auto-logged</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
+<p><strong>Step 3 — Log data reads, explicitly or scoped to a block</strong></p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># Single read</span></span>
+<span><span class="va">adsl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rl_read.html">rl_read</a></span><span class="op">(</span><span class="va">log</span>, <span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="st">"data/adsl.sas7bdat"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Manual: enable then disable explicitly</span></span>
-<span><span class="fu"><a href="../reference/log_hooks_enable.html">log_hooks_enable</a></span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span>
-<span><span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">haven</span><span class="fu">::</span><span class="fu"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span><span class="op">(</span><span class="st">"data/adlb.sas7bdat"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/log_hooks_disable.html">log_hooks_disable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre><p></p></div>
+<span><span class="co"># Scoped block — read() calls inside resolve to `log` automatically</span></span>
+<span><span class="fu"><a href="../reference/with_log.html">with_log</a></span><span class="op">(</span><span class="va">log</span>, <span class="op">{</span></span>
+<span>  <span class="va">adae</span> <span class="op">&lt;-</span> <span class="fu">read</span><span class="op">(</span><span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="st">"data/adae.sas7bdat"</span><span class="op">)</span></span>
+<span>  <span class="va">adlb</span> <span class="op">&lt;-</span> <span class="fu">read</span><span class="op">(</span><span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="st">"data/adlb.sas7bdat"</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre><p></p></div>
 <p><strong>Step 4 — Apply an electronic signature</strong></p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/log_signature.html">log_signature</a></span><span class="op">(</span><span class="va">log</span>,</span>
 <span>  <span class="st">"I certify that this analysis is accurate and complete, conducted</span></span>
@@ -138,7 +138,7 @@ but are not a prerequisite for general use.</p>
     <div class="section level2">
     <h2 id="key-functions">Key functions<a class="anchor" aria-label="anchor" href="#key-functions"></a></h2>
 
-<table class="table table"><tr><td>Function</td><td>Purpose</td></tr><tr><td><code><a href="regulog_init.html">regulog_init()</a></code></td><td>Initialise an audit logging session</td></tr><tr><td><code><a href="log_action.html">log_action()</a></code></td><td>Log a discrete action (approval, export, run, etc.)</td></tr><tr><td><code><a href="log_change.html">log_change()</a></code></td><td>Log a before/after field change</td></tr><tr><td><code><a href="log_note.html">log_note()</a></code></td><td>Log a free-text annotation or analytical decision</td></tr><tr><td><code><a href="log_signature.html">log_signature()</a></code></td><td>Apply an electronic signature</td></tr><tr><td><code><a href="log_hooks_enable.html">log_hooks_enable()</a></code></td><td>Patch read functions for automatic I/O logging</td></tr><tr><td><code><a href="log_hooks_disable.html">log_hooks_disable()</a></code></td><td>Restore original read functions</td></tr><tr><td><code><a href="with_log.html">with_log()</a></code></td><td>Scoped automatic logging for a code block</td></tr><tr><td><code><a href="verify_log.html">verify_log()</a></code></td><td>Verify the SHA-256 hash chain integrity</td></tr><tr><td><code><a href="filter_log.html">filter_log()</a></code></td><td>Query log entries by type, user, action, or date</td></tr><tr><td><code><a href="export_audit_trail.html">export_audit_trail()</a></code></td><td>Export to CSV or JSON, with optional signing</td></tr><tr><td><code><a href="regulog_shiny_init.html">regulog_shiny_init()</a></code></td><td>Initialise inside a Shiny server function</td></tr><tr><td><code><a href="regulog_observer.html">regulog_observer()</a></code></td><td>Auto-log Shiny reactive input events</td></tr></table></div>
+<table class="table table"><tr><td>Function</td><td>Purpose</td></tr><tr><td><code><a href="regulog_init.html">regulog_init()</a></code></td><td>Initialise an audit logging session</td></tr><tr><td><code><a href="log_action.html">log_action()</a></code></td><td>Log a discrete action (approval, export, run, etc.)</td></tr><tr><td><code><a href="log_change.html">log_change()</a></code></td><td>Log a before/after field change</td></tr><tr><td><code><a href="log_note.html">log_note()</a></code></td><td>Log a free-text annotation or analytical decision</td></tr><tr><td><code><a href="log_signature.html">log_signature()</a></code></td><td>Apply an electronic signature</td></tr><tr><td><code><a href="rl_read.html">rl_read()</a></code></td><td>Explicit, logged read of any data source</td></tr><tr><td><code><a href="with_log.html">with_log()</a></code></td><td>Scoped logging: <code>read()</code> calls inside the block log automatically</td></tr><tr><td><code><a href="verify_log.html">verify_log()</a></code></td><td>Verify the SHA-256 hash chain integrity</td></tr><tr><td><code><a href="filter_log.html">filter_log()</a></code></td><td>Query log entries by type, user, action, or date</td></tr><tr><td><code><a href="export_audit_trail.html">export_audit_trail()</a></code></td><td>Export to CSV or JSON, with optional signing</td></tr><tr><td><code><a href="regulog_shiny_init.html">regulog_shiny_init()</a></code></td><td>Initialise inside a Shiny server function</td></tr><tr><td><code><a href="regulog_observer.html">regulog_observer()</a></code></td><td>Auto-log Shiny reactive input events</td></tr></table></div>
     <div class="section level2">
     <h2 id="the-hash-chain">The hash chain<a class="anchor" aria-label="anchor" href="#the-hash-chain"></a></h2>
 

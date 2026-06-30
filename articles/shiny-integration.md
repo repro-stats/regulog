@@ -14,6 +14,8 @@ All other `regulog` functions —
 [`log_change()`](https://reprostats.org/regulog/reference/log_change.md),
 [`log_note()`](https://reprostats.org/regulog/reference/log_note.md),
 [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md),
+[`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md),
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md),
 [`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md),
 [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md)
 — work identically inside Shiny server functions.
@@ -31,7 +33,6 @@ library(shiny)
 library(regulog)
 
 server <- function(input, output, session) {
-
   log <- regulog_shiny_init(
     session = session,
     app     = "clinical-review-tool",
@@ -116,7 +117,6 @@ reduces boilerplate when many UI events need auditing. The `object` and
 ``` r
 
 server <- function(input, output, session) {
-
   log <- regulog_shiny_init(
     session = session,
     app     = "data-review",
@@ -196,11 +196,13 @@ observeEvent(input$save_correction, {
 
   log_change(log,
     object = paste0(input$subject_id, "_", input$field_name),
-    field  = input$field_name,
+    field = input$field_name,
     before = input$original_value,
-    after  = input$corrected_value,
-    reason = paste0(input$correction_reason,
-                    " — corrected by ", session$user)
+    after = input$corrected_value,
+    reason = paste0(
+      input$correction_reason,
+      " — corrected by ", session$user
+    )
   )
 
   showNotification("Correction recorded in audit trail.", type = "message")
@@ -220,9 +222,11 @@ observeEvent(input$sign_off, {
   log_signature(log, meaning = input$signoff_meaning)
 
   # Export signed audit trail alongside the lock
-  export_path <- sprintf("exports/audit_%s_%s.csv",
-                         gsub("[^a-zA-Z0-9]", "_", input$study_id),
-                         format(Sys.Date(), "%Y%m%d"))
+  export_path <- sprintf(
+    "exports/audit_%s_%s.csv",
+    gsub("[^a-zA-Z0-9]", "_", input$study_id),
+    format(Sys.Date(), "%Y%m%d")
+  )
 
   export_audit_trail(log,
     format = "csv",
@@ -277,12 +281,11 @@ For applications where one audit file covers all user activity:
 shared_log <- regulog_init(
   app     = "multi-user-review",
   version = "1.0.0",
-  user    = "system",             # will be overridden per action
+  user    = "system", # will be overridden per action
   path    = "logs/shared_audit.rlog"
 )
 
 server <- function(input, output, session) {
-
   # Resolve per-request user
   current_user <- reactive({
     u <- session$user
@@ -295,7 +298,7 @@ server <- function(input, output, session) {
       action = "approved",
       object = input$record_id,
       reason = input$reason,
-      user   = current_user()   # explicit per-action user
+      user   = current_user() # explicit per-action user
     )
   })
 }
@@ -319,7 +322,7 @@ filter_log("logs/review_audit.rlog", type = "SIGNATURE")
 # All actions by a specific user
 filter_log("logs/review_audit.rlog",
   type = "ACTION",
-  user = "ndoh.penn"
+  user = "jsmith"
 )
 
 # Changes made within a date range
@@ -337,7 +340,48 @@ export_audit_trail("logs/review_audit.rlog",
 )
 ```
 
-## 11. Complete minimal example
+## 11. Logging data reads from Shiny
+
+Inside a server function, use
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md) to
+log data reads scoped to the current session. Because
+[`with_log()`](https://reprostats.org/regulog/reference/with_log.md)
+resolves its local `read()` binding through lexical scope rather than
+shared package state, this is safe under concurrent use — each browser
+session’s reads are logged only to that session’s own `log`, even when
+multiple users are active in the same R process at once.
+
+``` r
+
+server <- function(input, output, session) {
+  log <- regulog_shiny_init(
+    session = session,
+    app     = "data-review",
+    version = "1.0.0",
+    path    = sprintf("logs/review_%s.rlog", session$token)
+  )
+
+  observeEvent(input$load_dataset, {
+    with_log(log, {
+      dataset <- read(haven::read_sas, input$dataset_path)
+    })
+    showNotification("Dataset loaded and logged.", type = "message")
+  })
+}
+```
+
+For a single read outside a scoped block,
+[`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md) is
+equivalent:
+
+``` r
+
+observeEvent(input$load_dataset, {
+  dataset <- rl_read(log, haven::read_sas, input$dataset_path)
+})
+```
+
+## 12. Complete minimal example
 
 ``` r
 
@@ -351,7 +395,7 @@ ui <- fluidPage(
       selectInput("dataset_id", "Dataset", c("ADSL", "ADAE", "ADLB")),
       textAreaInput("justification", "Justification", rows = 3),
       actionButton("approve", "Approve", class = "btn-success"),
-      actionButton("reject",  "Reject",  class = "btn-danger"),
+      actionButton("reject", "Reject", class = "btn-danger"),
       hr(),
       textAreaInput("note_text", "Add note", rows = 3),
       actionButton("add_note", "Add note"),
@@ -368,7 +412,6 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-
   log <- regulog_shiny_init(
     session = session,
     app     = "data-review",
@@ -402,15 +445,20 @@ server <- function(input, output, session) {
 
   output$download_audit <- downloadHandler(
     filename = function() sprintf("audit_%s.csv", Sys.Date()),
-    content  = function(file) {
+    content = function(file) {
       export_audit_trail(log, format = "csv", signed = TRUE, path = file)
     }
   )
 
   output$log_table <- renderTable({
-    input$approve; input$reject; input$add_note; input$sign_off
+    input$approve
+    input$reject
+    input$add_note
+    input$sign_off
     df <- filter_log(log)
-    if (nrow(df) == 0L) return(NULL)
+    if (nrow(df) == 0L) {
+      return(NULL)
+    }
     df[, c("entry_id", "type", "action", "object", "reason")]
   })
 }

@@ -38,23 +38,23 @@ and useful for direct inspection.
 ## Examples
 
 ``` r
-log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
+log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
 log_action(log, "run", "primary.R", "Primary model fitted")
 #> regulog: logged action 'run' on 'primary.R'
 log_note(log, "Outlier retained per SAP")
 #> regulog: note logged
 
 as.data.frame(log)
-#>   entry_id                   timestamp      app app_version      user   type
-#> 1        1 2026-06-30T09:48:31.194665Z analysis         1.0 ndoh.penn ACTION
-#> 2        2 2026-06-30T09:48:31.195648Z analysis         1.0 ndoh.penn   NOTE
+#>   entry_id                   timestamp      app app_version   user   type
+#> 1        1 2026-06-30T19:02:17.887228Z analysis         1.0 jsmith ACTION
+#> 2        2 2026-06-30T19:02:17.888231Z analysis         1.0 jsmith   NOTE
 #>   action    object field before after                   reason
 #> 1    run primary.R  <NA>   <NA>  <NA>     Primary model fitted
 #> 2   note      <NA>  <NA>   <NA>  <NA> Outlier retained per SAP
 #>                                                         entry_hash
-#> 1 c6d37d6401a3087066911d5cb911286c8a2cb0c8e4c7949f64eed922bf6f010f
-#> 2 194ee8020096534346cd77151a50ecd005bd1e879d2ce18bef0843b4e99e8088
+#> 1 32f990dd0b73b45c292e018987aa5a1134c1e42347ee234e46da7e7f98bb80b7
+#> 2 a9aea89738240dc9a7a857f568bc0b5efba1a70e4027c1c8ad138f54bca370d9
 #>                                                          prev_hash
-#> 1 dc7039df0acfb16af7845050fe43664a1bf1c82a8e351653202bc083c43fd4bf
-#> 2 c6d37d6401a3087066911d5cb911286c8a2cb0c8e4c7949f64eed922bf6f010f
+#> 1 9c55554e94f348b0f8923094bcc520dbc5dbc91a20fb7d10f3ed75680456ad1c
+#> 2 32f990dd0b73b45c292e018987aa5a1134c1e42347ee234e46da7e7f98bb80b7
 ```

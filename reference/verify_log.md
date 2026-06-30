@@ -62,8 +62,10 @@ failure: entries were inserted, deleted, or reordered.
 
 ``` r
 log <- regulog_init(app = "my-app", user = "jsmith")
-log_action(log, action = "approved", object = "file.csv",
-           reason = "Review complete")
+log_action(log,
+  action = "approved", object = "file.csv",
+  reason = "Review complete"
+)
 #> regulog: logged action 'approved' on 'file.csv'
 verify_log(log)
 #> regulog: Log intact: 1 entry, chain unbroken

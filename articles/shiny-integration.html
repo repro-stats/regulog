@@ -36,6 +36,8 @@
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with regulog</a></li>
     <li><a class="dropdown-item" href="../articles/hash-chain.html">The hash chain: how tamper detection works</a></li>
     <li><a class="dropdown-item" href="../articles/shiny-integration.html">Shiny integration</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -95,7 +97,8 @@ reactive input fires</td>
 </table>
 <p>All other <code>regulog</code> functions — <code><a href="../reference/log_action.html">log_action()</a></code>,
 <code><a href="../reference/log_change.html">log_change()</a></code>, <code><a href="../reference/log_note.html">log_note()</a></code>,
-<code><a href="../reference/log_signature.html">log_signature()</a></code>, <code><a href="../reference/filter_log.html">filter_log()</a></code>,
+<code><a href="../reference/log_signature.html">log_signature()</a></code>, <code><a href="../reference/rl_read.html">rl_read()</a></code>,
+<code><a href="../reference/with_log.html">with_log()</a></code>, <code><a href="../reference/filter_log.html">filter_log()</a></code>,
 <code><a href="../reference/export_audit_trail.html">export_audit_trail()</a></code> — work identically inside Shiny server
 functions.</p>
 <div class="section level2">
@@ -109,7 +112,6 @@ and pass it to <code>log_*</code> calls inside observers.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://repro-stats.github.io/regulog/" class="external-link">regulog</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
 <span>  <span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_shiny_init.html">regulog_shiny_init</a></span><span class="op">(</span></span>
 <span>    session <span class="op">=</span> <span class="va">session</span>,</span>
 <span>    app     <span class="op">=</span> <span class="st">"clinical-review-tool"</span>,</span>
@@ -216,7 +218,6 @@ events need auditing. The <code>object</code> and <code>reason</code>
 arguments accept both fixed strings and reactive expressions.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
 <span>  <span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_shiny_init.html">regulog_shiny_init</a></span><span class="op">(</span></span>
 <span>    session <span class="op">=</span> <span class="va">session</span>,</span>
 <span>    app     <span class="op">=</span> <span class="st">"data-review"</span>,</span>
@@ -291,11 +292,13 @@ resolutions, deviations.</p>
 <span></span>
 <span>  <span class="fu"><a href="../reference/log_change.html">log_change</a></span><span class="op">(</span><span class="va">log</span>,</span>
 <span>    object <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">subject_id</span>, <span class="st">"_"</span>, <span class="va">input</span><span class="op">$</span><span class="va">field_name</span><span class="op">)</span>,</span>
-<span>    field  <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">field_name</span>,</span>
+<span>    field <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">field_name</span>,</span>
 <span>    before <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">original_value</span>,</span>
-<span>    after  <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">corrected_value</span>,</span>
-<span>    reason <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">correction_reason</span>,</span>
-<span>                    <span class="st">" — corrected by "</span>, <span class="va">session</span><span class="op">$</span><span class="va">user</span><span class="op">)</span></span>
+<span>    after <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">corrected_value</span>,</span>
+<span>    reason <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
+<span>      <span class="va">input</span><span class="op">$</span><span class="va">correction_reason</span>,</span>
+<span>      <span class="st">" — corrected by "</span>, <span class="va">session</span><span class="op">$</span><span class="va">user</span></span>
+<span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/showNotification.html" class="external-link">showNotification</a></span><span class="op">(</span><span class="st">"Correction recorded in audit trail."</span>, type <span class="op">=</span> <span class="st">"message"</span><span class="op">)</span></span>
@@ -313,9 +316,11 @@ is authorised:</p>
 <span>  <span class="fu"><a href="../reference/log_signature.html">log_signature</a></span><span class="op">(</span><span class="va">log</span>, meaning <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">signoff_meaning</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Export signed audit trail alongside the lock</span></span>
-<span>  <span class="va">export_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"exports/audit_%s_%s.csv"</span>,</span>
-<span>                         <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"[^a-zA-Z0-9]"</span>, <span class="st">"_"</span>, <span class="va">input</span><span class="op">$</span><span class="va">study_id</span><span class="op">)</span>,</span>
-<span>                         <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y%m%d"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">export_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
+<span>    <span class="st">"exports/audit_%s_%s.csv"</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"[^a-zA-Z0-9]"</span>, <span class="st">"_"</span>, <span class="va">input</span><span class="op">$</span><span class="va">study_id</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y%m%d"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
 <span>  <span class="fu"><a href="../reference/export_audit_trail.html">export_audit_trail</a></span><span class="op">(</span><span class="va">log</span>,</span>
 <span>    format <span class="op">=</span> <span class="st">"csv"</span>,</span>
@@ -367,12 +372,11 @@ later be combined for a study-level view.</p>
 <span><span class="va">shared_log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_init.html">regulog_init</a></span><span class="op">(</span></span>
 <span>  app     <span class="op">=</span> <span class="st">"multi-user-review"</span>,</span>
 <span>  version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
-<span>  user    <span class="op">=</span> <span class="st">"system"</span>,             <span class="co"># will be overridden per action</span></span>
+<span>  user    <span class="op">=</span> <span class="st">"system"</span>, <span class="co"># will be overridden per action</span></span>
 <span>  path    <span class="op">=</span> <span class="st">"logs/shared_audit.rlog"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
 <span>  <span class="co"># Resolve per-request user</span></span>
 <span>  <span class="va">current_user</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/reactive.html" class="external-link">reactive</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">u</span> <span class="op">&lt;-</span> <span class="va">session</span><span class="op">$</span><span class="va">user</span></span>
@@ -385,7 +389,7 @@ later be combined for a study-level view.</p>
 <span>      action <span class="op">=</span> <span class="st">"approved"</span>,</span>
 <span>      object <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">record_id</span>,</span>
 <span>      reason <span class="op">=</span> <span class="va">input</span><span class="op">$</span><span class="va">reason</span>,</span>
-<span>      user   <span class="op">=</span> <span class="fu">current_user</span><span class="op">(</span><span class="op">)</span>   <span class="co"># explicit per-action user</span></span>
+<span>      user   <span class="op">=</span> <span class="fu">current_user</span><span class="op">(</span><span class="op">)</span> <span class="co"># explicit per-action user</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -408,7 +412,7 @@ reviewers who may not have access to the application itself.</p>
 <span><span class="co"># All actions by a specific user</span></span>
 <span><span class="fu"><a href="../reference/filter_log.html">filter_log</a></span><span class="op">(</span><span class="st">"logs/review_audit.rlog"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"ACTION"</span>,</span>
-<span>  user <span class="op">=</span> <span class="st">"ndoh.penn"</span></span>
+<span>  user <span class="op">=</span> <span class="st">"jsmith"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Changes made within a date range</span></span>
@@ -426,9 +430,42 @@ reviewers who may not have access to the application itself.</p>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="complete-minimal-example">11. Complete minimal example<a class="anchor" aria-label="anchor" href="#complete-minimal-example"></a>
+<h2 id="logging-data-reads-from-shiny">11. Logging data reads from Shiny<a class="anchor" aria-label="anchor" href="#logging-data-reads-from-shiny"></a>
 </h2>
+<p>Inside a server function, use <code><a href="../reference/with_log.html">with_log()</a></code> to log data
+reads scoped to the current session. Because <code><a href="../reference/with_log.html">with_log()</a></code>
+resolves its local <code>read()</code> binding through lexical scope
+rather than shared package state, this is safe under concurrent use —
+each browser session’s reads are logged only to that session’s own
+<code>log</code>, even when multiple users are active in the same R
+process at once.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_shiny_init.html">regulog_shiny_init</a></span><span class="op">(</span></span>
+<span>    session <span class="op">=</span> <span class="va">session</span>,</span>
+<span>    app     <span class="op">=</span> <span class="st">"data-review"</span>,</span>
+<span>    version <span class="op">=</span> <span class="st">"1.0.0"</span>,</span>
+<span>    path    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"logs/review_%s.rlog"</span>, <span class="va">session</span><span class="op">$</span><span class="va">token</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/observeEvent.html" class="external-link">observeEvent</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">load_dataset</span>, <span class="op">{</span></span>
+<span>    <span class="fu"><a href="../reference/with_log.html">with_log</a></span><span class="op">(</span><span class="va">log</span>, <span class="op">{</span></span>
+<span>      <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">read</span><span class="op">(</span><span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="va">input</span><span class="op">$</span><span class="va">dataset_path</span><span class="op">)</span></span>
+<span>    <span class="op">}</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/showNotification.html" class="external-link">showNotification</a></span><span class="op">(</span><span class="st">"Dataset loaded and logged."</span>, type <span class="op">=</span> <span class="st">"message"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>For a single read outside a scoped block, <code><a href="../reference/rl_read.html">rl_read()</a></code> is
+equivalent:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/observeEvent.html" class="external-link">observeEvent</a></span><span class="op">(</span><span class="va">input</span><span class="op">$</span><span class="va">load_dataset</span>, <span class="op">{</span></span>
+<span>  <span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rl_read.html">rl_read</a></span><span class="op">(</span><span class="va">log</span>, <span class="fu">haven</span><span class="fu">::</span><span class="va"><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">read_sas</a></span>, <span class="va">input</span><span class="op">$</span><span class="va">dataset_path</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="complete-minimal-example">12. Complete minimal example<a class="anchor" aria-label="anchor" href="#complete-minimal-example"></a>
+</h2>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.posit.co/" class="external-link">shiny</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://repro-stats.github.io/regulog/" class="external-link">regulog</a></span><span class="op">)</span></span>
 <span></span>
@@ -439,7 +476,7 @@ reviewers who may not have access to the application itself.</p>
 <span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/selectInput.html" class="external-link">selectInput</a></span><span class="op">(</span><span class="st">"dataset_id"</span>, <span class="st">"Dataset"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ADSL"</span>, <span class="st">"ADAE"</span>, <span class="st">"ADLB"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/textAreaInput.html" class="external-link">textAreaInput</a></span><span class="op">(</span><span class="st">"justification"</span>, <span class="st">"Justification"</span>, rows <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/actionButton.html" class="external-link">actionButton</a></span><span class="op">(</span><span class="st">"approve"</span>, <span class="st">"Approve"</span>, class <span class="op">=</span> <span class="st">"btn-success"</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/actionButton.html" class="external-link">actionButton</a></span><span class="op">(</span><span class="st">"reject"</span>,  <span class="st">"Reject"</span>,  class <span class="op">=</span> <span class="st">"btn-danger"</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/actionButton.html" class="external-link">actionButton</a></span><span class="op">(</span><span class="st">"reject"</span>, <span class="st">"Reject"</span>, class <span class="op">=</span> <span class="st">"btn-danger"</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">hr</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/textAreaInput.html" class="external-link">textAreaInput</a></span><span class="op">(</span><span class="st">"note_text"</span>, <span class="st">"Add note"</span>, rows <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/actionButton.html" class="external-link">actionButton</a></span><span class="op">(</span><span class="st">"add_note"</span>, <span class="st">"Add note"</span><span class="op">)</span>,</span>
@@ -456,7 +493,6 @@ reviewers who may not have access to the application itself.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">input</span>, <span class="va">output</span>, <span class="va">session</span><span class="op">)</span> <span class="op">{</span></span>
-<span></span>
 <span>  <span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regulog_shiny_init.html">regulog_shiny_init</a></span><span class="op">(</span></span>
 <span>    session <span class="op">=</span> <span class="va">session</span>,</span>
 <span>    app     <span class="op">=</span> <span class="st">"data-review"</span>,</span>
@@ -490,15 +526,20 @@ reviewers who may not have access to the application itself.</p>
 <span></span>
 <span>  <span class="va">output</span><span class="op">$</span><span class="va">download_audit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/downloadHandler.html" class="external-link">downloadHandler</a></span><span class="op">(</span></span>
 <span>    filename <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"audit_%s.csv"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    content  <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    content <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span><span class="op">)</span> <span class="op">{</span></span>
 <span>      <span class="fu"><a href="../reference/export_audit_trail.html">export_audit_trail</a></span><span class="op">(</span><span class="va">log</span>, format <span class="op">=</span> <span class="st">"csv"</span>, signed <span class="op">=</span> <span class="cn">TRUE</span>, path <span class="op">=</span> <span class="va">file</span><span class="op">)</span></span>
 <span>    <span class="op">}</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span>  <span class="va">output</span><span class="op">$</span><span class="va">log_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/shiny/man/renderTable.html" class="external-link">renderTable</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>    <span class="va">input</span><span class="op">$</span><span class="va">approve</span>; <span class="va">input</span><span class="op">$</span><span class="va">reject</span>; <span class="va">input</span><span class="op">$</span><span class="va">add_note</span>; <span class="va">input</span><span class="op">$</span><span class="va">sign_off</span></span>
+<span>    <span class="va">input</span><span class="op">$</span><span class="va">approve</span></span>
+<span>    <span class="va">input</span><span class="op">$</span><span class="va">reject</span></span>
+<span>    <span class="va">input</span><span class="op">$</span><span class="va">add_note</span></span>
+<span>    <span class="va">input</span><span class="op">$</span><span class="va">sign_off</span></span>
 <span>    <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filter_log.html">filter_log</a></span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0L</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0L</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
 <span>    <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"entry_id"</span>, <span class="st">"type"</span>, <span class="st">"action"</span>, <span class="st">"object"</span>, <span class="st">"reason"</span><span class="op">)</span><span class="op">]</span></span>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>

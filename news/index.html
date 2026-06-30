@@ -21,6 +21,8 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with regulog</a></li>
     <li><a class="dropdown-item" href="../articles/hash-chain.html">The hash chain: how tamper detection works</a></li>
     <li><a class="dropdown-item" href="../articles/shiny-integration.html">Shiny integration</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -44,23 +46,28 @@
 <h2 class="pkg-version" data-toc-text="0.2.0" id="regulog-020">regulog 0.2.0<a class="anchor" aria-label="anchor" href="#regulog-020"></a></h2>
 <div class="section level3">
 <h3 id="new-functions-0-2-0">New functions<a class="anchor" aria-label="anchor" href="#new-functions-0-2-0"></a></h3>
-<ul><li><p><code><a href="../reference/log_note.html">log_note()</a></code> — log a free-text annotation or analytical decision as a tamper-evident NOTE entry. Every entry is mandatory-reason enforced and included in the hash chain.</p></li>
-<li><p><code><a href="../reference/log_signature.html">log_signature()</a></code> — apply an electronic signature per 21 CFR Part 11 §11.100/§11.200. Signer identity is resolved from the session user; entries covered is captured automatically.</p></li>
-<li><p><code><a href="../reference/filter_log.html">filter_log()</a></code> — query log entries as a <code>data.frame</code> by type, user, action, or date range. Also works directly on <code>.rlog</code> file paths without an active session.</p></li>
-<li><p><code><a href="../reference/as.data.frame.regulog.html">as.data.frame.regulog()</a></code> — S3 method to convert a <code>regulog</code> object to a flat data frame, one row per entry (genesis record excluded).</p></li>
-<li><p><code><a href="../reference/log_hooks_enable.html">log_hooks_enable()</a></code> / <code><a href="../reference/log_hooks_disable.html">log_hooks_disable()</a></code> — patch common read functions (<code><a href="https://haven.tidyverse.org/reference/read_sas.html" class="external-link">haven::read_sas</a></code>, <code><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">readr::read_csv</a></code>, <code>data.table::fread</code>, <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.csv</a></code>, etc.) for automatic data I/O logging. Every read is captured as an ACTION entry without any code changes.</p></li>
-<li><p><code><a href="../reference/with_log.html">with_log()</a></code> — scoped automatic logging for a code block. Guarantees <code><a href="../reference/log_hooks_disable.html">log_hooks_disable()</a></code> is called on exit even if the block errors.</p></li>
+<ul><li>
+<code><a href="../reference/log_note.html">log_note()</a></code> — log a free-text annotation or analytical decision as a tamper-evident NOTE entry. Every entry is mandatory-reason enforced and included in the hash chain.</li>
+<li>
+<code><a href="../reference/log_signature.html">log_signature()</a></code> — apply an electronic signature per 21 CFR Part 11 §11.100/§11.200. Signer identity is resolved from the session user; entries covered is captured automatically.</li>
+<li>
+<code><a href="../reference/filter_log.html">filter_log()</a></code> — query log entries as a <code>data.frame</code> by type, user, action, or date range. Also works directly on <code>.rlog</code> file paths without an active session.</li>
+<li>
+<code><a href="../reference/as.data.frame.regulog.html">as.data.frame.regulog()</a></code> — S3 method to convert a <code>regulog</code> object to a flat data frame, one row per entry (genesis record excluded).</li>
+<li>
+<code><a href="../reference/rl_read.html">rl_read()</a></code> — explicit, logged read of any data source. Calls the supplied reader function and records the result as a <code>data_read</code> ACTION entry, capturing the resolved file path, row count, and column count. The path is resolved by argument name (<code>file</code>, <code>path</code>, <code>data_file</code>, <code>input</code>) where possible, falling back to the first unnamed argument — correct even when arguments are supplied out of position.</li>
+<li>
+<code><a href="../reference/with_log.html">with_log()</a></code> — scoped logging for a code block. Provides a local <code>read()</code> binding tied to the supplied log, so reads inside the block don’t need to repeat the <code>log</code> argument. Each <code><a href="../reference/with_log.html">with_log()</a></code> call is isolated via lexical scope: concurrent calls (e.g. across Shiny sessions) never interfere with one another, and an error inside the block propagates normally without losing or corrupting entries logged before it.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="validation-0-2-0">Validation<a class="anchor" aria-label="anchor" href="#validation-0-2-0"></a></h3>
 <ul><li>IQ/OQ/PQ qualification scripts updated to v0.2:
-<ul><li>OQ-015 to OQ-024: tests for <code>log_note</code>, <code>log_signature</code>, <code>filter_log</code>, <code>as.data.frame.regulog</code>, and <code>with_log</code>
-</li>
+<ul><li>OQ-015 to OQ-024c: tests for <code>log_note</code>, <code>log_signature</code>, <code>filter_log</code>, <code>as.data.frame.regulog</code>, <code>rl_read</code>, and <code>with_log</code>, including concurrent-session isolation</li>
 <li>PQ-006: annotated clinical analysis workflow with notes and signature</li>
 <li>PQ-007: regulatory inspector query workflow using <code>filter_log</code>
 </li>
 </ul></li>
-<li>Requirements Traceability Matrix extended with 5 new rows covering 21 CFR Part 11 §11.100 (signer identity), §11.200 (signature components), annotation trail, automated I/O tracking, and audit trail query interface.</li>
+<li>Requirements Traceability Matrix extended with rows covering 21 CFR Part 11 §11.100 (signer identity), §11.200 (signature components), annotation trail, data read logging, and audit trail query interface. See <code>inst/validation/RTM_regulog.md</code> for column definitions and a script to verify the RTM stays in sync with the validation scripts and exported API.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-0-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-2-0"></a></h3>

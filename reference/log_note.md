@@ -45,7 +45,7 @@ included in the hash chain, making it tamper-evident.
 ## Examples
 
 ``` r
-log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
+log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
 
 log_note(log, "Baseline window defined as Day -1 to Day 1 per protocol v3 §5.2")
 #> regulog: note logged

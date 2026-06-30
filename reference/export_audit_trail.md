@@ -83,8 +83,10 @@ A data frame (CSV) or list (JSON), invisibly.
 
 ``` r
 log <- regulog_init(app = "my-app", user = "jsmith")
-log_action(log, action = "approved", object = "model_v3",
-           reason = "Metrics passed threshold")
+log_action(log,
+  action = "approved", object = "model_v3",
+  reason = "Metrics passed threshold"
+)
 #> regulog: logged action 'approved' on 'model_v3'
 df <- export_audit_trail(log, format = "csv")
 

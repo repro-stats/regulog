@@ -5,6 +5,8 @@
 <url><loc>https://reprostats.org/regulog/articles/getting-started.html</loc></url>
 <url><loc>https://reprostats.org/regulog/articles/hash-chain.html</loc></url>
 <url><loc>https://reprostats.org/regulog/articles/index.html</loc></url>
+<url><loc>https://reprostats.org/regulog/articles/regulog-oncology.html</loc></url>
+<url><loc>https://reprostats.org/regulog/articles/regulog-vaccine.html</loc></url>
 <url><loc>https://reprostats.org/regulog/articles/shiny-integration.html</loc></url>
 <url><loc>https://reprostats.org/regulog/authors.html</loc></url>
 <url><loc>https://reprostats.org/regulog/index.html</loc></url>
@@ -15,14 +17,13 @@
 <url><loc>https://reprostats.org/regulog/reference/index.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/log_action.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/log_change.html</loc></url>
-<url><loc>https://reprostats.org/regulog/reference/log_hooks_disable.html</loc></url>
-<url><loc>https://reprostats.org/regulog/reference/log_hooks_enable.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/log_note.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/log_signature.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/regulog-package.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/regulog_init.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/regulog_observer.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/regulog_shiny_init.html</loc></url>
+<url><loc>https://reprostats.org/regulog/reference/rl_read.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/verify_log.html</loc></url>
 <url><loc>https://reprostats.org/regulog/reference/with_log.html</loc></url>
 </urlset>
