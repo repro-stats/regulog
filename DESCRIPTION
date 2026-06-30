@@ -27,7 +27,6 @@ Suggests:
     ggplot2,
     haven,
     knitr,
-    quarto,
     readr,
     rmarkdown,
     shiny,
@@ -36,6 +35,6 @@ Suggests:
     withr
 Config/testthat/edition: 3
 Config/Needs/website: dplyr, ggplot2, tidyr
-VignetteBuilder: knitr, quarto
+VignetteBuilder: knitr
 URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog
 BugReports: https://github.com/repro-stats/regulog/issues
