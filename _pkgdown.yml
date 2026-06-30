@@ -7,3 +7,51 @@ navbar:
   logo:
     image: logo.png
     href: index.html
+
+home:
+  title: "regulog: Tamper-Evident Audit Logging for R"
+  description: >
+    Hash-chained, electronically signed audit logging for R analyses in
+    regulated and accountability-critical environments.
+
+articles:
+  - title: "Get started"
+    navbar: ~
+    contents:
+      - getting-started
+      - hash-chain
+      - shiny-integration
+  - title: "Real-world applications"
+    desc: >
+      End-to-end worked examples in clinical and pharmaceutical settings.
+    contents:
+      - articles/regulog-vaccine
+      - articles/regulog-oncology
+
+reference:
+  - title: "Session lifecycle"
+    contents:
+      - regulog_init
+      - regulog-package
+  - title: "Logging"
+    contents:
+      - log_action
+      - log_change
+      - log_note
+      - log_signature
+  - title: "Data reads"
+    contents:
+      - rl_read
+      - with_log
+  - title: "Verification and query"
+    contents:
+      - verify_log
+      - filter_log
+      - as.data.frame.regulog
+  - title: "Export"
+    contents:
+      - export_audit_trail
+  - title: "Shiny integration"
+    contents:
+      - regulog_shiny_init
+      - regulog_observer
