@@ -21,8 +21,9 @@ naturally with all the standard `log_*` functions inside server logic.
 | `regulog_observer()` | Wrap `observeEvent()` to log an action whenever a reactive input fires |
 
 All other `regulog` functions — `log_action()`, `log_change()`,
-`log_note()`, `log_signature()`, `filter_log()`, `export_audit_trail()` —
-work identically inside Shiny server functions.
+`log_note()`, `log_signature()`, `rl_read()`, `with_log()`,
+`filter_log()`, `export_audit_trail()` — work identically inside Shiny
+server functions.
 
 ## 1. Basic pattern
 
@@ -327,7 +328,42 @@ export_audit_trail("logs/review_audit.rlog",
 )
 ```
 
-## 11. Complete minimal example
+## 11. Logging data reads from Shiny
+
+Inside a server function, use `with_log()` to log data reads scoped to
+the current session. Because `with_log()` resolves its local `read()`
+binding through lexical scope rather than shared package state, this is
+safe under concurrent use — each browser session's reads are logged only
+to that session's own `log`, even when multiple users are active in the
+same R process at once.
+
+```{r shiny-reads}
+server <- function(input, output, session) {
+  log <- regulog_shiny_init(
+    session = session,
+    app     = "data-review",
+    version = "1.0.0",
+    path    = sprintf("logs/review_%s.rlog", session$token)
+  )
+
+  observeEvent(input$load_dataset, {
+    with_log(log, {
+      dataset <- read(haven::read_sas, input$dataset_path)
+    })
+    showNotification("Dataset loaded and logged.", type = "message")
+  })
+}
+```
+
+For a single read outside a scoped block, `rl_read()` is equivalent:
+
+```{r shiny-rl-read}
+observeEvent(input$load_dataset, {
+  dataset <- rl_read(log, haven::read_sas, input$dataset_path)
+})
+```
+
+## 12. Complete minimal example
 
 ```{r complete-example}
 library(shiny)
