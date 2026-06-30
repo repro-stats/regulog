@@ -26,7 +26,7 @@ and any context where accountability and traceability matter.
 
 ```r
 # Install from GitHub
-remotes::install_github("repro-stats/regulog")
+pak::pak("repro-stats/regulog")
 ```
 
 ## Quick start
