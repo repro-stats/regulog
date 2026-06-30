@@ -28,7 +28,7 @@ Oncology safety monitoring is one of the highest-scrutiny activities in clinical
 
 In practice, safety monitoring produces a trail of emails, meeting minutes, and retrospective notes that is difficult to assemble and impossible to cryptographically verify. `regulog` replaces this with a hash-chained audit trail that is built as the analysis runs — not reconstructed after the fact.
 
-This article walks through a complete safety monitoring workflow for a simulated Phase III non-small cell lung cancer (NSCLC) trial, covering TEAE summaries, Grade 3+ adverse event analysis, SAE flagging, safety signal documentation, medical monitor sign-off, and submission-ready audit trail export.
+This article walks through a complete safety monitoring workflow for a simulated Phase III non-small cell lung cancer (NSCLC) trial, covering TEAE summaries, Grade 3+ adverse event analysis, SAE flagging, safety signal documentation, dual medical/statistical sign-off, and submission-ready audit trail export.
 
 ---
 
@@ -99,7 +99,6 @@ adae_list <- lapply(seq_len(n_total), function(i) {
   n_ae <- rpois(1, lambda = if (is_krasi) 4.2 else 3.8)
   if (n_ae == 0L) return(NULL)
 
-  # Weighted SOC sampling
   soc_weights <- if (is_krasi) {
     c(0.30, 0.18, 0.20, 0.08, 0.08, 0.04, 0.06, 0.06)
   } else {
@@ -112,7 +111,6 @@ adae_list <- lapply(seq_len(n_total), function(i) {
     soc  <- sampled_socs[j]
     term <- sample(ae_terms[[soc]], 1L)
 
-    # Grade: KRASi more Grade 2; docetaxel more Grade 3/4 haematologic
     grade_probs <- if (is_krasi && soc == "Blood and lymphatic system disorders") {
       c(0.4, 0.35, 0.20, 0.05)
     } else if (!is_krasi && soc == "Blood and lymphatic system disorders") {
@@ -154,53 +152,55 @@ cat(sprintf(
   nrow(adae),
   n_distinct(adae$USUBJID)
 ))
+
+# Write to disk so rl_read()/with_log() have real files to read
+tmp_adsl <- tempfile(fileext = ".csv")
+tmp_adae <- tempfile(fileext = ".csv")
+write.csv(adsl, tmp_adsl, row.names = FALSE)
+write.csv(adae, tmp_adae, row.names = FALSE)
 ```
 
 ---
 
 ## Open the safety monitoring session
 
+`regulog_init()` creates the session and writes the genesis record immediately. The data cut and protocol context are captured as the first logged note, since they are study metadata rather than session configuration.
+
 ```{r session}
-lg <- rl_session(
-  analyst  = "Ndoh Penn",
-  analysis = "NSCLC-KRASi-301 Integrated Safety Summary — Data Cut 2026-05-15",
-  reason   = "Scheduled safety data cut for Safety Monitoring Committee (SMC) review",
-  system   = list(
-    protocol     = "NSCLC-KRASi-301",
-    data_cut     = "2026-05-15",
-    analysis_set = "Safety analysis set (SAFFL = Y)",
-    smc_meeting  = "2026-07-10",
-    regulatory   = "21 CFR Part 11, ICH E6(R2)"
-  )
+log <- regulog_init(
+  app     = "NSCLC-KRASi-301-safety-summary",
+  version = "1.0.0",
+  user    = "jsmith",
+  path    = file.path(tempdir(), "audit_KRASi301_safety_v1.rlog")
 )
 
-lg
+log_note(log,
+  "Scheduled safety data cut for Safety Monitoring Committee (SMC) review.
+   Protocol: NSCLC-KRASi-301. Data cut: 2026-05-15. Analysis set: safety
+   analysis set (SAFFL = Y). SMC meeting: 2026-07-10. Regulatory basis:
+   21 CFR Part 11, ICH E6(R2)."
+)
+
+log
 ```
 
 ---
 
-## Log data access and data cut
+## Log data access and the data cut
+
+Loading ADSL and ADAE is logged automatically with `with_log()` — row and column counts are captured at the moment of read, not reconstructed afterwards.
 
 ```{r data-load}
-rl_action(lg,
-  action = "LOAD_ADSL",
-  reason = "Load subject-level dataset for safety population definition",
-  detail = sprintf("ADSL: %d subjects", nrow(adsl))
-)
+with_log(log, {
+  adsl_loaded <- read(read.csv, tmp_adsl)
+  adae_loaded <- read(read.csv, tmp_adae)
+})
 
-rl_action(lg,
-  action = "LOAD_ADAE",
-  reason = "Load adverse event dataset for safety analysis",
-  detail = sprintf("ADAE: %d records from %d subjects",
-                   nrow(adae), n_distinct(adae$USUBJID))
-)
-
-# Document the data cut — this is a critical audit point
-rl_note(lg,
-  action = "DATA_CUT_CONFIRMED",
-  detail = "Data cut date confirmed as 2026-05-15 per DMC charter Section 4.2.
-            All AEs with onset on or before 2026-05-15 included.
-            Lock confirmed by DM team (ref: DM-lock-20260518-001)"
+# Document the data cut — a critical audit point in any safety review
+log_note(log,
+  "Data cut date confirmed as 2026-05-15 per DMC charter Section 4.2.
+   All AEs with onset on or before 2026-05-15 included.
+   Lock confirmed by DM team (ref: DM-lock-20260518-001)."
 )
 ```
 
@@ -209,16 +209,18 @@ rl_note(lg,
 ## Apply safety analysis population
 
 ```{r population}
-# Safety analysis set
 adsl_saf <- adsl |> filter(SAFFL == "Y")
 adae_saf <- adae |> filter(USUBJID %in% adsl_saf$USUBJID)
 
 arm_n <- adsl_saf |> count(TRT01P)
 
-rl_action(lg,
-  action = "DEFINE_SAFETY_SET",
-  reason = "Apply safety analysis set (SAFFL = Y) per SAP Section 4.1",
-  detail = paste(sprintf("%s: n = %d", arm_n$TRT01P, arm_n$n), collapse = " | ")
+log_action(log,
+  action = "define_safety_set",
+  object = "NSCLC-KRASi-301 safety analysis set",
+  reason = sprintf(
+    "Applied safety analysis set (SAFFL = Y) per SAP Section 4.1. %s",
+    paste(sprintf("%s: n = %d", arm_n$TRT01P, arm_n$n), collapse = " | ")
+  )
 )
 ```
 
@@ -227,7 +229,6 @@ rl_action(lg,
 ## TEAE incidence summary
 
 ```{r teae-summary}
-# Subjects with at least one TEAE by SOC and treatment
 teae_summary <- adae_saf |>
   group_by(TRT01P, AEBODSYS) |>
   summarise(
@@ -239,11 +240,11 @@ teae_summary <- adae_saf |>
   mutate(pct = round(n_subjects / n * 100, 1)) |>
   arrange(AEBODSYS, TRT01P)
 
-rl_action(lg,
-  action = "COMPUTE_TEAE_INCIDENCE",
-  reason = "Compute TEAE incidence by SOC and treatment arm per SAP Section 6.1",
-  detail = sprintf(
-    "TEAEs reported: %d subjects in KRASi arm (%.1f%%), %d in docetaxel arm (%.1f%%)",
+log_action(log,
+  action = "compute_teae_incidence",
+  object = "TEAE incidence table by SOC",
+  reason = sprintf(
+    "Computed per SAP Section 6.1. TEAEs reported: %d subjects in KRASi arm (%.1f%%), %d in docetaxel arm (%.1f%%)",
     teae_summary$n_subjects[teae_summary$TRT01P == "KRASi 400mg QD"] |> max(),
     teae_summary$pct[teae_summary$TRT01P == "KRASi 400mg QD"] |> max(),
     teae_summary$n_subjects[teae_summary$TRT01P == "Docetaxel 75mg/m2"] |> max(),
@@ -251,7 +252,6 @@ rl_action(lg,
   )
 )
 
-# Top 5 SOCs by overall incidence
 top_socs <- teae_summary |>
   group_by(AEBODSYS) |>
   summarise(total = sum(n_subjects)) |>
@@ -278,11 +278,11 @@ g34 <- adae_saf |>
   mutate(pct = round(n / n.y * 100, 1)) |>
   arrange(desc(n))
 
-rl_action(lg,
-  action = "COMPUTE_GRADE34_AE",
-  reason = "Compute Grade 3/4 TEAE incidence per SAP Section 6.2 and ICH E9",
-  detail = sprintf(
-    "Grade 3/4 AEs: %d events in KRASi arm, %d in docetaxel arm",
+log_action(log,
+  action = "compute_grade34_ae",
+  object = "Grade 3/4 TEAE table",
+  reason = sprintf(
+    "Computed per SAP Section 6.2 and ICH E9. Grade 3/4 AEs: %d events in KRASi arm, %d in docetaxel arm",
     nrow(adae_saf[adae_saf$TRT01P == "KRASi 400mg QD" &
                   adae_saf$AETOXGR %in% c("3","4"), ]),
     nrow(adae_saf[adae_saf$TRT01P == "Docetaxel 75mg/m2" &
@@ -318,11 +318,11 @@ n_sae_doce  <- n_distinct(
   adae_saf$USUBJID[adae_saf$AESER == "Y" & adae_saf$TRT01P == "Docetaxel 75mg/m2"]
 )
 
-rl_action(lg,
-  action = "COMPUTE_SAE_SUMMARY",
-  reason = "Summarise serious adverse events per SAP Section 6.3",
-  detail = sprintf(
-    "SAEs: %d subjects in KRASi arm (%.1f%%), %d in docetaxel arm (%.1f%%)",
+log_action(log,
+  action = "compute_sae_summary",
+  object = "SAE summary table",
+  reason = sprintf(
+    "Summarised per SAP Section 6.3. SAEs: %d subjects in KRASi arm (%.1f%%), %d in docetaxel arm (%.1f%%)",
     n_sae_krasi,
     n_sae_krasi / n_per_arm * 100,
     n_sae_doce,
@@ -340,10 +340,9 @@ saes |>
 
 ## Pneumonitis signal review
 
-Pneumonitis is a clinically important immune-mediated AE associated with KRAS inhibitors. We identify cases and document the medical review decision.
+Pneumonitis is a clinically important immune-mediated AE associated with KRAS inhibitors. We identify cases and document the medical review decision — three separate, individually logged steps that together form a single audit narrative.
 
 ```{r pneumonitis}
-# Identify pneumonitis cases
 pneumonitis <- adae_saf |>
   filter(grepl("Pneumonitis", AEDECOD, ignore.case = TRUE))
 
@@ -351,11 +350,11 @@ n_pneu_krasi <- nrow(pneumonitis[pneumonitis$TRT01P == "KRASi 400mg QD", ])
 n_pneu_doce  <- nrow(pneumonitis[pneumonitis$TRT01P == "Docetaxel 75mg/m2", ])
 n_pneu_g3    <- nrow(pneumonitis[pneumonitis$AETOXGR %in% c("3","4"), ])
 
-rl_note(lg,
-  action = "SAFETY_SIGNAL_IDENTIFIED",
-  detail = sprintf(
-    "Pneumonitis signal identified: %d cases in KRASi arm vs %d in docetaxel arm.
-     Grade 3/4: %d cases. Flagged for medical monitor review per Safety Review Plan.",
+log_note(log,
+  sprintf(
+    "Safety signal identified: pneumonitis — %d cases in KRASi arm vs %d in
+     docetaxel arm. Grade 3/4: %d cases. Flagged for medical monitor review
+     per Safety Review Plan.",
     n_pneu_krasi, n_pneu_doce, n_pneu_g3
   )
 )
@@ -363,10 +362,9 @@ rl_note(lg,
 # Log individual Grade 3+ pneumonitis cases
 g3_pneu <- pneumonitis |> filter(AETOXGR %in% c("3","4"))
 for (i in seq_len(nrow(g3_pneu))) {
-  rl_note(lg,
-    action = "SAE_PNEUMONITIS_CASE",
-    detail = sprintf(
-      "USUBJID %s | Grade %s | Treatment: %s | Action: %s | Related: %s",
+  log_note(log,
+    sprintf(
+      "Pneumonitis case — USUBJID %s | Grade %s | Treatment: %s | Action: %s | Related: %s",
       g3_pneu$USUBJID[i], g3_pneu$AETOXGR[i],
       g3_pneu$TRT01P[i], g3_pneu$AEACN[i], g3_pneu$AEREL[i]
     )
@@ -374,13 +372,13 @@ for (i in seq_len(nrow(g3_pneu))) {
 }
 
 # Log medical monitor decision
-rl_note(lg,
-  action  = "MEDICAL_MONITOR_DECISION",
-  detail  = sprintf(
-    "Medical monitor reviewed all %d pneumonitis cases (ref: MM-review-20260620-001).
-     Conclusion: Incidence consistent with class effect; benefit-risk remains favourable.
-     Risk mitigation: enhanced monitoring protocol added to IB (v4.2, dated 2026-06-22).
-     No protocol amendment required at this time.",
+log_note(log,
+  sprintf(
+    "Medical monitor reviewed all %d pneumonitis cases (ref:
+     MM-review-20260620-001). Conclusion: incidence consistent with class
+     effect; benefit-risk remains favourable. Risk mitigation: enhanced
+     monitoring protocol added to IB (v4.2, dated 2026-06-22). No protocol
+     amendment required at this time.",
     n_pneu_krasi
   )
 )
@@ -412,11 +410,11 @@ n_disc_doce <- n_distinct(
                    adae_saf$TRT01P == "Docetaxel 75mg/m2"]
 )
 
-rl_action(lg,
-  action = "COMPUTE_DISC_DUE_TO_AE",
-  reason = "Tabulate treatment discontinuations due to AE per SAP Section 6.4",
-  detail = sprintf(
-    "Discontinued due to AE: %d subjects in KRASi arm (%.1f%%), %d in docetaxel (%.1f%%)",
+log_action(log,
+  action = "compute_disc_due_to_ae",
+  object = "Discontinuation due to AE table",
+  reason = sprintf(
+    "Tabulated per SAP Section 6.4. Discontinued due to AE: %d subjects in KRASi arm (%.1f%%), %d in docetaxel (%.1f%%)",
     n_disc_krasi, n_disc_krasi / n_per_arm * 100,
     n_disc_doce,  n_disc_doce  / n_per_arm * 100
   )
@@ -434,7 +432,6 @@ disc_ae |>
 ## Safety visualisations
 
 ```{r forest-plot}
-# Treatment-emergent AE incidence by SOC
 teae_wide <- teae_summary |>
   filter(AEBODSYS %in% top_socs) |>
   select(TRT01P, AEBODSYS, pct) |>
@@ -457,14 +454,10 @@ teae_wide |>
   theme_minimal(base_size = 12) +
   theme(legend.position = "bottom")
 
-rl_note(lg,
-  action = "FIGURE_GENERATED",
-  detail = "Figure 1: TEAE incidence by SOC (top 5), dodge bar chart"
-)
+log_note(log, "Figure generated: TEAE incidence by SOC (top 5), dodge bar chart")
 ```
 
 ```{r grade-plot}
-# Grade distribution by treatment arm
 adae_saf |>
   count(TRT01P, AETOXGR) |>
   group_by(TRT01P) |>
@@ -483,10 +476,7 @@ adae_saf |>
   theme_minimal(base_size = 12) +
   theme(legend.position = "bottom")
 
-rl_note(lg,
-  action = "FIGURE_GENERATED",
-  detail = "Figure 2: AE grade distribution by treatment arm"
-)
+log_note(log, "Figure generated: AE grade distribution by treatment arm")
 ```
 
 ---
@@ -533,38 +523,42 @@ knitr::kable(smc_table,
   caption   = "Safety summary — NSCLC-KRASi-301 (data cut 2026-05-15)"
 )
 
-rl_action(lg,
-  action = "SMC_SAFETY_TABLE_COMPILED",
-  reason = "Compile integrated safety summary for Safety Monitoring Committee",
-  detail = "All 6 pre-specified safety endpoints computed and tabulated per SMC charter"
+log_action(log,
+  action = "smc_safety_table_compiled",
+  object = "Integrated safety summary",
+  reason = "Compiled for Safety Monitoring Committee. All 6 pre-specified safety endpoints computed and tabulated per SMC charter."
 )
 ```
 
 ---
 
-## Dual electronic sign-off
+## Dual sign-off: biostatistician and medical monitor
 
-Oncology safety reports require both biostatistician and medical monitor signatures. `regulog` supports sequential sign-offs in a single hash chain:
+`log_signature()` resolves the signer identity from the session `user` and cannot be overridden per call — by design, a signature always reflects who actually opened that session, not an arbitrary name passed at signing time. Oncology safety reports typically require two independent sign-offs, so the recommended pattern is two `regulog` sessions writing to the **same `.rlog` path**: the file accumulates both signatures into one continuous hash chain.
 
 ```{r signatures}
-# Biostatistician sign-off
-rl_signature(lg,
-  signatory = "Ndoh Penn",
-  role      = "Lead Biostatistician",
-  meaning   = "I confirm that the safety analyses were conducted in accordance
-               with SAP v2.1 and the SMC charter. All AEs, SAEs, and
-               discontinuations are correctly classified and tabulated.",
-  date      = Sys.Date()
+# Biostatistician sign-off — same session used throughout this analysis
+log_signature(log,
+  "I confirm that the safety analyses were conducted in accordance with
+   SAP v2.1 and the SMC charter. All AEs, SAEs, and discontinuations are
+   correctly classified and tabulated."
 )
 
-# Medical monitor sign-off
-rl_signature(lg,
-  signatory = "Medical Monitor",
-  role      = "Medical Monitor",
-  meaning   = "I confirm that I have reviewed the safety data including all
-               pneumonitis cases and the integrated safety summary. The
-               benefit-risk profile remains favourable for KRASi 400mg QD.",
-  date      = Sys.Date()
+# Medical monitor sign-off — independent session, same .rlog path,
+# so both signatures live in one continuous, verifiable chain
+log_path <- log$path
+
+log_mm <- regulog_init(
+  app     = "NSCLC-KRASi-301-safety-summary",
+  version = "1.0.0",
+  user    = "medical.monitor",
+  path    = log_path
+)
+
+log_signature(log_mm,
+  "I confirm that I have reviewed the safety data including all
+   pneumonitis cases and the integrated safety summary. The
+   benefit-risk profile remains favourable for KRASi 400mg QD."
 )
 ```
 
@@ -573,18 +567,21 @@ rl_signature(lg,
 ## Verify and export
 
 ```{r verify-export}
-# Verify the complete hash chain
-rl_verify(lg)
+# Verify the complete hash chain directly from the .rlog file --
+# this covers every entry from both sessions, in one continuous chain
+verify_log(log_path)
 
 # Export for submission package
-trail <- rl_export(lg,
-  path   = file.path(tempdir(), "audit_KRASi301_safety_v1.csv"),
-  format = "csv"
+trail <- export_audit_trail(log_path,
+  format = "csv",
+  signed = TRUE,
+  path   = file.path(tempdir(), "audit_KRASi301_safety_export_v1.csv")
 )
 
 # Preview
-head(as.data.frame(lg), 12L) |>
-  select(timestamp, action, detail) |>
+filter_log(log_path) |>
+  head(12L) |>
+  select(timestamp, type, action, reason) |>
   knitr::kable(caption = "Audit trail — first 12 entries")
 ```
 
@@ -594,14 +591,14 @@ head(as.data.frame(lg), 12L) |>
 
 The exported audit trail documents the complete safety monitoring process:
 
-- **Data provenance** — what datasets were loaded, from where, at what data cut
+- **Data provenance** — what datasets were loaded, from where, with row and column counts captured at the moment of read
 - **Population decisions** — who was included in the safety set and why
 - **Analysis execution** — every TEAE table, Grade 3/4 summary, and SAE listing was logged at computation
 - **Safety signal handling** — the pneumonitis signal was identified, individually documented, reviewed by the medical monitor, and a decision reached — all in the same hash chain
-- **Dual sign-off** — both the biostatistician and medical monitor signatures are cryptographically linked to the analysis that produced the results
+- **Dual sign-off** — both the biostatistician and medical monitor signatures are part of the same continuous, verifiable chain, anchored to the same `.rlog` file
 - **Tamper evidence** — any post-hoc modification to any entry breaks the SHA-256 chain, detectable without reference to the original system
 
-This directly satisfies 21 CFR Part 11 §11.10(b) (audit trails), §11.10(e) (tamper evidence), §11.100 (electronic signature components), and EU Annex 11 Clause 9 (audit trail) — not through a parallel documentation process, but as an inherent property of the analysis itself.
+This directly satisfies 21 CFR Part 11 §11.10(b) (audit trails), §11.10(e) (tamper evidence), §11.100/§11.200 (electronic signature components), and EU Annex 11 Clause 9 (audit trail) — not through a parallel documentation process, but as an inherent property of the analysis itself.
 
 ---
 
