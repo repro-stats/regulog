@@ -23,3 +23,7 @@ audit_signed.csv
 logs/
 docs
 pkgdown
+# Quarto article render artifacts
+vignettes/articles/*.html
+vignettes/articles/*.knit.md
+vignettes/articles/*_files/

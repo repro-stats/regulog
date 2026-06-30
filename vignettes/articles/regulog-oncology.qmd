@@ -274,8 +274,8 @@ g34 <- adae_saf |>
   filter(AETOXGR %in% c("3", "4")) |>
   group_by(TRT01P, AEBODSYS, AEDECOD, AETOXGR) |>
   summarise(n = n_distinct(USUBJID), .groups = "drop") |>
-  left_join(arm_n, by = "TRT01P") |>
-  mutate(pct = round(n / n.y * 100, 1)) |>
+  left_join(arm_n |> rename(arm_total = n), by = "TRT01P") |>
+  mutate(pct = round(n / arm_total * 100, 1)) |>
   arrange(desc(n))
 
 log_action(log,
@@ -307,8 +307,8 @@ saes <- adae_saf |>
   filter(AESER == "Y") |>
   group_by(TRT01P, AEBODSYS, AEDECOD) |>
   summarise(n = n_distinct(USUBJID), .groups = "drop") |>
-  left_join(arm_n, by = "TRT01P") |>
-  mutate(pct = round(n / n * 100, 1)) |>
+  left_join(arm_n |> rename(arm_total = n), by = "TRT01P") |>
+  mutate(pct = round(n / arm_total * 100, 1)) |>
   arrange(desc(n))
 
 n_sae_krasi <- n_distinct(
