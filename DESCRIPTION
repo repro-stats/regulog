@@ -19,17 +19,23 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     digest,
-    jsonlite
+    jsonlite,
+    utils
 Suggests:
     covr,
+    dplyr,
+    ggplot2,
     haven,
-    readr,
     knitr,
+    quarto,
+    readr,
     rmarkdown,
     shiny,
     testthat (>= 3.0.0),
+    tidyr,
     withr
 Config/testthat/edition: 3
-VignetteBuilder: knitr
+Config/Needs/website: dplyr, ggplot2, tidyr
+VignetteBuilder: knitr, quarto
 URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog
 BugReports: https://github.com/repro-stats/regulog/issues
