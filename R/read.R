@@ -59,6 +59,24 @@ rl_read <- function(log, reader, ...) {
   .assert_regulog(log)
   if (!is.function(reader)) stop("`reader` must be a function.")
 
+  # Capture the unevaluated expression at this call site -- e.g.
+  # "utils::read.csv" or "haven::read_sas" -- before `reader` is reduced
+  # to a plain function value. substitute() only recovers this from the
+  # promise as originally passed; it cannot be reconstructed later from
+  # the evaluated function object alone.
+  reader_label <- .label_reader(substitute(reader))
+
+  .rl_read_impl(log, reader, reader_label, ...)
+}
+
+#' Internal: shared read-and-log logic
+#'
+#' Both [rl_read()] and the `read()` closure inside [with_log()] capture
+#' their own `substitute(reader)` label at their respective call sites
+#' (the only place that expression is recoverable), then delegate the
+#' actual read-and-log work here.
+#' @noRd
+.rl_read_impl <- function(log, reader, reader_label, ...) {
   args <- list(...)
   path <- .resolve_read_path(args)
 
@@ -66,7 +84,6 @@ rl_read <- function(log, reader, ...) {
 
   n_row <- if (is.data.frame(result)) nrow(result) else NA_integer_
   n_col <- if (is.data.frame(result)) ncol(result) else NA_integer_
-  reader_label <- .label_reader(reader)
 
   detail <- if (!is.na(n_row)) {
     sprintf("%s(\"%s\") \u2014 %d rows, %d cols", reader_label, path, n_row, n_col)
@@ -125,7 +142,14 @@ with_log <- function(log, expr) {
   # Local `read()` binding, visible only inside the evaluated expression.
   # Captures `log` by lexical scope -- no shared/global state involved,
   # so concurrent with_log() calls across sessions never interfere.
-  read <- function(reader, ...) rl_read(log, reader, ...)
+  # The reader label is captured via substitute() here, at this closure's
+  # own call site -- the same fix applied in rl_read() -- so calls like
+  # read(haven::read_sas, ...) inside the block log a real label instead
+  # of the generic "<reader>" placeholder.
+  read <- function(reader, ...) {
+    reader_label <- .label_reader(substitute(reader))
+    .rl_read_impl(log, reader, reader_label, ...)
+  }
 
   parent_env <- parent.frame()
   eval_env <- new.env(parent = parent_env)
@@ -164,22 +188,28 @@ with_log <- function(log, expr) {
   "unknown"
 }
 
+#' Deparse a captured reader expression into a human-readable label
+#'
+#' Takes the unevaluated expression for the `reader` argument -- as captured
+#' by `substitute(reader)` at the `rl_read()` call site -- and deparses it
+#' to a label such as `"utils::read.csv"` or `"haven::read_sas"`. This must
+#' be called with the substituted expression, not a plain function value:
+#' by the time a function is just a value, R has no way to recover the
+#' name or namespace it was originally referenced by.
 #' @noRd
-.label_reader <- function(reader) {
-  # Best-effort human-readable label, e.g. "haven::read_sas".
-  # srcref / deparse of a function won't reliably give the namespace, so this
-  # is intentionally a soft label rather than a guaranteed-correct one.
-  env_name <- tryCatch(environmentName(environment(reader)), error = function(e) "")
-  fn_name  <- tryCatch(
-    {
-      nm <- deparse(substitute(reader))
-      if (nzchar(nm) && nm != "reader") nm else NULL
-    },
-    error = function(e) NULL
-  )
-  if (!is.null(fn_name)) return(fn_name)
-  if (nzchar(env_name) && env_name != "R_GlobalEnv") {
-    return(paste0(env_name, "::<reader>"))
+.label_reader <- function(reader_expr) {
+  label <- tryCatch(deparse(reader_expr), error = function(e) NULL)
+
+  if (is.null(label) || !nzchar(label) || length(label) != 1L) {
+    return("<reader>")
   }
-  "<reader>"
+
+  # A bare symbol naming an anonymous/local function (e.g. a function
+  # built with `function(...) ...` passed directly) deparses to something
+  # spanning multiple lines or containing "function(" -- not a useful label
+  if (grepl("^function", label) || grepl("\\(", label) == FALSE && label == "reader") {
+    return("<reader>")
+  }
+
+  label
 }
