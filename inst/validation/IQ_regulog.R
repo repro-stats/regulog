@@ -88,9 +88,9 @@ cat("=============================================================\n\n")
 )
 
 # IQ-010: v0.2.0 functions are available
-.iq_check("IQ-010", "v0.2.0 functions available: log_note, log_signature, filter_log, with_log",
+.iq_check("IQ-010", "v0.2.0 functions available: log_note, log_signature, filter_log, rl_read, with_log",
   all(c("log_note", "log_signature", "filter_log",
-        "log_hooks_enable", "log_hooks_disable", "with_log") %in%
+        "rl_read", "with_log") %in%
       getNamespaceExports("regulog"))
 )
 

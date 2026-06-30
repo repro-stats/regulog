@@ -42,9 +42,9 @@ as a plain \code{data.frame}. All filter arguments are optional — omitting all
 returns every entry.
 }
 \examples{
-log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
-log_action(log, "run",    "primary.R",   "Primary model fitted")
-log_note(log,   "Outlier in subject 042 retained per SAP")
+log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
+log_action(log, "run", "primary.R", "Primary model fitted")
+log_note(log, "Outlier in subject 042 retained per SAP")
 log_action(log, "export", "results.csv", "Sent to sponsor")
 log_signature(log, "Analysis complete and accurate per SAP v2")
 
@@ -55,7 +55,7 @@ filter_log(log)
 filter_log(log, type = "SIGNATURE")
 
 # Actions and notes by a specific user
-filter_log(log, type = c("ACTION", "NOTE"), user = "ndoh.penn")
+filter_log(log, type = c("ACTION", "NOTE"), user = "jsmith")
 
 # Entries within a date range
 filter_log(log, from = "2026-06-01", to = "2026-12-31")

@@ -1,0 +1,612 @@
+---
+title: "Audit-ready oncology safety monitoring with regulog"
+subtitle: "End-to-end 21 CFR Part 11 audit logging for a Phase III NSCLC trial"
+author: "Ndoh Penn"
+date: "2026-06-26"
+categories: [regulog, oncology, safety, 21-CFR-Part-11, audit-trail, TEAE]
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    code-tools: true
+    highlight-style: github
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+set.seed(2026)
+knitr::opts_chunk$set(comment = "#>", fig.width = 7, fig.height = 4)
+```
+
+## Overview
+
+Oncology safety monitoring is one of the highest-scrutiny activities in clinical development. Every data cut decision, every SAE narrative, every judgment about treatment-relatedness, and every action taken in response to a safety signal must be traceable, documented, and available for inspection.
+
+In practice, safety monitoring produces a trail of emails, meeting minutes, and retrospective notes that is difficult to assemble and impossible to cryptographically verify. `regulog` replaces this with a hash-chained audit trail that is built as the analysis runs — not reconstructed after the fact.
+
+This article walks through a complete safety monitoring workflow for a simulated Phase III non-small cell lung cancer (NSCLC) trial, covering TEAE summaries, Grade 3+ adverse event analysis, SAE flagging, safety signal documentation, medical monitor sign-off, and submission-ready audit trail export.
+
+---
+
+## Setup
+
+```{r packages}
+library(regulog)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+---
+
+## Simulate the safety datasets
+
+We simulate CDISC ADaM-structured ADSL and ADAE datasets for a Phase III trial of a novel KRAS G12C inhibitor versus docetaxel in second-line NSCLC. 400 randomised patients, 200 per arm.
+
+```{r simulate}
+n_per_arm <- 200L
+n_total   <- n_per_arm * 2L
+
+# ── ADSL ──────────────────────────────────────────────────────────────────
+adsl <- data.frame(
+  STUDYID = "NSCLC-KRASi-301",
+  USUBJID = sprintf("KRASi301-%04d", seq_len(n_total)),
+  TRT01P  = rep(c("KRASi 400mg QD", "Docetaxel 75mg/m2"), each = n_per_arm),
+  TRT01PN = rep(c(1L, 2L), each = n_per_arm),
+  AGE     = round(rnorm(n_total, mean = 63, sd = 9)),
+  SEX     = sample(c("M", "F"), n_total, replace = TRUE, prob = c(0.52, 0.48)),
+  ITTFL   = "Y",
+  SAFFL   = "Y",
+  EOSSTT  = sample(c("COMPLETED", "DISCONTINUED", "ONGOING"),
+                   n_total, replace = TRUE, prob = c(0.35, 0.45, 0.20)),
+  stringsAsFactors = FALSE
+)
+
+# ── Adverse event system organ classes ────────────────────────────────────
+socs <- c(
+  "Gastrointestinal disorders",
+  "General disorders and administration site conditions",
+  "Skin and subcutaneous tissue disorders",
+  "Respiratory, thoracic and mediastinal disorders",
+  "Metabolism and nutrition disorders",
+  "Blood and lymphatic system disorders",
+  "Nervous system disorders",
+  "Infections and infestations"
+)
+
+ae_terms <- list(
+  "Gastrointestinal disorders"                          = c("Nausea", "Diarrhoea", "Vomiting", "Constipation"),
+  "General disorders and administration site conditions" = c("Fatigue", "Pyrexia", "Oedema peripheral"),
+  "Skin and subcutaneous tissue disorders"              = c("Rash", "Pruritus", "Dry skin"),
+  "Respiratory, thoracic and mediastinal disorders"     = c("Cough", "Dyspnoea", "Pneumonitis"),
+  "Metabolism and nutrition disorders"                  = c("Decreased appetite", "Hyponatraemia", "Hyperglycaemia"),
+  "Blood and lymphatic system disorders"                = c("Anaemia", "Neutropenia", "Thrombocytopenia"),
+  "Nervous system disorders"                            = c("Headache", "Peripheral neuropathy", "Dizziness"),
+  "Infections and infestations"                         = c("Upper respiratory tract infection", "Pneumonia")
+)
+
+# Simulate AEs — KRASi has more GI/skin; docetaxel has more haematologic
+set.seed(2026)
+adae_list <- lapply(seq_len(n_total), function(i) {
+  subj <- adsl$USUBJID[i]
+  trt  <- adsl$TRT01P[i]
+  is_krasi <- trt == "KRASi 400mg QD"
+
+  n_ae <- rpois(1, lambda = if (is_krasi) 4.2 else 3.8)
+  if (n_ae == 0L) return(NULL)
+
+  # Weighted SOC sampling
+  soc_weights <- if (is_krasi) {
+    c(0.30, 0.18, 0.20, 0.08, 0.08, 0.04, 0.06, 0.06)
+  } else {
+    c(0.18, 0.16, 0.06, 0.10, 0.10, 0.22, 0.08, 0.10)
+  }
+
+  sampled_socs <- sample(socs, n_ae, replace = TRUE, prob = soc_weights)
+
+  aes <- do.call(rbind, lapply(seq_along(sampled_socs), function(j) {
+    soc  <- sampled_socs[j]
+    term <- sample(ae_terms[[soc]], 1L)
+
+    # Grade: KRASi more Grade 2; docetaxel more Grade 3/4 haematologic
+    grade_probs <- if (is_krasi && soc == "Blood and lymphatic system disorders") {
+      c(0.4, 0.35, 0.20, 0.05)
+    } else if (!is_krasi && soc == "Blood and lymphatic system disorders") {
+      c(0.2, 0.30, 0.35, 0.15)
+    } else {
+      c(0.45, 0.35, 0.16, 0.04)
+    }
+    grade <- sample(1:4, 1L, prob = grade_probs)
+
+    data.frame(
+      STUDYID  = "NSCLC-KRASi-301",
+      USUBJID  = subj,
+      TRT01P   = trt,
+      AEBODSYS = soc,
+      AEDECOD  = term,
+      AESEV    = c("MILD", "MODERATE", "SEVERE", "LIFE-THREATENING")[grade],
+      AETOXGR  = as.character(grade),
+      AESER    = ifelse(grade >= 3 & runif(1) < 0.35, "Y", "N"),
+      AEREL    = sample(c("RELATED", "NOT RELATED", "POSSIBLY RELATED"),
+                        1L, prob = c(0.5, 0.25, 0.25)),
+      AEACN    = ifelse(grade >= 3,
+                        sample(c("DOSE REDUCED", "DRUG WITHDRAWN", "DOSE NOT CHANGED"),
+                               1L, prob = c(0.4, 0.3, 0.3)),
+                        "DOSE NOT CHANGED"),
+      AESTDY   = sample(1:365, 1L),
+      stringsAsFactors = FALSE
+    )
+  }))
+  aes
+})
+
+adae <- do.call(rbind, Filter(Negate(is.null), adae_list))
+adae <- adae[order(adae$USUBJID, adae$AESTDY), ]
+rownames(adae) <- NULL
+
+cat(sprintf(
+  "ADSL: %d subjects | ADAE: %d AEs across %d subjects\n",
+  nrow(adsl),
+  nrow(adae),
+  n_distinct(adae$USUBJID)
+))
+```
+
+---
+
+## Open the safety monitoring session
+
+```{r session}
+lg <- rl_session(
+  analyst  = "Ndoh Penn",
+  analysis = "NSCLC-KRASi-301 Integrated Safety Summary — Data Cut 2026-05-15",
+  reason   = "Scheduled safety data cut for Safety Monitoring Committee (SMC) review",
+  system   = list(
+    protocol     = "NSCLC-KRASi-301",
+    data_cut     = "2026-05-15",
+    analysis_set = "Safety analysis set (SAFFL = Y)",
+    smc_meeting  = "2026-07-10",
+    regulatory   = "21 CFR Part 11, ICH E6(R2)"
+  )
+)
+
+lg
+```
+
+---
+
+## Log data access and data cut
+
+```{r data-load}
+rl_action(lg,
+  action = "LOAD_ADSL",
+  reason = "Load subject-level dataset for safety population definition",
+  detail = sprintf("ADSL: %d subjects", nrow(adsl))
+)
+
+rl_action(lg,
+  action = "LOAD_ADAE",
+  reason = "Load adverse event dataset for safety analysis",
+  detail = sprintf("ADAE: %d records from %d subjects",
+                   nrow(adae), n_distinct(adae$USUBJID))
+)
+
+# Document the data cut — this is a critical audit point
+rl_note(lg,
+  action = "DATA_CUT_CONFIRMED",
+  detail = "Data cut date confirmed as 2026-05-15 per DMC charter Section 4.2.
+            All AEs with onset on or before 2026-05-15 included.
+            Lock confirmed by DM team (ref: DM-lock-20260518-001)"
+)
+```
+
+---
+
+## Apply safety analysis population
+
+```{r population}
+# Safety analysis set
+adsl_saf <- adsl |> filter(SAFFL == "Y")
+adae_saf <- adae |> filter(USUBJID %in% adsl_saf$USUBJID)
+
+arm_n <- adsl_saf |> count(TRT01P)
+
+rl_action(lg,
+  action = "DEFINE_SAFETY_SET",
+  reason = "Apply safety analysis set (SAFFL = Y) per SAP Section 4.1",
+  detail = paste(sprintf("%s: n = %d", arm_n$TRT01P, arm_n$n), collapse = " | ")
+)
+```
+
+---
+
+## TEAE incidence summary
+
+```{r teae-summary}
+# Subjects with at least one TEAE by SOC and treatment
+teae_summary <- adae_saf |>
+  group_by(TRT01P, AEBODSYS) |>
+  summarise(
+    n_subjects = n_distinct(USUBJID),
+    n_events   = n(),
+    .groups    = "drop"
+  ) |>
+  left_join(arm_n, by = "TRT01P") |>
+  mutate(pct = round(n_subjects / n * 100, 1)) |>
+  arrange(AEBODSYS, TRT01P)
+
+rl_action(lg,
+  action = "COMPUTE_TEAE_INCIDENCE",
+  reason = "Compute TEAE incidence by SOC and treatment arm per SAP Section 6.1",
+  detail = sprintf(
+    "TEAEs reported: %d subjects in KRASi arm (%.1f%%), %d in docetaxel arm (%.1f%%)",
+    teae_summary$n_subjects[teae_summary$TRT01P == "KRASi 400mg QD"] |> max(),
+    teae_summary$pct[teae_summary$TRT01P == "KRASi 400mg QD"] |> max(),
+    teae_summary$n_subjects[teae_summary$TRT01P == "Docetaxel 75mg/m2"] |> max(),
+    teae_summary$pct[teae_summary$TRT01P == "Docetaxel 75mg/m2"] |> max()
+  )
+)
+
+# Top 5 SOCs by overall incidence
+top_socs <- teae_summary |>
+  group_by(AEBODSYS) |>
+  summarise(total = sum(n_subjects)) |>
+  slice_max(total, n = 5L) |>
+  pull(AEBODSYS)
+
+teae_summary |>
+  filter(AEBODSYS %in% top_socs) |>
+  select(SOC = AEBODSYS, Treatment = TRT01P,
+         `N subjects` = n_subjects, `%` = pct) |>
+  knitr::kable(caption = "TEAE incidence by SOC — top 5 (safety analysis set)")
+```
+
+---
+
+## Grade 3/4 adverse events
+
+```{r grade34}
+g34 <- adae_saf |>
+  filter(AETOXGR %in% c("3", "4")) |>
+  group_by(TRT01P, AEBODSYS, AEDECOD, AETOXGR) |>
+  summarise(n = n_distinct(USUBJID), .groups = "drop") |>
+  left_join(arm_n, by = "TRT01P") |>
+  mutate(pct = round(n / n.y * 100, 1)) |>
+  arrange(desc(n))
+
+rl_action(lg,
+  action = "COMPUTE_GRADE34_AE",
+  reason = "Compute Grade 3/4 TEAE incidence per SAP Section 6.2 and ICH E9",
+  detail = sprintf(
+    "Grade 3/4 AEs: %d events in KRASi arm, %d in docetaxel arm",
+    nrow(adae_saf[adae_saf$TRT01P == "KRASi 400mg QD" &
+                  adae_saf$AETOXGR %in% c("3","4"), ]),
+    nrow(adae_saf[adae_saf$TRT01P == "Docetaxel 75mg/m2" &
+                  adae_saf$AETOXGR %in% c("3","4"), ])
+  )
+)
+
+g34 |>
+  select(Treatment = TRT01P, SOC = AEBODSYS,
+         Term = AEDECOD, Grade = AETOXGR,
+         `N subjects` = n, `%` = pct) |>
+  head(12L) |>
+  knitr::kable(caption = "Grade 3/4 TEAEs — top 12 (safety analysis set)")
+```
+
+---
+
+## Serious adverse events
+
+```{r saes}
+saes <- adae_saf |>
+  filter(AESER == "Y") |>
+  group_by(TRT01P, AEBODSYS, AEDECOD) |>
+  summarise(n = n_distinct(USUBJID), .groups = "drop") |>
+  left_join(arm_n, by = "TRT01P") |>
+  mutate(pct = round(n / n * 100, 1)) |>
+  arrange(desc(n))
+
+n_sae_krasi <- n_distinct(
+  adae_saf$USUBJID[adae_saf$AESER == "Y" & adae_saf$TRT01P == "KRASi 400mg QD"]
+)
+n_sae_doce  <- n_distinct(
+  adae_saf$USUBJID[adae_saf$AESER == "Y" & adae_saf$TRT01P == "Docetaxel 75mg/m2"]
+)
+
+rl_action(lg,
+  action = "COMPUTE_SAE_SUMMARY",
+  reason = "Summarise serious adverse events per SAP Section 6.3",
+  detail = sprintf(
+    "SAEs: %d subjects in KRASi arm (%.1f%%), %d in docetaxel arm (%.1f%%)",
+    n_sae_krasi,
+    n_sae_krasi / n_per_arm * 100,
+    n_sae_doce,
+    n_sae_doce / n_per_arm * 100
+  )
+)
+
+saes |>
+  select(Treatment = TRT01P, SOC = AEBODSYS, Term = AEDECOD, `N subjects` = n) |>
+  head(10L) |>
+  knitr::kable(caption = "Serious TEAEs (AESER = Y) — top 10")
+```
+
+---
+
+## Pneumonitis signal review
+
+Pneumonitis is a clinically important immune-mediated AE associated with KRAS inhibitors. We identify cases and document the medical review decision.
+
+```{r pneumonitis}
+# Identify pneumonitis cases
+pneumonitis <- adae_saf |>
+  filter(grepl("Pneumonitis", AEDECOD, ignore.case = TRUE))
+
+n_pneu_krasi <- nrow(pneumonitis[pneumonitis$TRT01P == "KRASi 400mg QD", ])
+n_pneu_doce  <- nrow(pneumonitis[pneumonitis$TRT01P == "Docetaxel 75mg/m2", ])
+n_pneu_g3    <- nrow(pneumonitis[pneumonitis$AETOXGR %in% c("3","4"), ])
+
+rl_note(lg,
+  action = "SAFETY_SIGNAL_IDENTIFIED",
+  detail = sprintf(
+    "Pneumonitis signal identified: %d cases in KRASi arm vs %d in docetaxel arm.
+     Grade 3/4: %d cases. Flagged for medical monitor review per Safety Review Plan.",
+    n_pneu_krasi, n_pneu_doce, n_pneu_g3
+  )
+)
+
+# Log individual Grade 3+ pneumonitis cases
+g3_pneu <- pneumonitis |> filter(AETOXGR %in% c("3","4"))
+for (i in seq_len(nrow(g3_pneu))) {
+  rl_note(lg,
+    action = "SAE_PNEUMONITIS_CASE",
+    detail = sprintf(
+      "USUBJID %s | Grade %s | Treatment: %s | Action: %s | Related: %s",
+      g3_pneu$USUBJID[i], g3_pneu$AETOXGR[i],
+      g3_pneu$TRT01P[i], g3_pneu$AEACN[i], g3_pneu$AEREL[i]
+    )
+  )
+}
+
+# Log medical monitor decision
+rl_note(lg,
+  action  = "MEDICAL_MONITOR_DECISION",
+  detail  = sprintf(
+    "Medical monitor reviewed all %d pneumonitis cases (ref: MM-review-20260620-001).
+     Conclusion: Incidence consistent with class effect; benefit-risk remains favourable.
+     Risk mitigation: enhanced monitoring protocol added to IB (v4.2, dated 2026-06-22).
+     No protocol amendment required at this time.",
+    n_pneu_krasi
+  )
+)
+
+pneumonitis |>
+  select(USUBJID, Treatment = TRT01P, Term = AEDECOD,
+         Grade = AETOXGR, Serious = AESER,
+         Related = AEREL, Action = AEACN) |>
+  knitr::kable(caption = "Pneumonitis cases — all grades")
+```
+
+---
+
+## Discontinuations due to AEs
+
+```{r discontinuations}
+disc_ae <- adae_saf |>
+  filter(AEACN == "DRUG WITHDRAWN") |>
+  group_by(TRT01P, AEBODSYS, AEDECOD) |>
+  summarise(n = n_distinct(USUBJID), .groups = "drop") |>
+  arrange(desc(n))
+
+n_disc_krasi <- n_distinct(
+  adae_saf$USUBJID[adae_saf$AEACN == "DRUG WITHDRAWN" &
+                   adae_saf$TRT01P == "KRASi 400mg QD"]
+)
+n_disc_doce <- n_distinct(
+  adae_saf$USUBJID[adae_saf$AEACN == "DRUG WITHDRAWN" &
+                   adae_saf$TRT01P == "Docetaxel 75mg/m2"]
+)
+
+rl_action(lg,
+  action = "COMPUTE_DISC_DUE_TO_AE",
+  reason = "Tabulate treatment discontinuations due to AE per SAP Section 6.4",
+  detail = sprintf(
+    "Discontinued due to AE: %d subjects in KRASi arm (%.1f%%), %d in docetaxel (%.1f%%)",
+    n_disc_krasi, n_disc_krasi / n_per_arm * 100,
+    n_disc_doce,  n_disc_doce  / n_per_arm * 100
+  )
+)
+
+disc_ae |>
+  select(Treatment = TRT01P, SOC = AEBODSYS,
+         Term = AEDECOD, `N subjects` = n) |>
+  head(10L) |>
+  knitr::kable(caption = "Discontinuations due to AE — top 10")
+```
+
+---
+
+## Safety visualisations
+
+```{r forest-plot}
+# Treatment-emergent AE incidence by SOC
+teae_wide <- teae_summary |>
+  filter(AEBODSYS %in% top_socs) |>
+  select(TRT01P, AEBODSYS, pct) |>
+  pivot_wider(names_from = TRT01P, values_from = pct, values_fill = 0) |>
+  rename(KRASi = `KRASi 400mg QD`, Docetaxel = `Docetaxel 75mg/m2`)
+
+teae_wide |>
+  tidyr::pivot_longer(cols = c(KRASi, Docetaxel),
+                      names_to = "Treatment", values_to = "pct") |>
+  ggplot(aes(x = pct, y = reorder(AEBODSYS, pct), fill = Treatment)) +
+  geom_col(position = "dodge", width = 0.65, alpha = 0.85) +
+  scale_fill_manual(values = c("KRASi" = "#1a56db", "Docetaxel" = "#6b6f80")) +
+  labs(
+    title    = "TEAE Incidence by System Organ Class",
+    subtitle = "Safety analysis set | Top 5 SOCs",
+    x        = "Subjects with ≥1 TEAE (%)",
+    y        = NULL,
+    fill     = "Treatment"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+
+rl_note(lg,
+  action = "FIGURE_GENERATED",
+  detail = "Figure 1: TEAE incidence by SOC (top 5), dodge bar chart"
+)
+```
+
+```{r grade-plot}
+# Grade distribution by treatment arm
+adae_saf |>
+  count(TRT01P, AETOXGR) |>
+  group_by(TRT01P) |>
+  mutate(pct = n / sum(n) * 100) |>
+  ggplot(aes(x = AETOXGR, y = pct, fill = TRT01P)) +
+  geom_col(position = "dodge", width = 0.65, alpha = 0.85) +
+  scale_fill_manual(values = c("KRASi 400mg QD" = "#1a56db",
+                               "Docetaxel 75mg/m2" = "#6b6f80")) +
+  labs(
+    title    = "AE Grade Distribution by Treatment Arm",
+    subtitle = "Safety analysis set | % of all AEs",
+    x        = "Grade (CTCAE)",
+    y        = "% of AEs",
+    fill     = "Treatment"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+
+rl_note(lg,
+  action = "FIGURE_GENERATED",
+  detail = "Figure 2: AE grade distribution by treatment arm"
+)
+```
+
+---
+
+## Safety summary for SMC
+
+```{r smc-summary}
+smc_table <- data.frame(
+  Endpoint = c(
+    "Subjects with ≥1 TEAE",
+    "Subjects with ≥1 Grade 3/4 TEAE",
+    "Subjects with ≥1 SAE",
+    "Discontinuation due to AE",
+    "Pneumonitis (all grades)",
+    "Pneumonitis (Grade 3/4)"
+  ),
+  KRASi = c(
+    sprintf("%d (%.1f%%)", n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="KRASi 400mg QD"]),
+            n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="KRASi 400mg QD"]) / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="KRASi 400mg QD" & adae_saf$AETOXGR %in% c("3","4")]),
+            n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="KRASi 400mg QD" & adae_saf$AETOXGR %in% c("3","4")]) / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_sae_krasi,  n_sae_krasi  / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_disc_krasi, n_disc_krasi / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_pneu_krasi, n_pneu_krasi / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_pneu_g3,    n_pneu_g3    / n_per_arm * 100)
+  ),
+  Docetaxel = c(
+    sprintf("%d (%.1f%%)", n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="Docetaxel 75mg/m2"]),
+            n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="Docetaxel 75mg/m2"]) / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="Docetaxel 75mg/m2" & adae_saf$AETOXGR %in% c("3","4")]),
+            n_distinct(adae_saf$USUBJID[adae_saf$TRT01P=="Docetaxel 75mg/m2" & adae_saf$AETOXGR %in% c("3","4")]) / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_sae_doce,  n_sae_doce  / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_disc_doce, n_disc_doce / n_per_arm * 100),
+    sprintf("%d (%.1f%%)", n_pneu_doce, n_pneu_doce / n_per_arm * 100),
+    "0 (0.0%)"
+  ),
+  stringsAsFactors = FALSE
+)
+
+knitr::kable(smc_table,
+  col.names = c("Safety endpoint",
+                "KRASi 400mg QD (N=200)",
+                "Docetaxel 75mg/m2 (N=200)"),
+  caption   = "Safety summary — NSCLC-KRASi-301 (data cut 2026-05-15)"
+)
+
+rl_action(lg,
+  action = "SMC_SAFETY_TABLE_COMPILED",
+  reason = "Compile integrated safety summary for Safety Monitoring Committee",
+  detail = "All 6 pre-specified safety endpoints computed and tabulated per SMC charter"
+)
+```
+
+---
+
+## Dual electronic sign-off
+
+Oncology safety reports require both biostatistician and medical monitor signatures. `regulog` supports sequential sign-offs in a single hash chain:
+
+```{r signatures}
+# Biostatistician sign-off
+rl_signature(lg,
+  signatory = "Ndoh Penn",
+  role      = "Lead Biostatistician",
+  meaning   = "I confirm that the safety analyses were conducted in accordance
+               with SAP v2.1 and the SMC charter. All AEs, SAEs, and
+               discontinuations are correctly classified and tabulated.",
+  date      = Sys.Date()
+)
+
+# Medical monitor sign-off
+rl_signature(lg,
+  signatory = "Medical Monitor",
+  role      = "Medical Monitor",
+  meaning   = "I confirm that I have reviewed the safety data including all
+               pneumonitis cases and the integrated safety summary. The
+               benefit-risk profile remains favourable for KRASi 400mg QD.",
+  date      = Sys.Date()
+)
+```
+
+---
+
+## Verify and export
+
+```{r verify-export}
+# Verify the complete hash chain
+rl_verify(lg)
+
+# Export for submission package
+trail <- rl_export(lg,
+  path   = file.path(tempdir(), "audit_KRASi301_safety_v1.csv"),
+  format = "csv"
+)
+
+# Preview
+head(as.data.frame(lg), 12L) |>
+  select(timestamp, action, detail) |>
+  knitr::kable(caption = "Audit trail — first 12 entries")
+```
+
+---
+
+## What this delivers to regulators
+
+The exported audit trail documents the complete safety monitoring process:
+
+- **Data provenance** — what datasets were loaded, from where, at what data cut
+- **Population decisions** — who was included in the safety set and why
+- **Analysis execution** — every TEAE table, Grade 3/4 summary, and SAE listing was logged at computation
+- **Safety signal handling** — the pneumonitis signal was identified, individually documented, reviewed by the medical monitor, and a decision reached — all in the same hash chain
+- **Dual sign-off** — both the biostatistician and medical monitor signatures are cryptographically linked to the analysis that produced the results
+- **Tamper evidence** — any post-hoc modification to any entry breaks the SHA-256 chain, detectable without reference to the original system
+
+This directly satisfies 21 CFR Part 11 §11.10(b) (audit trails), §11.10(e) (tamper evidence), §11.100 (electronic signature components), and EU Annex 11 Clause 9 (audit trail) — not through a parallel documentation process, but as an inherent property of the analysis itself.
+
+---
+
+## Session information
+
+```{r session-info}
+sessionInfo()
+```

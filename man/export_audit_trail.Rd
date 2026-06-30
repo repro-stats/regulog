@@ -65,8 +65,10 @@ into the export — useful for handoffs, audits, or archival.
 }
 \examples{
 log <- regulog_init(app = "my-app", user = "jsmith")
-log_action(log, action = "approved", object = "model_v3",
-           reason = "Metrics passed threshold")
+log_action(log,
+  action = "approved", object = "model_v3",
+  reason = "Metrics passed threshold"
+)
 df <- export_audit_trail(log, format = "csv")
 
 \dontrun{

@@ -25,7 +25,7 @@ by \code{\link[=export_audit_trail]{export_audit_trail()}} with \code{format = "
 Called implicitly by \code{\link[=filter_log]{filter_log()}} and useful for direct inspection.
 }
 \examples{
-log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
+log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
 log_action(log, "run", "primary.R", "Primary model fitted")
 log_note(log, "Outlier retained per SAP")
 

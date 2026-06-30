@@ -7,38 +7,41 @@
 * `log_note()` — log a free-text annotation or analytical decision as a
   tamper-evident NOTE entry. Every entry is mandatory-reason enforced and
   included in the hash chain.
-
 * `log_signature()` — apply an electronic signature per 21 CFR Part 11
   §11.100/§11.200. Signer identity is resolved from the session user;
   entries covered is captured automatically.
-
 * `filter_log()` — query log entries as a `data.frame` by type, user,
   action, or date range. Also works directly on `.rlog` file paths without
   an active session.
-
 * `as.data.frame.regulog()` — S3 method to convert a `regulog` object to
   a flat data frame, one row per entry (genesis record excluded).
-
-* `log_hooks_enable()` / `log_hooks_disable()` — patch common read
-  functions (`haven::read_sas`, `readr::read_csv`, `data.table::fread`,
-  `utils::read.csv`, etc.) for automatic data I/O logging. Every read
-  is captured as an ACTION entry without any code changes.
-
-* `with_log()` — scoped automatic logging for a code block. Guarantees
-  `log_hooks_disable()` is called on exit even if the block errors.
+* `rl_read()` — explicit, logged read of any data source. Calls the
+  supplied reader function and records the result as a `data_read` ACTION
+  entry, capturing the resolved file path, row count, and column count.
+  The path is resolved by argument name (`file`, `path`, `data_file`,
+  `input`) where possible, falling back to the first unnamed argument —
+  correct even when arguments are supplied out of position.
+* `with_log()` — scoped logging for a code block. Provides a local `read()`
+  binding tied to the supplied log, so reads inside the block don't need
+  to repeat the `log` argument. Each `with_log()` call is isolated via
+  lexical scope: concurrent calls (e.g. across Shiny sessions) never
+  interfere with one another, and an error inside the block propagates
+  normally without losing or corrupting entries logged before it.
 
 ## Validation
 
 * IQ/OQ/PQ qualification scripts updated to v0.2:
-  * OQ-015 to OQ-024: tests for `log_note`, `log_signature`,
-    `filter_log`, `as.data.frame.regulog`, and `with_log`
+  * OQ-015 to OQ-024c: tests for `log_note`, `log_signature`,
+    `filter_log`, `as.data.frame.regulog`, `rl_read`, and `with_log`,
+    including concurrent-session isolation
   * PQ-006: annotated clinical analysis workflow with notes and signature
   * PQ-007: regulatory inspector query workflow using `filter_log`
-
-* Requirements Traceability Matrix extended with 5 new rows covering
+* Requirements Traceability Matrix extended with rows covering
   21 CFR Part 11 §11.100 (signer identity), §11.200 (signature
-  components), annotation trail, automated I/O tracking, and audit
-  trail query interface.
+  components), annotation trail, data read logging, and audit trail
+  query interface. See `inst/validation/RTM_regulog.md` for column
+  definitions and a script to verify the RTM stays in sync with the
+  validation scripts and exported API.
 
 ## Documentation
 

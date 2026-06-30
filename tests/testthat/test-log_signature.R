@@ -6,16 +6,16 @@ test_that("log_signature() rejects blank meaning", {
 })
 
 test_that("log_signature() adds a SIGNATURE entry with correct fields", {
-  log <- regulog_init(app = "test", version = "0.1", user = "ndoh.penn")
+  log <- regulog_init(app = "test", version = "0.1", user = "jsmith")
   log_action(log, "run", "analysis.R", "Model fitted")
   log_signature(log, "I certify this analysis is accurate per SAP v2")
 
   e <- log$entries[[2L]]
-  expect_equal(e$type,   "SIGNATURE")
+  expect_equal(e$type, "SIGNATURE")
   expect_equal(e$action, "signature")
-  expect_equal(e$object, "ndoh.penn")   # signer = session user, not overrideable
+  expect_equal(e$object, "jsmith") # signer = session user, not overrideable
   expect_equal(e$reason, "I certify this analysis is accurate per SAP v2")
-  expect_equal(e$field,  "entries_covered")
+  expect_equal(e$field, "entries_covered")
 })
 
 test_that("log_signature() records entries_covered automatically", {
@@ -45,8 +45,8 @@ test_that("log_signature() is pipe-friendly", {
 
 test_that("log_signature() is part of the hash chain", {
   log <- regulog_init(app = "test", version = "0.1", user = "tester")
-  log_action(log,    "run", "a.R", "Fitted")
-  log_note(log,      "Outlier retained per SAP")
+  log_action(log, "run", "a.R", "Fitted")
+  log_note(log, "Outlier retained per SAP")
   log_signature(log, "Analysis certified accurate")
 
   result <- verify_log(log, verbose = FALSE)

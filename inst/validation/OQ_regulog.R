@@ -148,7 +148,7 @@ cat("=============================================================\n\n")
   identical(ids, 1L:5L)
 })
 
-# ── v0.2.0 additions (OQ-015 to OQ-024) ──────────────────────────────────────
+# ── v0.2.0 additions (OQ-015 to OQ-024c) ─────────────────────────────────────
 
 # -- OQ-015: NOTE entry type -------------------------------------------------
 .oq_test("OQ-015", "CFR §11.10(e)", "log_note() creates a NOTE entry with mandatory reason", {
@@ -182,7 +182,7 @@ cat("=============================================================\n\n")
 
 # -- OQ-018: SIGNATURE entry structure ---------------------------------------
 .oq_test("OQ-018", "CFR §11.100 / §11.200", "log_signature() records signer identity and meaning", {
-  log <- regulog_init(app = "oq-test", user = "ndoh.penn")
+  log <- regulog_init(app = "oq-test", user = "jsmith")
   log_action(log, action = "run", object = "analysis.R", reason = "Model fitted")
   log_signature(log,
     "I certify this analysis is accurate and complete per SAP version 2.0"
@@ -190,7 +190,7 @@ cat("=============================================================\n\n")
   e <- log$entries[[2L]]
   e$type   == "SIGNATURE" &&
   e$action == "signature" &&
-  e$object == "ndoh.penn" &&
+  e$object == "jsmith" &&
   e$reason == "I certify this analysis is accurate and complete per SAP version 2.0"
 })
 
@@ -246,14 +246,50 @@ cat("=============================================================\n\n")
   nrow(df) == 1L && !any(df$type == "GENESIS")
 })
 
-# -- OQ-024: with_log() restores hooks on error ------------------------------
-.oq_test("OQ-024", "CFR §11.10(e)", "with_log() guarantees hook cleanup even on error", {
+# -- OQ-024: with_log() propagates errors and preserves prior entries -------
+.oq_test("OQ-024", "CFR §11.10(e)", "with_log() propagates errors without corrupting or losing prior chain entries", {
   log <- regulog_init(app = "oq-test", user = "validator")
+  log_action(log, action = "setup", object = "init", reason = "Pre-block entry")
+
+  err_caught <- FALSE
   tryCatch(
     with_log(log, { stop("deliberate error") }),
-    error = function(e) NULL
+    error = function(e) err_caught <<- TRUE
   )
-  is.null(regulog:::.rl_hooks$log)
+
+  vr <- verify_log(log, verbose = FALSE)
+  err_caught && vr$intact && vr$n_entries == 1L
+})
+
+# -- OQ-024b: with_log()'s read() logs a data_read ACTION entry -------------
+.oq_test("OQ-024b", "CFR §11.10(e)", "with_log()'s read() logs a data_read ACTION entry with correct path", {
+  log <- regulog_init(app = "oq-test", user = "validator")
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp))
+  utils::write.csv(data.frame(x = 1:3), tmp, row.names = FALSE)
+
+  with_log(log, {
+    df <- read(utils::read.csv, tmp)
+  })
+
+  e <- log$entries[[1L]]
+  e$type == "ACTION" && e$action == "data_read" && e$object == tmp
+})
+
+# -- OQ-024c: concurrent with_log() sessions do not interfere ---------------
+.oq_test("OQ-024c", "CFR §11.10(e)", "Two independent with_log() calls on separate logs do not share state", {
+  log_a <- regulog_init(app = "oq-test", user = "user_a")
+  log_b <- regulog_init(app = "oq-test", user = "user_b")
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp))
+  utils::write.csv(data.frame(x = 1), tmp, row.names = FALSE)
+
+  with_log(log_a, { read(utils::read.csv, tmp) })
+  with_log(log_b, { read(utils::read.csv, tmp) })
+
+  length(log_a$entries) == 1L && length(log_b$entries) == 1L &&
+    log_a$entries[[1L]]$user == "user_a" &&
+    log_b$entries[[1L]]$user == "user_b"
 })
 
 # ── Summary ───────────────────────────────────────────────────────────────────

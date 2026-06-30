@@ -35,8 +35,10 @@
 #'
 #' @examples
 #' log <- regulog_init(app = "my-app", user = "jsmith")
-#' log_action(log, action = "approved", object = "file.csv",
-#'            reason = "Review complete")
+#' log_action(log,
+#'   action = "approved", object = "file.csv",
+#'   reason = "Review complete"
+#' )
 #' verify_log(log)
 #' #> v Log intact: 1 entry, chain unbroken
 #'
@@ -66,7 +68,7 @@ verify_log.character <- function(log, verbose = TRUE) {
   }
 
   # Split genesis from data entries
-  types       <- vapply(all_records, function(r) r$type %||% "", character(1L))
+  types <- vapply(all_records, function(r) r$type %||% "", character(1L))
   genesis_idx <- which(types == "GENESIS")
 
   if (length(genesis_idx) == 0L) {
@@ -80,7 +82,7 @@ verify_log.character <- function(log, verbose = TRUE) {
 
   .run_verification(
     entries    = data_entries,
-    hash_algo  = "sha256",   # stored in genesis in future; defaulting for v0.1
+    hash_algo  = "sha256", # stored in genesis in future; defaulting for v0.1
     first_prev = genesis_hash,
     verbose    = verbose
   )
@@ -92,9 +94,9 @@ verify_log.character <- function(log, verbose = TRUE) {
 # --------------------------------------------------------------------------- #
 
 .run_verification <- function(entries, hash_algo, first_prev, verbose) {
-  errors       <- character(0L)
+  errors <- character(0L)
   first_broken <- NA_integer_
-  prev_hash    <- first_prev
+  prev_hash <- first_prev
 
   for (i in seq_along(entries)) {
     e <- entries[[i]]
@@ -103,12 +105,15 @@ verify_log.character <- function(log, verbose = TRUE) {
     # Reconstruct hash input using the same canonical format as .build_entry():
     # entry_id | timestamp | app | app_version | user | type |
     # <key=value pairs in sorted key order, semicolon-separated> | prev_hash
-    structural <- c("entry_id", "timestamp", "app", "app_version",
-                    "user", "type", "prev_hash", "entry_hash")
+    structural <- c(
+      "entry_id", "timestamp", "app", "app_version",
+      "user", "type", "prev_hash", "entry_hash"
+    )
     payload_keys <- sort(setdiff(names(e), structural))
     field_str <- paste(
       paste(payload_keys, sapply(payload_keys, function(k) e[[k]]),
-            sep = "=", collapse = ";"),
+        sep = "=", collapse = ";"
+      ),
       sep = ""
     )
 
@@ -122,7 +127,7 @@ verify_log.character <- function(log, verbose = TRUE) {
     computed <- digest::digest(hash_input, algo = hash_algo, serialize = FALSE)
 
     ok_content <- identical(computed, e$entry_hash)
-    ok_chain   <- identical(e$prev_hash, prev_hash)
+    ok_chain <- identical(e$prev_hash, prev_hash)
 
     if (!ok_content) {
       msg <- sprintf("Entry #%d: entry_hash mismatch \u2014 content may have been modified", id)
@@ -143,7 +148,7 @@ verify_log.character <- function(log, verbose = TRUE) {
   }
 
   intact <- length(errors) == 0L
-  n      <- length(entries)
+  n <- length(entries)
 
   if (verbose) {
     if (intact) {

@@ -79,12 +79,11 @@
 #'
 #' @export
 regulog_init <- function(app,
-                         version   = "unknown",
-                         user      = Sys.info()[["user"]],
-                         path      = NULL,
+                         version = "unknown",
+                         user = Sys.info()[["user"]],
+                         path = NULL,
                          hash_algo = "sha256") {
-
-  if (!is.character(app)  || !nzchar(app))  stop("`app` must be a non-empty string.")
+  if (!is.character(app) || !nzchar(app)) stop("`app` must be a non-empty string.")
   if (!is.character(user) || !nzchar(user)) stop("`user` must be a non-empty string.")
 
   genesis_hash <- digest::digest(
@@ -93,16 +92,16 @@ regulog_init <- function(app,
     serialize = FALSE
   )
 
-  log            <- new.env(parent = emptyenv())
-  log$app        <- app
-  log$version    <- version
-  log$user       <- user
-  log$path       <- path
-  log$hash_algo  <- hash_algo
-  log$entries    <- list()
-  log$last_hash  <- genesis_hash
+  log <- new.env(parent = emptyenv())
+  log$app <- app
+  log$version <- version
+  log$user <- user
+  log$path <- path
+  log$hash_algo <- hash_algo
+  log$entries <- list()
+  log$last_hash <- genesis_hash
   log$genesis_hash <- genesis_hash
-  log$entry_id   <- 0L
+  log$entry_id <- 0L
   log$created_at <- .utc_now()
 
   if (!is.null(path)) {
@@ -158,7 +157,6 @@ log_action <- function(log,
                        object,
                        reason,
                        user = log$user) {
-
   .assert_regulog(log)
   .assert_reason(reason)
 
@@ -214,14 +212,13 @@ log_change <- function(log,
                        after,
                        reason,
                        user = log$user) {
-
   .assert_regulog(log)
   .assert_reason(reason)
 
   entry <- .build_entry(
-    log    = log,
-    type   = "CHANGE",
-    user   = user,
+    log = log,
+    type = "CHANGE",
+    user = user,
     fields = list(
       object = object,
       field  = field,
@@ -278,7 +275,7 @@ print.regulog <- function(x, ...) {
 #' @noRd
 .build_entry <- function(log, type, user, fields) {
   log$entry_id <- log$entry_id + 1L
-  ts           <- .utc_now()
+  ts <- .utc_now()
 
   # Canonical hash input: pipe-delimited string of every value in a fixed order.
   # Using paste() on scalar values avoids any JSON serialisation ambiguity —
@@ -287,7 +284,8 @@ print.regulog <- function(x, ...) {
   #              <field-values in sorted key order> | prev_hash
   field_str <- paste(
     paste(sort(names(fields)), sapply(sort(names(fields)), function(k) fields[[k]]),
-          sep = "=", collapse = ";"),
+      sep = "=", collapse = ";"
+    ),
     sep = ""
   )
 
@@ -323,7 +321,7 @@ print.regulog <- function(x, ...) {
 #' Commit: update state and write to disk
 #' @noRd
 .commit <- function(log, entry) {
-  log$entries   <- c(log$entries, list(entry))
+  log$entries <- c(log$entries, list(entry))
   log$last_hash <- entry$entry_hash
   if (!is.null(log$path)) {
     .append_ndjson(entry, log$path)

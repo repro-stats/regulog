@@ -14,9 +14,9 @@ test_that("log_note() adds a NOTE entry with correct fields", {
   log_note(log, "Baseline window defined as Day -1 to Day 1 per protocol v3")
 
   e <- log$entries[[1L]]
-  expect_equal(e$type,   "NOTE")
+  expect_equal(e$type, "NOTE")
   expect_equal(e$action, "note")
-  expect_equal(e$user,   "tester")
+  expect_equal(e$user, "tester")
   expect_equal(e$reason, "Baseline window defined as Day -1 to Day 1 per protocol v3")
 })
 
@@ -28,8 +28,8 @@ test_that("log_note() is pipe-friendly (returns log invisibly)", {
 
 test_that("log_note() increments entry_id correctly", {
   log <- regulog_init(app = "test", version = "0.1", user = "tester")
-  log_action(log, "run",  "a.R", "Step 1")
-  log_note(log,   "An annotation after step 1")
+  log_action(log, "run", "a.R", "Step 1")
+  log_note(log, "An annotation after step 1")
 
   expect_equal(log$entries[[1L]]$entry_id, 1L)
   expect_equal(log$entries[[2L]]$entry_id, 2L)
@@ -37,8 +37,8 @@ test_that("log_note() increments entry_id correctly", {
 
 test_that("log_note() entry is part of the hash chain", {
   log <- regulog_init(app = "test", version = "0.1", user = "tester")
-  log_action(log, "run",  "a.R", "Step 1")
-  log_note(log,   "Intermediate annotation")
+  log_action(log, "run", "a.R", "Step 1")
+  log_note(log, "Intermediate annotation")
   log_action(log, "done", "a.R", "Step 2")
 
   result <- verify_log(log, verbose = FALSE)

@@ -35,11 +35,14 @@ preceding the signature, or with the signature entry itself, is detectable
 by \code{\link[=verify_log]{verify_log()}}.
 }
 \examples{
-log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
-log_action(log, "run", "primary_analysis.R",
-           "Primary ANCOVA model executed per SAP section 6.1")
+log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
+log_action(
+  log, "run", "primary_analysis.R",
+  "Primary ANCOVA model executed per SAP section 6.1"
+)
 
-log_signature(log,
+log_signature(
+  log,
   "I certify that this analysis is accurate and complete per SAP version 2.0"
 )
 

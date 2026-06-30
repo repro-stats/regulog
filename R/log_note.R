@@ -19,7 +19,7 @@
 #' @return The `regulog` object, invisibly (pipe-friendly).
 #'
 #' @examples
-#' log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
+#' log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
 #'
 #' log_note(log, "Baseline window defined as Day -1 to Day 1 per protocol v3 §5.2")
 #' log_note(log, "Outlier in subject 042 discussed with medical monitor — retained per SAP")

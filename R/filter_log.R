@@ -25,7 +25,7 @@
 #'   `after`, `reason`, `entry_hash`, `prev_hash`.
 #'
 #' @examples
-#' log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
+#' log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
 #' log_action(log, "run", "primary.R", "Primary model fitted")
 #' log_note(log, "Outlier retained per SAP")
 #'
@@ -71,9 +71,9 @@ as.data.frame.regulog <- function(x, ...) {
 #'   Returns a zero-row data frame when nothing matches.
 #'
 #' @examples
-#' log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
-#' log_action(log, "run",    "primary.R",   "Primary model fitted")
-#' log_note(log,   "Outlier in subject 042 retained per SAP")
+#' log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
+#' log_action(log, "run", "primary.R", "Primary model fitted")
+#' log_note(log, "Outlier in subject 042 retained per SAP")
 #' log_action(log, "export", "results.csv", "Sent to sponsor")
 #' log_signature(log, "Analysis complete and accurate per SAP v2")
 #'
@@ -84,7 +84,7 @@ as.data.frame.regulog <- function(x, ...) {
 #' filter_log(log, type = "SIGNATURE")
 #'
 #' # Actions and notes by a specific user
-#' filter_log(log, type = c("ACTION", "NOTE"), user = "ndoh.penn")
+#' filter_log(log, type = c("ACTION", "NOTE"), user = "jsmith")
 #'
 #' # Entries within a date range
 #' filter_log(log, from = "2026-06-01", to = "2026-12-31")
@@ -98,7 +98,6 @@ as.data.frame.regulog <- function(x, ...) {
 #' @export
 filter_log <- function(log, type = NULL, user = NULL, action = NULL,
                        from = NULL, to = NULL) {
-
   # Accept file path — .read_rlog() is defined in verify.R
   if (is.character(log) && length(log) == 1L) {
     if (!file.exists(log)) stop("Log file not found: ", log)
@@ -114,25 +113,35 @@ filter_log <- function(log, type = NULL, user = NULL, action = NULL,
 
   df <- as.data.frame(log)
 
-  if (nrow(df) == 0L) return(df)
+  if (nrow(df) == 0L) {
+    return(df)
+  }
 
-  if (!is.null(type))   df <- df[df$type   %in% type,   , drop = FALSE]
-  if (!is.null(user))   df <- df[df$user   %in% user,   , drop = FALSE]
+  if (!is.null(type)) df <- df[df$type %in% type, , drop = FALSE]
+  if (!is.null(user)) df <- df[df$user %in% user, , drop = FALSE]
   if (!is.null(action)) df <- df[df$action %in% action, , drop = FALSE]
 
   if (!is.null(from)) {
-    from_ts <- as.POSIXct(paste0(from, "T00:00:00Z"), tz = "UTC",
-                           format = "%Y-%m-%dT%H:%M:%SZ")
-    entry_ts <- as.POSIXct(df$timestamp, tz = "UTC",
-                            format = "%Y-%m-%dT%H:%M:%OSZ")
+    from_ts <- as.POSIXct(paste0(from, "T00:00:00Z"),
+      tz = "UTC",
+      format = "%Y-%m-%dT%H:%M:%SZ"
+    )
+    entry_ts <- as.POSIXct(df$timestamp,
+      tz = "UTC",
+      format = "%Y-%m-%dT%H:%M:%OSZ"
+    )
     df <- df[entry_ts >= from_ts, , drop = FALSE]
   }
 
   if (!is.null(to)) {
-    to_ts <- as.POSIXct(paste0(to, "T23:59:59Z"), tz = "UTC",
-                         format = "%Y-%m-%dT%H:%M:%SZ")
-    entry_ts <- as.POSIXct(df$timestamp, tz = "UTC",
-                            format = "%Y-%m-%dT%H:%M:%OSZ")
+    to_ts <- as.POSIXct(paste0(to, "T23:59:59Z"),
+      tz = "UTC",
+      format = "%Y-%m-%dT%H:%M:%SZ"
+    )
+    entry_ts <- as.POSIXct(df$timestamp,
+      tz = "UTC",
+      format = "%Y-%m-%dT%H:%M:%OSZ"
+    )
     df <- df[entry_ts <= to_ts, , drop = FALSE]
   }
 

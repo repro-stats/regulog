@@ -27,7 +27,7 @@
 #' log <- regulog_init(
 #'   app     = "primary-analysis",
 #'   version = "1.0.0",
-#'   user    = "ndoh.penn",
+#'   user    = "jsmith",
 #'   path    = "logs/trial001_audit.rlog"
 #' )
 #' ```
@@ -46,19 +46,17 @@
 #'               section 8.3 after discussion with medical monitor")
 #' ```
 #'
-#' **Step 3 — Automate data I/O logging**
+#' **Step 3 — Log data reads, explicitly or scoped to a block**
 #'
 #' ```r
-#' # Scoped: hooks on for the block, guaranteed off on exit
-#' with_log(log, {
-#'   adsl <- haven::read_sas("data/adsl.sas7bdat")   # auto-logged
-#'   adae <- haven::read_sas("data/adae.sas7bdat")   # auto-logged
-#' })
+#' # Single read
+#' adsl <- rl_read(log, haven::read_sas, "data/adsl.sas7bdat")
 #'
-#' # Manual: enable then disable explicitly
-#' log_hooks_enable(log)
-#' adlb <- haven::read_sas("data/adlb.sas7bdat")
-#' log_hooks_disable()
+#' # Scoped block — read() calls inside resolve to `log` automatically
+#' with_log(log, {
+#'   adae <- read(haven::read_sas, "data/adae.sas7bdat")
+#'   adlb <- read(haven::read_sas, "data/adlb.sas7bdat")
+#' })
 #' ```
 #'
 #' **Step 4 — Apply an electronic signature**
@@ -94,9 +92,8 @@
 #' | [regulog::log_change()] | Log a before/after field change |
 #' | [regulog::log_note()] | Log a free-text annotation or analytical decision |
 #' | [regulog::log_signature()] | Apply an electronic signature |
-#' | [regulog::log_hooks_enable()] | Patch read functions for automatic I/O logging |
-#' | [regulog::log_hooks_disable()] | Restore original read functions |
-#' | [regulog::with_log()] | Scoped automatic logging for a code block |
+#' | [regulog::rl_read()] | Explicit, logged read of any data source |
+#' | [regulog::with_log()] | Scoped logging: `read()` calls inside the block log automatically |
 #' | [regulog::verify_log()] | Verify the SHA-256 hash chain integrity |
 #' | [regulog::filter_log()] | Query log entries by type, user, action, or date |
 #' | [regulog::export_audit_trail()] | Export to CSV or JSON, with optional signing |

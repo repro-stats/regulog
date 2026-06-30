@@ -2,7 +2,7 @@
 .mock_session <- function(user = "testuser", token = "test-token-123") {
   ended_callbacks <- list()
   env <- new.env(parent = emptyenv())
-  env$user  <- user
+  env$user <- user
   env$token <- token
   env$onSessionEnded <- function(fn) {
     ended_callbacks[[length(ended_callbacks) + 1L]] <<- fn
@@ -18,11 +18,13 @@ test_that("regulog_shiny_init returns a regulog object", {
   skip_if_not_installed("shiny")
   tmp <- withr::local_tempfile(fileext = ".rlog")
   session <- .mock_session(user = "jsmith", token = "tok-001")
-  log <- regulog_shiny_init(session = session, app = "test-app",
-                             version = "1.0", path = tmp)
+  log <- regulog_shiny_init(
+    session = session, app = "test-app",
+    version = "1.0", path = tmp
+  )
   expect_s3_class(log, "regulog")
   expect_equal(log$user, "jsmith")
-  expect_equal(log$app,  "test-app")
+  expect_equal(log$app, "test-app")
 })
 
 test_that("regulog_shiny_init logs session_start automatically", {
@@ -93,7 +95,7 @@ test_that("regulog_shiny_init persists to disk when path supplied", {
   expect_true(file.exists(tmp))
   lines <- readLines(tmp, warn = FALSE)
   lines <- lines[nzchar(lines)]
-  expect_gte(length(lines), 2L)  # genesis + session_start
+  expect_gte(length(lines), 2L) # genesis + session_start
 })
 
 test_that("regulog_shiny_init chain verifies after session lifecycle", {

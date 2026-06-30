@@ -27,11 +27,14 @@
 #' @return The `regulog` object, invisibly (pipe-friendly).
 #'
 #' @examples
-#' log <- regulog_init(app = "analysis", version = "1.0", user = "ndoh.penn")
-#' log_action(log, "run", "primary_analysis.R",
-#'            "Primary ANCOVA model executed per SAP section 6.1")
+#' log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
+#' log_action(
+#'   log, "run", "primary_analysis.R",
+#'   "Primary ANCOVA model executed per SAP section 6.1"
+#' )
 #'
-#' log_signature(log,
+#' log_signature(
+#'   log,
 #'   "I certify that this analysis is accurate and complete per SAP version 2.0"
 #' )
 #'
@@ -45,9 +48,9 @@ log_signature <- function(log, meaning) {
   n_covered <- length(log$entries)
 
   entry <- .build_entry(
-    log    = log,
-    type   = "SIGNATURE",
-    user   = log$user,
+    log = log,
+    type = "SIGNATURE",
+    user = log$user,
     fields = list(
       action = "signature",
       object = log$user,

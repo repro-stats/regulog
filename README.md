@@ -54,10 +54,10 @@ log_note(log,
   "Outlier in subject 01-042 retained per SAP section 8.3 —
    discussed with medical monitor 2026-06-20")
 
-# Automate data I/O logging — no code changes needed
+# Log data reads, scoped to a block — read() is logged automatically
 with_log(log, {
-  adsl <- haven::read_sas("data/adsl.sas7bdat")   # auto-logged
-  adae <- haven::read_sas("data/adae.sas7bdat")   # auto-logged
+  adsl <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae <- read(haven::read_sas, "data/adae.sas7bdat")
 })
 
 # Apply an electronic signature
@@ -86,8 +86,8 @@ export_audit_trail(log, format = "csv", signed = TRUE,
 | `log_change()` | Log a before/after field change |
 | `log_note()` | Log a free-text annotation or analytical decision |
 | `log_signature()` | Apply an electronic signature |
-| `with_log()` | Scoped automatic data I/O logging |
-| `log_hooks_enable()` / `log_hooks_disable()` | Manual hook control |
+| `rl_read()` | Explicit, logged read of any data source |
+| `with_log()` | Scoped convenience: `read()` calls inside the block log automatically |
 | `verify_log()` | Verify SHA-256 hash chain integrity |
 | `filter_log()` | Query entries by type, user, action, or date |
 | `export_audit_trail()` | Export to CSV or JSON, with optional signing |

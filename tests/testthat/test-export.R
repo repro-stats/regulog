@@ -1,24 +1,30 @@
 test_that("CSV export returns a data frame with required columns", {
   log <- regulog_init(app = "test-app", user = "tester")
   log_action(log, action = "approved", object = "f.csv", reason = "ok")
-  log_change(log, object = "rec", field = "val",
-             before = "a", after = "b", reason = "fix")
+  log_change(log,
+    object = "rec", field = "val",
+    before = "a", after = "b", reason = "fix"
+  )
 
   df <- export_audit_trail(log, format = "csv")
 
   expect_s3_class(df, "data.frame")
   expect_equal(nrow(df), 2L)
 
-  required_cols <- c("entry_id", "timestamp", "app", "app_version", "user",
-                      "type", "reason", "entry_hash", "prev_hash")
+  required_cols <- c(
+    "entry_id", "timestamp", "app", "app_version", "user",
+    "type", "reason", "entry_hash", "prev_hash"
+  )
   expect_true(all(required_cols %in% names(df)))
 })
 
 test_that("CSV export: ACTION rows have action field, CHANGE rows have field/before/after", {
   log <- regulog_init(app = "test-app", user = "tester")
   log_action(log, action = "approved", object = "f.csv", reason = "ok")
-  log_change(log, object = "rec", field = "status",
-             before = "draft", after = "final", reason = "fix")
+  log_change(log,
+    object = "rec", field = "status",
+    before = "draft", after = "final", reason = "fix"
+  )
 
   df <- export_audit_trail(log, format = "csv")
 
@@ -28,9 +34,9 @@ test_that("CSV export: ACTION rows have action field, CHANGE rows have field/bef
   expect_equal(action_row$action, "approved")
   expect_true(is.na(action_row$field))
 
-  expect_equal(change_row$field,  "status")
+  expect_equal(change_row$field, "status")
   expect_equal(change_row$before, "draft")
-  expect_equal(change_row$after,  "final")
+  expect_equal(change_row$after, "final")
 })
 
 test_that("signed CSV export includes chain_intact and verified_at", {
@@ -40,7 +46,7 @@ test_that("signed CSV export includes chain_intact and verified_at", {
   df <- export_audit_trail(log, format = "csv", signed = TRUE)
 
   expect_true("chain_intact" %in% names(df))
-  expect_true("verified_at"  %in% names(df))
+  expect_true("verified_at" %in% names(df))
   expect_true(isTRUE(df$chain_intact[[1L]]))
   expect_true(nzchar(df$verified_at[[1L]]))
 })
@@ -136,7 +142,7 @@ test_that("include_genesis = TRUE includes genesis record", {
   tmp <- withr::local_tempfile(fileext = ".rlog")
   log <- regulog_init(app = "test-app", user = "tester", path = tmp)
   log_action(log, action = "a", object = "o", reason = "r")
-  df_with    <- export_audit_trail(tmp, format = "csv", include_genesis = TRUE)
+  df_with <- export_audit_trail(tmp, format = "csv", include_genesis = TRUE)
   df_without <- export_audit_trail(tmp, format = "csv", include_genesis = FALSE)
   expect_equal(nrow(df_with), nrow(df_without) + 1L)
 })
@@ -176,7 +182,7 @@ test_that("export_audit_trail include_genesis=TRUE includes genesis row", {
   tmp <- withr::local_tempfile(fileext = ".rlog")
   log <- regulog_init(app = "test-app", user = "tester", path = tmp)
   log_action(log, action = "a", object = "o", reason = "r")
-  df_with    <- export_audit_trail(tmp, format = "csv", include_genesis = TRUE)
+  df_with <- export_audit_trail(tmp, format = "csv", include_genesis = TRUE)
   df_without <- export_audit_trail(tmp, format = "csv", include_genesis = FALSE)
   expect_equal(nrow(df_with), nrow(df_without) + 1L)
 })
@@ -200,8 +206,10 @@ test_that("export_audit_trail `to` date filter excludes later entries", {
 test_that("export_audit_trail from+to both applied", {
   log <- regulog_init(app = "test-app", user = "tester")
   log_action(log, action = "a", object = "o", reason = "r")
-  df <- export_audit_trail(log, format = "csv",
-                            from = "2000-01-01", to = "2099-12-31")
+  df <- export_audit_trail(log,
+    format = "csv",
+    from = "2000-01-01", to = "2099-12-31"
+  )
   expect_equal(nrow(df), 1L)
 })
 
@@ -258,11 +266,11 @@ test_that("export_audit_trail works from a .rlog file path", {
 
 test_that("export_audit_trail signed=TRUE on empty log CSV has correct columns", {
   log <- regulog_init(app = "test-app", user = "tester")
-  df  <- export_audit_trail(log, format = "csv", signed = TRUE)
+  df <- export_audit_trail(log, format = "csv", signed = TRUE)
   expect_s3_class(df, "data.frame")
   expect_equal(nrow(df), 0L)
   expect_true("chain_intact" %in% names(df))
-  expect_true("verified_at"  %in% names(df))
+  expect_true("verified_at" %in% names(df))
 })
 
 test_that("export_audit_trail JSON with multiple entries uses plural message", {
@@ -294,7 +302,7 @@ test_that("export_audit_trail include_genesis=TRUE adds genesis row", {
   tmp <- withr::local_tempfile(fileext = ".rlog")
   log <- regulog_init(app = "test-app", user = "tester", path = tmp)
   log_action(log, action = "a", object = "o", reason = "r")
-  df_with    <- export_audit_trail(tmp, format = "csv", include_genesis = TRUE)
+  df_with <- export_audit_trail(tmp, format = "csv", include_genesis = TRUE)
   df_without <- export_audit_trail(tmp, format = "csv", include_genesis = FALSE)
   expect_equal(nrow(df_with), nrow(df_without) + 1L)
 })

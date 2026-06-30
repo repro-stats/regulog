@@ -146,7 +146,7 @@ cat("=============================================================\n\n")
   log <- regulog_init(
     app     = "statistical-analysis-tool",
     version = "1.0.0",
-    user    = "ndoh.penn",
+    user    = "jsmith",
     path    = tmp
   )
 
@@ -186,7 +186,7 @@ cat("=============================================================\n\n")
   vr$intact &&
     vr$n_entries == 6L &&
     nrow(df_sig) == 1L &&
-    df_sig$object[[1L]] == "ndoh.penn" &&
+    df_sig$object[[1L]] == "jsmith" &&
     as.integer(df_sig$after[[1L]]) == 5L
 })
 

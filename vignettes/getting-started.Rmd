@@ -38,7 +38,7 @@ is attached to this object.
 log <- regulog_init(
   app     = "primary-analysis",
   version = "1.0.0",
-  user    = "ndoh.penn"
+  user    = "jsmith"
   # Provide path = "logs/audit.rlog" in production for persistent storage
 )
 
@@ -155,7 +155,8 @@ field change. Common uses:
 
 ```{r note-examples}
 # Outlier decision
-log_note(log,
+log_note(
+  log,
   "Outlier identified for subject 01-042 at Week 16 (AVAL = 98.4,
    upper fence = 62.1). Discussed with medical monitor on 2026-06-20.
    Retained in primary analysis per SAP section 8.3 — no protocol
@@ -164,48 +165,83 @@ log_note(log,
 )
 
 # Protocol deviation
-log_note(log,
+log_note(
+  log,
   "Subject 01-007: visit window deviation at Week 8 (visited Day 61,
    window Day 50-58). Classified as minor deviation per deviation
    assessment log entry DEV-0031. Subject retained in ITT population."
 )
 
 # Query resolved
-log_note(log,
+log_note(
+  log,
   "Data query Q-0047 resolved 2026-06-15: lab value for subject 01-019
    at Screening confirmed as 4.2 mmol/L per site laboratory report.
    Original value 42.0 was a decimal error."
 )
 
 # Analysis assumption documented
-log_note(log,
+log_note(
+  log,
   "Missing baseline value for subject 01-033: LOCF imputation applied
    per SAP section 7.2 — previous non-missing value (Visit 1) used.
    Imputed value: 24.6."
 )
 ```
 
-## 5. Automatic data I/O logging
+## 5. Logging data reads
 
-Manually calling `log_action()` for every file read is error-prone.
-`with_log()` patches common read functions automatically for the duration
-of a code block, then restores them on exit — even if the block errors.
+Manually calling `log_action()` for every file read is error-prone and
+easy to forget. `regulog` provides two ways to log reads explicitly:
+`rl_read()` for a single call, and `with_log()` for a scoped block where
+multiple reads share the same logging context.
 
-```{r hooks-with-log, eval = FALSE}
+### Single reads with `rl_read()`
+
+`rl_read(log, reader, ...)` calls `reader(...)` and logs the result as a
+`data_read` ACTION entry — capturing the resolved file path, row count,
+and column count automatically.
+
+```{r rl-read, eval = FALSE}
+adsl <- rl_read(log, haven::read_sas, "data/adsl.sas7bdat")
+adae <- rl_read(log, haven::read_sas, "data/adae.sas7bdat")
+```
+
+`rl_read()` works with any reader function — `haven::read_sas`,
+`readr::read_csv`, `data.table::fread`, `utils::read.csv`, or a custom
+function — since it wraps the call explicitly rather than depending on a
+fixed list of patched functions.
+
+The file path is resolved from a named argument (`file`, `path`,
+`data_file`, or `input`) if present, falling back to the first unnamed
+argument — so reordered named calls still record the correct path:
+
+```{r rl-read-named, eval = FALSE}
+adae <- rl_read(log, readr::read_csv, col_types = "ccd", file = "data/adae.csv")
+```
+
+### Scoped logging with `with_log()`
+
+For a block containing several reads, `with_log()` provides a local
+`read()` binding so the `log` argument doesn't need to be repeated at
+every call:
+
+```{r with-log, eval = FALSE}
 with_log(log, {
-  adsl <- haven::read_sas("data/adsl.sas7bdat")   # logged automatically
-  adae <- haven::read_sas("data/adae.sas7bdat")   # logged automatically
-  adlb <- haven::read_sas("data/adlb.sas7bdat")   # logged automatically
-  params <- readr::read_csv("config/parameters.csv") # logged automatically
+  adsl   <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae   <- read(haven::read_sas, "data/adae.sas7bdat")
+  adlb   <- read(haven::read_sas, "data/adlb.sas7bdat")
+  params <- read(readr::read_csv, "config/parameters.csv")
 })
 ```
 
-Functions patched automatically when the package is loaded:
-`haven::read_sas`, `haven::read_xpt`, `readr::read_csv`,
-`data.table::fread`, `utils::read.csv`, `utils::read.table`.
+`read()` is only available inside the `with_log()` block — calling a
+reader function bare (without `read(...)`) is not logged. This is
+deliberate: every logged read is visible at its call site, with no
+implicit or hidden logging behaviour.
 
-Each auto-logged entry captures the file path, row count, and column
-count. For example:
+Each logged entry captures the file path, row count, and column count.
+For example:
 
 ```
 action: data_read
@@ -213,21 +249,11 @@ object: data/adsl.sas7bdat
 reason: haven::read_sas("data/adsl.sas7bdat") — 298 rows, 47 cols
 ```
 
-For persistent hooks across multiple steps, use `log_hooks_enable()` and
-`log_hooks_disable()`:
-
-```{r hooks-manual, eval = FALSE}
-log_hooks_enable(log)
-
-adsl <- haven::read_sas("data/adsl.sas7bdat")
-adae <- haven::read_sas("data/adae.sas7bdat")
-# ... more reads ...
-
-log_hooks_disable()  # always call this; or use with_log() for safety
-```
-
-`with_log()` is preferred over the manual pair because it guarantees
-`log_hooks_disable()` is called via `on.exit()` even if an error occurs.
+`with_log()` guarantees `expr` is evaluated in an isolated scope: the
+`read()` binding for one `with_log()` call cannot interfere with another,
+even across concurrent sessions (for example, two users in the same
+Shiny application). If `expr` errors, the error propagates normally and
+any entries logged before the error remain intact in the chain.
 
 ## 6. Electronic signatures
 
@@ -240,7 +266,8 @@ happen automatically — no user input required:
   session at the moment of signing
 
 ```{r signature-basic}
-log_signature(log,
+log_signature(
+  log,
   "I certify that this primary analysis is accurate and complete,
    conducted in accordance with SAP version 2.0 dated 2026-05-01"
 )
@@ -250,18 +277,22 @@ Multiple signatures are supported — for example, a lead statistician and
 an independent reviewer:
 
 ```{r signature-multiple, eval = FALSE}
-log_signature(log,
+log_signature(
+  log,
   "Statistical analysis complete and accurate per SAP v2.0.
    All deviations documented."
 )
 
 # Second reviewer — create a new log or log against the same path with
 # a different session user
-log2 <- regulog_init(app = "primary-analysis", version = "1.0.0",
-                      user = "second.reviewer",
-                      path = "logs/trial001_audit.rlog")
+log2 <- regulog_init(
+  app = "primary-analysis", version = "1.0.0",
+  user = "second.reviewer",
+  path = "logs/trial001_audit.rlog"
+)
 
-log_signature(log2,
+log_signature(
+  log2,
   "Independent QC review complete. Results independently verified."
 )
 ```
@@ -280,9 +311,9 @@ The return value carries structured results:
 
 ```{r verify-result}
 result <- verify_log(log, verbose = FALSE)
-cat("Intact:        ", result$intact,       "\n")
-cat("Entries checked:", result$n_entries,    "\n")
-cat("First broken:  ", result$first_broken,  "\n")
+cat("Intact:        ", result$intact, "\n")
+cat("Entries checked:", result$n_entries, "\n")
+cat("First broken:  ", result$first_broken, "\n")
 ```
 
 Tampering is reliably detected:
@@ -292,10 +323,10 @@ saved <- log$entries[[2L]]$reason
 log$entries[[2L]]$reason <- "ALTERED REASON"
 
 tamper_result <- suppressWarnings(verify_log(log, verbose = FALSE))
-cat("Intact after tamper:", tamper_result$intact,        "\n")
-cat("First broken entry: ", tamper_result$first_broken,  "\n")
+cat("Intact after tamper:", tamper_result$intact, "\n")
+cat("First broken entry: ", tamper_result$first_broken, "\n")
 
-log$entries[[2L]]$reason <- saved  # restore
+log$entries[[2L]]$reason <- saved # restore
 ```
 
 Verification from a file path requires no live session:
@@ -329,7 +360,7 @@ filter_log(log, action = "approved")[, c("action", "object", "reason")]
 Filter by user:
 
 ```{r filter-user}
-filter_log(log, user = "ndoh.penn")[, c("type", "action", "object")]
+filter_log(log, user = "jsmith")[, c("type", "action", "object")]
 ```
 
 Filter by date range — useful when querying a long-running shared log:
@@ -347,7 +378,7 @@ Combine filters:
 ```{r filter-combined}
 filter_log(log,
   type   = c("ACTION", "NOTE"),
-  user   = "ndoh.penn",
+  user   = "jsmith",
   from   = "2026-01-01"
 )[, c("type", "action", "reason")]
 ```
@@ -358,7 +389,7 @@ session or `regulog` object required:
 ```{r filter-file, eval = FALSE}
 filter_log("logs/trial001_audit.rlog",
   type = "SIGNATURE",
-  user = "ndoh.penn"
+  user = "jsmith"
 )
 ```
 

@@ -18,5 +18,5 @@ AX11-17,EU Annex 11,Clause 17,Archiving,export_audit_trail(signed=TRUE),IQ-008,O
 CFR-11.10e-annotation,21 CFR Part 11,§11.10(e),Audit trail: free-text annotation and analytical decisions,log_note() — NOTE entry type with mandatory text; hash-chained,,OQ-015:OQ-017,PQ-006,Covered
 CFR-11.100,21 CFR Part 11,§11.100,Electronic signatures: unique to the individual; identity documented,log_signature() — SIGNATURE entry; signer resolved from session user; not overrideable,,OQ-018,PQ-006,Covered
 CFR-11.200,21 CFR Part 11,§11.200,"Electronic signature components: identity, date/time, meaning, entries covered",log_signature(meaning=) — meaning mandatory; timestamp auto; entries_covered auto,,OQ-018:OQ-021,PQ-006,Covered
-CFR-11.10e-autotrack,21 CFR Part 11,§11.10(e),Automated audit trail for data read operations — no manual logging required,log_hooks_enable() / with_log() — patches haven/readr/data.table/utils read functions,,OQ-024,PQ-006,Covered
+CFR-11.10e-autotrack,21 CFR Part 11,§11.10(e),Audit trail for data read operations,rl_read() / with_log() — explicit call-site logging wrapper; no namespace patching,,OQ-024:OQ-024c,PQ-006,Covered
 CFR-11.10b-query,21 CFR Part 11,§11.10(b),"Audit trail retrieval and inspection by type, user, action, or date range",filter_log() / as.data.frame.regulog() — queryable without specialist tooling,,OQ-022:OQ-023,PQ-007,Covered

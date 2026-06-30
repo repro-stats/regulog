@@ -32,7 +32,7 @@ but are not a prerequisite for general use.
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{log <- regulog_init(
   app     = "primary-analysis",
   version = "1.0.0",
-  user    = "ndoh.penn",
+  user    = "jsmith",
   path    = "logs/trial001_audit.rlog"
 )
 }\if{html}{\out{</div>}}
@@ -50,18 +50,16 @@ log_note(log, "Outlier in subject 042 at Week 16 retained per SAP
               section 8.3 after discussion with medical monitor")
 }\if{html}{\out{</div>}}
 
-\strong{Step 3 — Automate data I/O logging}
+\strong{Step 3 — Log data reads, explicitly or scoped to a block}
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Scoped: hooks on for the block, guaranteed off on exit
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Single read
+adsl <- rl_read(log, haven::read_sas, "data/adsl.sas7bdat")
+
+# Scoped block — read() calls inside resolve to `log` automatically
 with_log(log, \{
-  adsl <- haven::read_sas("data/adsl.sas7bdat")   # auto-logged
-  adae <- haven::read_sas("data/adae.sas7bdat")   # auto-logged
+  adae <- read(haven::read_sas, "data/adae.sas7bdat")
+  adlb <- read(haven::read_sas, "data/adlb.sas7bdat")
 \})
-
-# Manual: enable then disable explicitly
-log_hooks_enable(log)
-adlb <- haven::read_sas("data/adlb.sas7bdat")
-log_hooks_disable()
 }\if{html}{\out{</div>}}
 
 \strong{Step 4 — Apply an electronic signature}
@@ -95,9 +93,8 @@ export_audit_trail(log, format = "csv", signed = TRUE,
    \code{\link[=log_change]{log_change()}} \tab Log a before/after field change \cr
    \code{\link[=log_note]{log_note()}} \tab Log a free-text annotation or analytical decision \cr
    \code{\link[=log_signature]{log_signature()}} \tab Apply an electronic signature \cr
-   \code{\link[=log_hooks_enable]{log_hooks_enable()}} \tab Patch read functions for automatic I/O logging \cr
-   \code{\link[=log_hooks_disable]{log_hooks_disable()}} \tab Restore original read functions \cr
-   \code{\link[=with_log]{with_log()}} \tab Scoped automatic logging for a code block \cr
+   \code{\link[=rl_read]{rl_read()}} \tab Explicit, logged read of any data source \cr
+   \code{\link[=with_log]{with_log()}} \tab Scoped logging: \code{read()} calls inside the block log automatically \cr
    \code{\link[=verify_log]{verify_log()}} \tab Verify the SHA-256 hash chain integrity \cr
    \code{\link[=filter_log]{filter_log()}} \tab Query log entries by type, user, action, or date \cr
    \code{\link[=export_audit_trail]{export_audit_trail()}} \tab Export to CSV or JSON, with optional signing \cr

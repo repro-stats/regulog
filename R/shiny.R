@@ -88,11 +88,10 @@
 #'
 #' @export
 regulog_shiny_init <- function(session,
-                                app,
-                                version   = "unknown",
-                                path      = NULL,
-                                hash_algo = "sha256") {
-
+                               app,
+                               version = "unknown",
+                               path = NULL,
+                               hash_algo = "sha256") {
   .require_shiny()
 
   # Resolve authenticated user
