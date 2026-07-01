@@ -1,5 +1,5 @@
 Package: regulog
-Title: Tamper-Evident Audit Logging for R
+Title: Tamper-Evident Audit Logging for Regulated Environments
 Version: 0.2.0
 Authors@R:
     person("Ndoh", "Penn", email = "ndohpenn9@gmail.com", role = c("aut", "cre"),
