@@ -194,7 +194,7 @@ log
     #>   App:     RSV-VAC-301-primary-immunogenicity v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/RtmpKiSsYY/audit_RSV301_primary_v1.rlog
+    #>   Path:    /tmp/RtmpWDHXBD/audit_RSV301_primary_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -771,7 +771,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 28 row(s) to /tmp/RtmpKiSsYY/audit_trail_RSV301_primary_v1.csv
+    #> regulog: exported 28 row(s) to /tmp/RtmpWDHXBD/audit_trail_RSV301_primary_v1.csv
 
 ``` r
 
@@ -788,16 +788,16 @@ filter_log(log) |>
 
 | time     | type   | action              | object                               |
 |:---------|:-------|:--------------------|:-------------------------------------|
-| 19:54:50 | NOTE   | note                | NA                                   |
-| 19:54:50 | ACTION | data_read           | /tmp/RtmpKiSsYY/file1c164fb6adb2.csv |
-| 19:54:50 | ACTION | data_read           | /tmp/RtmpKiSsYY/file1c163fb301d3.csv |
-| 19:54:50 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
-| 19:54:50 | NOTE   | note                | NA                                   |
-| 19:54:50 | NOTE   | note                | NA                                   |
-| 19:54:50 | NOTE   | note                | NA                                   |
-| 19:54:50 | NOTE   | note                | NA                                   |
-| 19:54:50 | NOTE   | note                | NA                                   |
-| 19:54:50 | NOTE   | note                | NA                                   |
+| 20:01:02 | NOTE   | note                | NA                                   |
+| 20:01:02 | ACTION | data_read           | /tmp/RtmpWDHXBD/file1c6322fb578.csv  |
+| 20:01:02 | ACTION | data_read           | /tmp/RtmpWDHXBD/file1c633023e7f9.csv |
+| 20:01:02 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
+| 20:01:02 | NOTE   | note                | NA                                   |
+| 20:01:02 | NOTE   | note                | NA                                   |
+| 20:01:02 | NOTE   | note                | NA                                   |
+| 20:01:02 | NOTE   | note                | NA                                   |
+| 20:01:02 | NOTE   | note                | NA                                   |
+| 20:01:03 | NOTE   | note                | NA                                   |
 
 Audit trail — first 10 entries {.table}
 

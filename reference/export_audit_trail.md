@@ -100,6 +100,6 @@ export_audit_trail(log,
   signed = TRUE,
   path   = tempfile(fileext = ".csv")
 )
-#> regulog: exported 1 row(s) to /tmp/RtmpOyV0At/file19b043828281.csv
+#> regulog: exported 1 row(s) to /tmp/RtmpxW8xNs/file19fc3b6669b.csv
 # }
 ```

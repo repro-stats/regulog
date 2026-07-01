@@ -221,7 +221,7 @@ log
     #>   App:     NSCLC-KRASi-301-safety-summary v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/RtmpLUng09/audit_KRASi301_safety_v1.rlog
+    #>   Path:    /tmp/Rtmp6e6Xcz/audit_KRASi301_safety_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -893,7 +893,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 21 row(s) to /tmp/RtmpLUng09/audit_KRASi301_safety_v1.csv
+    #> regulog: exported 21 row(s) to /tmp/Rtmp6e6Xcz/audit_KRASi301_safety_v1.csv
 
 ``` r
 
@@ -904,7 +904,7 @@ trail_mm <- export_audit_trail(log_mm,
 )
 ```
 
-    #> regulog: exported 2 row(s) to /tmp/RtmpLUng09/audit_KRASi301_safety_mm_review_v1.csv
+    #> regulog: exported 2 row(s) to /tmp/Rtmp6e6Xcz/audit_KRASi301_safety_mm_review_v1.csv
 
 ``` r
 
@@ -921,18 +921,18 @@ filter_log(log) |>
 
 | time     | type   | action                 | object                               |
 |:---------|:-------|:-----------------------|:-------------------------------------|
-| 19:54:43 | NOTE   | note                   | NA                                   |
-| 19:54:43 | ACTION | data_read              | /tmp/RtmpLUng09/file1bd738a17ee7.csv |
-| 19:54:43 | ACTION | data_read              | /tmp/RtmpLUng09/file1bd751cbf9c7.csv |
-| 19:54:43 | NOTE   | note                   | NA                                   |
-| 19:54:43 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
-| 19:54:43 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
-| 19:54:43 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
-| 19:54:43 | ACTION | compute_sae_summary    | SAE summary table                    |
-| 19:54:43 | NOTE   | note                   | NA                                   |
-| 19:54:43 | NOTE   | note                   | NA                                   |
-| 19:54:43 | NOTE   | note                   | NA                                   |
-| 19:54:43 | NOTE   | note                   | NA                                   |
+| 20:00:54 | NOTE   | note                   | NA                                   |
+| 20:00:54 | ACTION | data_read              | /tmp/Rtmp6e6Xcz/file1c2548e40a47.csv |
+| 20:00:54 | ACTION | data_read              | /tmp/Rtmp6e6Xcz/file1c2510068778.csv |
+| 20:00:54 | NOTE   | note                   | NA                                   |
+| 20:00:54 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
+| 20:00:55 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
+| 20:00:55 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
+| 20:00:55 | ACTION | compute_sae_summary    | SAE summary table                    |
+| 20:00:55 | NOTE   | note                   | NA                                   |
+| 20:00:55 | NOTE   | note                   | NA                                   |
+| 20:00:55 | NOTE   | note                   | NA                                   |
+| 20:00:55 | NOTE   | note                   | NA                                   |
 
 Audit trail — first 12 entries {.table}
 
