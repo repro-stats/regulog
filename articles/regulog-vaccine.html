@@ -237,7 +237,7 @@ are captured as the first logged note.</p>
 <span><span class="co">#&gt;   App:     RSV-VAC-301-primary-immunogenicity v1.0.0</span></span>
 <span><span class="co">#&gt;   User:    jsmith</span></span>
 <span><span class="co">#&gt;   Entries: 1</span></span>
-<span><span class="co">#&gt;   Path:    /tmp/Rtmpb4im7L/audit_RSV301_primary_v1.rlog</span></span></code></pre>
+<span><span class="co">#&gt;   Path:    /tmp/RtmpiLytVW/audit_RSV301_primary_v1.rlog</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
@@ -739,55 +739,94 @@ the chain and is immediately detectable.</p>
 <span>  signed <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  path   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"audit_trail_RSV301_primary_v1.csv"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; regulog: exported 28 row(s) to /tmp/Rtmpb4im7L/audit_trail_RSV301_primary_v1.csv</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; regulog: exported 28 row(s) to /tmp/RtmpiLytVW/audit_trail_RSV301_primary_v1.csv</span></span></code></pre>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Preview the audit trail</span></span>
 <span><span class="fu"><a href="../reference/filter_log.html">filter_log</a></span><span class="op">(</span><span class="va">log</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">timestamp</span>, <span class="va">type</span>, <span class="va">action</span>, <span class="va">reason</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    time   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">timestamp</span>, <span class="fl">12L</span>, <span class="fl">19L</span><span class="op">)</span>,</span>
+<span>    action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">action</span><span class="op">)</span>, <span class="va">type</span>, <span class="va">action</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">type</span>, <span class="va">action</span>, <span class="va">object</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="st">"Audit trail — first 10 entries"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <caption>Audit trail — first 10 entries</caption>
 <colgroup>
 <col width="12%">
-<col width="3%">
-<col width="8%">
-<col width="76%">
+<col width="9%">
+<col width="27%">
+<col width="50%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">timestamp</th>
+<th align="left">time</th>
 <th align="left">type</th>
 <th align="left">action</th>
-<th align="left">reason</th>
+<th align="left">object</th>
 </tr></thead>
-<tbody><tr class="odd">
-<td align="left">2026-06-30T19:02:37.731898Z</td>
+<tbody>
+<tr class="odd">
+<td align="left">08:44:26</td>
 <td align="left">NOTE</td>
 <td align="left">note</td>
-<td align="left">Primary immunogenicity analysis per SAP v2.0, Section
-5.1. Protocol:</td>
-</tr></tbody>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">08:44:26</td>
+<td align="left">ACTION</td>
+<td align="left">data_read</td>
+<td align="left">/tmp/RtmpiLytVW/file1c662d4fe06c.csv</td>
+</tr>
+<tr class="odd">
+<td align="left">08:44:26</td>
+<td align="left">ACTION</td>
+<td align="left">data_read</td>
+<td align="left">/tmp/RtmpiLytVW/file1c6678185141.csv</td>
+</tr>
+<tr class="even">
+<td align="left">08:44:26</td>
+<td align="left">ACTION</td>
+<td align="left">apply_pp_population</td>
+<td align="left">RSV-VAC-301 per-protocol population</td>
+</tr>
+<tr class="odd">
+<td align="left">08:44:26</td>
+<td align="left">NOTE</td>
+<td align="left">note</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">08:44:26</td>
+<td align="left">NOTE</td>
+<td align="left">note</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">08:44:26</td>
+<td align="left">NOTE</td>
+<td align="left">note</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">08:44:26</td>
+<td align="left">NOTE</td>
+<td align="left">note</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">08:44:26</td>
+<td align="left">NOTE</td>
+<td align="left">note</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">08:44:26</td>
+<td align="left">NOTE</td>
+<td align="left">note</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
 </table>
-<p>RSV-VAC-301. Data cut: 2026-05-15. Analysis set: immunogenicity
-per-protocol population (PPROTFL = Y). | |2026-06-30T19:02:37.792804Z
-|ACTION |data_read |read.csv(“/tmp/Rtmpb4im7L/file1c4c1fca1244.csv”) —
-300 rows, 9 cols | |2026-06-30T19:02:37.797492Z |ACTION |data_read
-|read.csv(“/tmp/Rtmpb4im7L/file1c4c71d2b523.csv”) — 900 rows, 15 cols |
-|2026-06-30T19:02:37.858907Z |ACTION |apply_pp_population |Restricted to
-per-protocol population per SAP Section 3.2. ITT: 300 subjects | PP: 278
-subjects | Excluded: 22 (protocol deviations) |
-|2026-06-30T19:02:37.872012Z |NOTE |note |PP population count — Placebo:
-n = 140 | |2026-06-30T19:02:37.873270Z |NOTE |note |PP population count
-— Vaccine: n = 138 | |2026-06-30T19:02:37.935914Z |NOTE |note |Missing
-data review — Day 29 missing titres: 10 subjects (3.6%) — excluded from
-GMT analysis per SAP | |2026-06-30T19:02:37.939926Z |NOTE |note |Subject
-excluded (missing data) — USUBJID RSV301-0011: Day 29 titre missing —
-excluded from primary analysis | |2026-06-30T19:02:37.941145Z |NOTE
-|note |Subject excluded (missing data) — USUBJID RSV301-0025: Day 29
-titre missing — excluded from primary analysis |
-|2026-06-30T19:02:37.942283Z |NOTE |note |Subject excluded (missing
-data) — USUBJID RSV301-0052: Day 29 titre missing — excluded from
-primary analysis |</p>
 <hr>
 </div>
 <div class="section level2">

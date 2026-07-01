@@ -1,9 +1,11 @@
 # Initialise a regulog audit log session
 
 Creates a new audit log session object. Subsequent calls to
-[`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
+[`log_action()`](https://reprostats.org/regulog/reference/log_action.md),
+[`log_change()`](https://reprostats.org/regulog/reference/log_change.md),
+[`log_note()`](https://reprostats.org/regulog/reference/log_note.md),
 and
-[`log_change()`](https://reprostats.org/regulog/reference/log_change.md)
+[`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md)
 append hash-chained entries. If `path` is supplied, entries are written
 to a newline-delimited JSON file (`.rlog`).
 
@@ -62,6 +64,7 @@ Every entry written to disk is a JSON object on a single line:
       "app":         "my-app",
       "app_version": "1.0.0",
       "user":        "jsmith",
+      "type":        "ACTION",
       "action":      "approved",
       "object":      "model_v3",
       "reason":      "Validation metrics passed threshold",

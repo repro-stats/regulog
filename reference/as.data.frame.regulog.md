@@ -27,7 +27,7 @@ as.data.frame(x, ...)
 
 A `data.frame` with columns `entry_id`, `timestamp`, `app`,
 `app_version`, `user`, `type`, `action`, `object`, `field`, `before`,
-`after`, `reason`, `entry_hash`, `prev_hash`.
+`after`, `reason`, `text`, `meaning`, `entry_hash`, `prev_hash`.
 
 ## Details
 
@@ -39,22 +39,26 @@ and useful for direct inspection.
 
 ``` r
 log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
-log_action(log, "run", "primary.R", "Primary model fitted")
+log_action(log,
+  action = "run",
+  object = "primary.R",
+  reason = "Primary model fitted"
+)
 #> regulog: logged action 'run' on 'primary.R'
-log_note(log, "Outlier retained per SAP")
+log_note(log, "Outlier in subject 042 retained per SAP")
 #> regulog: note logged
 
 as.data.frame(log)
 #>   entry_id                   timestamp      app app_version   user   type
-#> 1        1 2026-06-30T19:02:17.887228Z analysis         1.0 jsmith ACTION
-#> 2        2 2026-06-30T19:02:17.888231Z analysis         1.0 jsmith   NOTE
-#>   action    object field before after                   reason
-#> 1    run primary.R  <NA>   <NA>  <NA>     Primary model fitted
-#> 2   note      <NA>  <NA>   <NA>  <NA> Outlier retained per SAP
-#>                                                         entry_hash
-#> 1 32f990dd0b73b45c292e018987aa5a1134c1e42347ee234e46da7e7f98bb80b7
-#> 2 a9aea89738240dc9a7a857f568bc0b5efba1a70e4027c1c8ad138f54bca370d9
+#> 1        1 2026-07-01T08:44:05.960581Z analysis         1.0 jsmith ACTION
+#> 2        2 2026-07-01T08:44:05.961605Z analysis         1.0 jsmith   NOTE
+#>   action    object field before after                                  reason
+#> 1    run primary.R  <NA>   <NA>  <NA>                    Primary model fitted
+#> 2   note      <NA>  <NA>   <NA>  <NA> Outlier in subject 042 retained per SAP
+#>   text meaning                                                       entry_hash
+#> 1 <NA>    <NA> bc43d2281d7a436edc77ea4c9c3b40d90db13149ea6f4d2fd68145db00c55bbc
+#> 2 <NA>    <NA> d1bc5d2e2e655ddadaa9d79069a6ff93754276d1f444125277a54c240ecdd9bb
 #>                                                          prev_hash
-#> 1 9c55554e94f348b0f8923094bcc520dbc5dbc91a20fb7d10f3ed75680456ad1c
-#> 2 32f990dd0b73b45c292e018987aa5a1134c1e42347ee234e46da7e7f98bb80b7
+#> 1 654b77e221941db7c8d0ea21cda56fe15eef729822f25253d360381e56852cc9
+#> 2 bc43d2281d7a436edc77ea4c9c3b40d90db13149ea6f4d2fd68145db00c55bbc
 ```

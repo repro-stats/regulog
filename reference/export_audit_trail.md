@@ -59,32 +59,35 @@ A data frame (CSV) or list (JSON), invisibly.
 
 ### CSV column layout
 
-|                |                                              |
-|----------------|----------------------------------------------|
-| Column         | Description                                  |
-| `entry_id`     | Monotone sequence number                     |
-| `timestamp`    | ISO-8601 UTC                                 |
-| `app`          | Application name                             |
-| `app_version`  | Application version                          |
-| `user`         | Acting user identity                         |
-| `type`         | `ACTION` or `CHANGE`                         |
-| `action`       | Action label (ACTION entries)                |
-| `object`       | Target of the action or change               |
-| `field`        | Field name (CHANGE entries)                  |
-| `before`       | Prior value (CHANGE entries)                 |
-| `after`        | New value (CHANGE entries)                   |
-| `reason`       | Justification                                |
-| `entry_hash`   | SHA-256 of this entry                        |
-| `prev_hash`    | SHA-256 of prior entry                       |
-| `chain_intact` | `TRUE/FALSE` (signed exports only)           |
-| `verified_at`  | ISO-8601 UTC of export (signed exports only) |
+|                |                                                    |
+|----------------|----------------------------------------------------|
+| Column         | Description                                        |
+| `entry_id`     | Monotone sequence number                           |
+| `timestamp`    | ISO-8601 UTC                                       |
+| `app`          | Application name                                   |
+| `app_version`  | Application version                                |
+| `user`         | Acting user identity                               |
+| `type`         | `ACTION`, `CHANGE`, `NOTE`, or `SIGNATURE`         |
+| `action`       | Action label (`ACTION` entries)                    |
+| `object`       | Target of the action or change                     |
+| `field`        | Field name (`CHANGE` entries)                      |
+| `before`       | Prior value (`CHANGE` entries)                     |
+| `after`        | New value (`CHANGE` and `SIGNATURE` entries)       |
+| `reason`       | Justification (`ACTION`, `CHANGE`, `NOTE` entries) |
+| `text`         | Free-text annotation (`NOTE` entries)              |
+| `meaning`      | Signature meaning (`SIGNATURE` entries)            |
+| `entry_hash`   | SHA-256 of this entry                              |
+| `prev_hash`    | SHA-256 of prior entry                             |
+| `chain_intact` | `TRUE`/`FALSE` (signed exports only)               |
+| `verified_at`  | ISO-8601 UTC of export (signed exports only)       |
 
 ## Examples
 
 ``` r
 log <- regulog_init(app = "my-app", user = "jsmith")
 log_action(log,
-  action = "approved", object = "model_v3",
+  action = "approved",
+  object = "model_v3",
   reason = "Metrics passed threshold"
 )
 #> regulog: logged action 'approved' on 'model_v3'

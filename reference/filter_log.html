@@ -82,8 +82,7 @@ all users.</p></dd>
 
 <dt id="arg-action">action<a class="anchor" aria-label="anchor" href="#arg-action"></a></dt>
 <dd><p>Character vector of action values to keep (e.g.
-<code>"approved"</code>, <code>"signature"</code>, <code>"note"</code>, <code>"data_read"</code>). <code>NULL</code> returns
-all actions.</p></dd>
+<code>"approved"</code>, <code>"data_read"</code>). <code>NULL</code> returns all actions.</p></dd>
 
 
 <dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
@@ -109,11 +108,19 @@ Returns a zero-row data frame when nothing matches.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="regulog_init.html">regulog_init</a></span><span class="op">(</span>app <span class="op">=</span> <span class="st">"analysis"</span>, version <span class="op">=</span> <span class="st">"1.0"</span>, user <span class="op">=</span> <span class="st">"jsmith"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>, <span class="st">"run"</span>, <span class="st">"primary.R"</span>, <span class="st">"Primary model fitted"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>,</span></span>
+<span class="r-in"><span>  action <span class="op">=</span> <span class="st">"run"</span>,</span></span>
+<span class="r-in"><span>  object <span class="op">=</span> <span class="st">"primary.R"</span>,</span></span>
+<span class="r-in"><span>  reason <span class="op">=</span> <span class="st">"Primary model fitted"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> regulog: logged action 'run' on 'primary.R'</span>
 <span class="r-in"><span><span class="fu"><a href="log_note.html">log_note</a></span><span class="op">(</span><span class="va">log</span>, <span class="st">"Outlier in subject 042 retained per SAP"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> regulog: note logged</span>
-<span class="r-in"><span><span class="fu"><a href="log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>, <span class="st">"export"</span>, <span class="st">"results.csv"</span>, <span class="st">"Sent to sponsor"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>,</span></span>
+<span class="r-in"><span>  action <span class="op">=</span> <span class="st">"export"</span>,</span></span>
+<span class="r-in"><span>  object <span class="op">=</span> <span class="st">"results.csv"</span>,</span></span>
+<span class="r-in"><span>  reason <span class="op">=</span> <span class="st">"Sent to sponsor"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> regulog: logged action 'export' on 'results.csv'</span>
 <span class="r-in"><span><span class="fu"><a href="log_signature.html">log_signature</a></span><span class="op">(</span><span class="va">log</span>, <span class="st">"Analysis complete and accurate per SAP v2"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> regulog: signature applied by 'jsmith' covering 3 entries</span>
@@ -121,90 +128,90 @@ Returns a zero-row data frame when nothing matches.</p>
 <span class="r-in"><span><span class="co"># All entries as a data frame</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version   user      type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-30T19:02:18.191481Z analysis         1.0 jsmith    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-30T19:02:18.192379Z analysis         1.0 jsmith      NOTE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-30T19:02:18.193193Z analysis         1.0 jsmith    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-06-30T19:02:18.194074Z analysis         1.0 jsmith SIGNATURE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-07-01T08:44:06.298216Z analysis         1.0 jsmith    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-07-01T08:44:06.299159Z analysis         1.0 jsmith      NOTE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-07-01T08:44:06.299982Z analysis         1.0 jsmith    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-07-01T08:44:06.300895Z analysis         1.0 jsmith SIGNATURE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      action      object           field before after</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       run   primary.R            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      note        &lt;NA&gt;            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    export results.csv            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 signature      jsmith entries_covered   &lt;NA&gt;     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      Primary model fitted</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   Outlier in subject 042 retained per SAP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Sent to sponsor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Analysis complete and accurate per SAP v2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason text meaning</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      Primary model fitted &lt;NA&gt;    &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   Outlier in subject 042 retained per SAP &lt;NA&gt;    &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Sent to sponsor &lt;NA&gt;    &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Analysis complete and accurate per SAP v2 &lt;NA&gt;    &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 69628b859243b27a707d2b909982c4b4a0df051fcdcb6548a67179f5c63da99d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 764cd64b7ee46c9f87c38e732a707ff4fc2890a0313afa2e727bbe07538ae827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 8108a22cefcf0e0dbc69dd959d26f93d85cdb96a7f17140dde8d1ad26147d98b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 cf986b301d62872e8ed14cff9a83ffaf5f582e4818495d5ed2286a3b2cd89cd5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 c8abfa8687c312c9d2b16cdd147901b2a9f4dd4a728d4a65823ccb5d39fc8b85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 d3b6430e40331186cebe4ec49f89c96afa65f863b24082039792d681e3bd07e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 29e2a7b6d453d1ffa3ddda5b2cb7dde8e2bfcc3d80891a4d729254213342cda4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 62e62f9574b4247ab34f62049bcf60bde390b2c79868f19dd2aa5e66c6053eb1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 14a3eed0d0bf1ecf52e758156ecaec5cf2aae467cf5170c7566e52046b92f617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 69628b859243b27a707d2b909982c4b4a0df051fcdcb6548a67179f5c63da99d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 764cd64b7ee46c9f87c38e732a707ff4fc2890a0313afa2e727bbe07538ae827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 8108a22cefcf0e0dbc69dd959d26f93d85cdb96a7f17140dde8d1ad26147d98b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 3d3386bdb06b6208c553c6e3de8d4bead88064e34f674b00312e788fb90026fa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 c8abfa8687c312c9d2b16cdd147901b2a9f4dd4a728d4a65823ccb5d39fc8b85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 d3b6430e40331186cebe4ec49f89c96afa65f863b24082039792d681e3bd07e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 29e2a7b6d453d1ffa3ddda5b2cb7dde8e2bfcc3d80891a4d729254213342cda4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Only signatures</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span>, type <span class="op">=</span> <span class="st">"SIGNATURE"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version   user      type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        4 2026-06-30T19:02:18.194074Z analysis         1.0 jsmith SIGNATURE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        4 2026-07-01T08:44:06.300895Z analysis         1.0 jsmith SIGNATURE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      action object           field before after</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 signature jsmith entries_covered   &lt;NA&gt;     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Analysis complete and accurate per SAP v2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason text meaning</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Analysis complete and accurate per SAP v2 &lt;NA&gt;    &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 cf986b301d62872e8ed14cff9a83ffaf5f582e4818495d5ed2286a3b2cd89cd5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 62e62f9574b4247ab34f62049bcf60bde390b2c79868f19dd2aa5e66c6053eb1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 8108a22cefcf0e0dbc69dd959d26f93d85cdb96a7f17140dde8d1ad26147d98b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 29e2a7b6d453d1ffa3ddda5b2cb7dde8e2bfcc3d80891a4d729254213342cda4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Actions and notes by a specific user</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ACTION"</span>, <span class="st">"NOTE"</span><span class="op">)</span>, user <span class="op">=</span> <span class="st">"jsmith"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version   user   type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-30T19:02:18.191481Z analysis         1.0 jsmith ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-30T19:02:18.192379Z analysis         1.0 jsmith   NOTE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-30T19:02:18.193193Z analysis         1.0 jsmith ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-07-01T08:44:06.298216Z analysis         1.0 jsmith ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-07-01T08:44:06.299159Z analysis         1.0 jsmith   NOTE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-07-01T08:44:06.299982Z analysis         1.0 jsmith ACTION</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   action      object field before after                                  reason</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    run   primary.R  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;                    Primary model fitted</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   note        &lt;NA&gt;  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; Outlier in subject 042 retained per SAP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 export results.csv  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;                         Sent to sponsor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 69628b859243b27a707d2b909982c4b4a0df051fcdcb6548a67179f5c63da99d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 764cd64b7ee46c9f87c38e732a707ff4fc2890a0313afa2e727bbe07538ae827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 8108a22cefcf0e0dbc69dd959d26f93d85cdb96a7f17140dde8d1ad26147d98b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text meaning                                                       entry_hash</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 &lt;NA&gt;    &lt;NA&gt; c8abfa8687c312c9d2b16cdd147901b2a9f4dd4a728d4a65823ccb5d39fc8b85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 &lt;NA&gt;    &lt;NA&gt; d3b6430e40331186cebe4ec49f89c96afa65f863b24082039792d681e3bd07e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 &lt;NA&gt;    &lt;NA&gt; 29e2a7b6d453d1ffa3ddda5b2cb7dde8e2bfcc3d80891a4d729254213342cda4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 14a3eed0d0bf1ecf52e758156ecaec5cf2aae467cf5170c7566e52046b92f617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 69628b859243b27a707d2b909982c4b4a0df051fcdcb6548a67179f5c63da99d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 764cd64b7ee46c9f87c38e732a707ff4fc2890a0313afa2e727bbe07538ae827</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 3d3386bdb06b6208c553c6e3de8d4bead88064e34f674b00312e788fb90026fa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 c8abfa8687c312c9d2b16cdd147901b2a9f4dd4a728d4a65823ccb5d39fc8b85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 d3b6430e40331186cebe4ec49f89c96afa65f863b24082039792d681e3bd07e9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Entries within a date range</span></span></span>
 <span class="r-in"><span><span class="fu">filter_log</span><span class="op">(</span><span class="va">log</span>, from <span class="op">=</span> <span class="st">"2026-06-01"</span>, to <span class="op">=</span> <span class="st">"2026-12-31"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   entry_id                   timestamp      app app_version   user      type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-06-30T19:02:18.191481Z analysis         1.0 jsmith    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-06-30T19:02:18.192379Z analysis         1.0 jsmith      NOTE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-06-30T19:02:18.193193Z analysis         1.0 jsmith    ACTION</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-06-30T19:02:18.194074Z analysis         1.0 jsmith SIGNATURE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        1 2026-07-01T08:44:06.298216Z analysis         1.0 jsmith    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2 2026-07-01T08:44:06.299159Z analysis         1.0 jsmith      NOTE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        3 2026-07-01T08:44:06.299982Z analysis         1.0 jsmith    ACTION</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        4 2026-07-01T08:44:06.300895Z analysis         1.0 jsmith SIGNATURE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      action      object           field before after</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       run   primary.R            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      note        &lt;NA&gt;            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    export results.csv            &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 signature      jsmith entries_covered   &lt;NA&gt;     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      Primary model fitted</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   Outlier in subject 042 retained per SAP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Sent to sponsor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Analysis complete and accurate per SAP v2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                      reason text meaning</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      Primary model fitted &lt;NA&gt;    &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   Outlier in subject 042 retained per SAP &lt;NA&gt;    &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                           Sent to sponsor &lt;NA&gt;    &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Analysis complete and accurate per SAP v2 &lt;NA&gt;    &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                         entry_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 69628b859243b27a707d2b909982c4b4a0df051fcdcb6548a67179f5c63da99d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 764cd64b7ee46c9f87c38e732a707ff4fc2890a0313afa2e727bbe07538ae827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 8108a22cefcf0e0dbc69dd959d26f93d85cdb96a7f17140dde8d1ad26147d98b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 cf986b301d62872e8ed14cff9a83ffaf5f582e4818495d5ed2286a3b2cd89cd5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 c8abfa8687c312c9d2b16cdd147901b2a9f4dd4a728d4a65823ccb5d39fc8b85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 d3b6430e40331186cebe4ec49f89c96afa65f863b24082039792d681e3bd07e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 29e2a7b6d453d1ffa3ddda5b2cb7dde8e2bfcc3d80891a4d729254213342cda4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 62e62f9574b4247ab34f62049bcf60bde390b2c79868f19dd2aa5e66c6053eb1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                          prev_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 14a3eed0d0bf1ecf52e758156ecaec5cf2aae467cf5170c7566e52046b92f617</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 69628b859243b27a707d2b909982c4b4a0df051fcdcb6548a67179f5c63da99d</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 764cd64b7ee46c9f87c38e732a707ff4fc2890a0313afa2e727bbe07538ae827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 8108a22cefcf0e0dbc69dd959d26f93d85cdb96a7f17140dde8d1ad26147d98b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 3d3386bdb06b6208c553c6e3de8d4bead88064e34f674b00312e788fb90026fa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 c8abfa8687c312c9d2b16cdd147901b2a9f4dd4a728d4a65823ccb5d39fc8b85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 d3b6430e40331186cebe4ec49f89c96afa65f863b24082039792d681e3bd07e9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 29e2a7b6d453d1ffa3ddda5b2cb7dde8e2bfcc3d80891a4d729254213342cda4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Works directly on a .rlog file — no live session needed</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>

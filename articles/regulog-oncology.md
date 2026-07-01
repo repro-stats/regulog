@@ -211,7 +211,7 @@ log
     #>   App:     NSCLC-KRASi-301-safety-summary v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/RtmpIqwypz/audit_KRASi301_safety_v1.rlog
+    #>   Path:    /tmp/Rtmp5lAQA5/audit_KRASi301_safety_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -855,7 +855,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 21 row(s) to /tmp/RtmpIqwypz/audit_KRASi301_safety_v1.csv
+    #> regulog: exported 21 row(s) to /tmp/Rtmp5lAQA5/audit_KRASi301_safety_v1.csv
 
 ``` r
 
@@ -866,54 +866,37 @@ trail_mm <- export_audit_trail(log_mm,
 )
 ```
 
-    #> regulog: exported 2 row(s) to /tmp/RtmpIqwypz/audit_KRASi301_safety_mm_review_v1.csv
+    #> regulog: exported 2 row(s) to /tmp/Rtmp5lAQA5/audit_KRASi301_safety_mm_review_v1.csv
 
 ``` r
 
 # Preview the primary analysis log
 filter_log(log) |>
   head(12L) |>
-  select(timestamp, type, action, reason) |>
+  mutate(
+    time   = substr(timestamp, 12L, 19L),   # HH:MM:SS only — full ISO timestamp is too wide
+    action = ifelse(is.na(action), type, action)
+  ) |>
+  select(time, type, action, object) |>
   knitr::kable(caption = "Audit trail — first 12 entries")
 ```
 
-| timestamp | type | action | reason |
-|:---|:---|:---|:---|
-| 2026-06-30T19:02:30.585813Z | NOTE | note | Scheduled safety data cut for Safety Monitoring Committee (SMC) review. |
+| time     | type   | action                 | object                               |
+|:---------|:-------|:-----------------------|:-------------------------------------|
+| 08:44:19 | NOTE   | note                   | NA                                   |
+| 08:44:19 | ACTION | data_read              | /tmp/Rtmp5lAQA5/file1c2758fa125b.csv |
+| 08:44:19 | ACTION | data_read              | /tmp/Rtmp5lAQA5/file1c274bd93fec.csv |
+| 08:44:19 | NOTE   | note                   | NA                                   |
+| 08:44:19 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
+| 08:44:19 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
+| 08:44:19 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
+| 08:44:19 | ACTION | compute_sae_summary    | SAE summary table                    |
+| 08:44:19 | NOTE   | note                   | NA                                   |
+| 08:44:19 | NOTE   | note                   | NA                                   |
+| 08:44:19 | NOTE   | note                   | NA                                   |
+| 08:44:19 | NOTE   | note                   | NA                                   |
 
 Audit trail — first 12 entries {.table}
-
-Protocol: NSCLC-KRASi-301. Data cut: 2026-05-15. Analysis set: safety
-analysis set (SAFFL = Y). SMC meeting: 2026-07-10. Regulatory basis: 21
-CFR Part 11, ICH E6(R2). \| \|2026-06-30T19:02:30.644950Z \|ACTION
-\|data_read \|read.csv(“/tmp/RtmpIqwypz/file1c0d50e51262.csv”) — 400
-rows, 9 cols \| \|2026-06-30T19:02:30.650162Z \|ACTION \|data_read
-\|read.csv(“/tmp/RtmpIqwypz/file1c0d15a65b93.csv”) — 1597 rows, 11 cols
-\| \|2026-06-30T19:02:30.651518Z \|NOTE \|note \|Data cut date confirmed
-as 2026-05-15 per DMC charter Section 4.2. All AEs with onset on or
-before 2026-05-15 included. Lock confirmed by DM team (ref:
-DM-lock-20260518-001). \| \|2026-06-30T19:02:30.727273Z \|ACTION
-\|define_safety_set \|Applied safety analysis set (SAFFL = Y) per SAP
-Section 4.1. Docetaxel 75mg/m2: n = 200 \| KRASi 400mg QD: n = 200 \|
-\|2026-06-30T19:02:30.798597Z \|ACTION \|compute_teae_incidence
-\|Computed per SAP Section 6.1. TEAEs reported: 148 subjects in KRASi
-arm (74.0%), 115 in docetaxel arm (57.5%) \|
-\|2026-06-30T19:02:30.885614Z \|ACTION \|compute_grade34_ae \|Computed
-per SAP Section 6.2 and ICH E9. Grade 3/4 AEs: 178 events in KRASi arm,
-209 in docetaxel arm \| \|2026-06-30T19:02:30.961069Z \|ACTION
-\|compute_sae_summary \|Summarised per SAP Section 6.3. SAEs: 42
-subjects in KRASi arm (21.0%), 57 in docetaxel arm (28.5%) \|
-\|2026-06-30T19:02:31.029409Z \|NOTE \|note \|Safety signal identified:
-pneumonitis — 15 cases in KRASi arm vs 28 in docetaxel arm. Grade 3/4: 6
-cases. Flagged for medical monitor review per Safety Review Plan. \|
-\|2026-06-30T19:02:31.043345Z \|NOTE \|note \|Pneumonitis case — USUBJID
-KRASi301-0032 \| Grade 3 \| Treatment: KRASi 400mg QD \| Action: DOSE
-NOT CHANGED \| Related: RELATED \| \|2026-06-30T19:02:31.044332Z \|NOTE
-\|note \|Pneumonitis case — USUBJID KRASi301-0176 \| Grade 4 \|
-Treatment: KRASi 400mg QD \| Action: DRUG WITHDRAWN \| Related: RELATED
-\| \|2026-06-30T19:02:31.045221Z \|NOTE \|note \|Pneumonitis case —
-USUBJID KRASi301-0178 \| Grade 4 \| Treatment: KRASi 400mg QD \| Action:
-DRUG WITHDRAWN \| Related: RELATED \|
 
 ------------------------------------------------------------------------
 

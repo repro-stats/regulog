@@ -192,7 +192,7 @@ log
     #>   App:     RSV-VAC-301-primary-immunogenicity v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/Rtmpb4im7L/audit_RSV301_primary_v1.rlog
+    #>   Path:    /tmp/RtmpiLytVW/audit_RSV301_primary_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -735,44 +735,35 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 28 row(s) to /tmp/Rtmpb4im7L/audit_trail_RSV301_primary_v1.csv
+    #> regulog: exported 28 row(s) to /tmp/RtmpiLytVW/audit_trail_RSV301_primary_v1.csv
 
 ``` r
 
 # Preview the audit trail
 filter_log(log) |>
   head(10L) |>
-  select(timestamp, type, action, reason) |>
+  mutate(
+    time   = substr(timestamp, 12L, 19L),
+    action = ifelse(is.na(action), type, action)
+  ) |>
+  select(time, type, action, object) |>
   knitr::kable(caption = "Audit trail — first 10 entries")
 ```
 
-| timestamp | type | action | reason |
-|:---|:---|:---|:---|
-| 2026-06-30T19:02:37.731898Z | NOTE | note | Primary immunogenicity analysis per SAP v2.0, Section 5.1. Protocol: |
+| time     | type   | action              | object                               |
+|:---------|:-------|:--------------------|:-------------------------------------|
+| 08:44:26 | NOTE   | note                | NA                                   |
+| 08:44:26 | ACTION | data_read           | /tmp/RtmpiLytVW/file1c662d4fe06c.csv |
+| 08:44:26 | ACTION | data_read           | /tmp/RtmpiLytVW/file1c6678185141.csv |
+| 08:44:26 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
+| 08:44:26 | NOTE   | note                | NA                                   |
+| 08:44:26 | NOTE   | note                | NA                                   |
+| 08:44:26 | NOTE   | note                | NA                                   |
+| 08:44:26 | NOTE   | note                | NA                                   |
+| 08:44:26 | NOTE   | note                | NA                                   |
+| 08:44:26 | NOTE   | note                | NA                                   |
 
 Audit trail — first 10 entries {.table}
-
-RSV-VAC-301. Data cut: 2026-05-15. Analysis set: immunogenicity
-per-protocol population (PPROTFL = Y). \| \|2026-06-30T19:02:37.792804Z
-\|ACTION \|data_read \|read.csv(“/tmp/Rtmpb4im7L/file1c4c1fca1244.csv”)
-— 300 rows, 9 cols \| \|2026-06-30T19:02:37.797492Z \|ACTION \|data_read
-\|read.csv(“/tmp/Rtmpb4im7L/file1c4c71d2b523.csv”) — 900 rows, 15 cols
-\| \|2026-06-30T19:02:37.858907Z \|ACTION \|apply_pp_population
-\|Restricted to per-protocol population per SAP Section 3.2. ITT: 300
-subjects \| PP: 278 subjects \| Excluded: 22 (protocol deviations) \|
-\|2026-06-30T19:02:37.872012Z \|NOTE \|note \|PP population count —
-Placebo: n = 140 \| \|2026-06-30T19:02:37.873270Z \|NOTE \|note \|PP
-population count — Vaccine: n = 138 \| \|2026-06-30T19:02:37.935914Z
-\|NOTE \|note \|Missing data review — Day 29 missing titres: 10 subjects
-(3.6%) — excluded from GMT analysis per SAP \|
-\|2026-06-30T19:02:37.939926Z \|NOTE \|note \|Subject excluded (missing
-data) — USUBJID RSV301-0011: Day 29 titre missing — excluded from
-primary analysis \| \|2026-06-30T19:02:37.941145Z \|NOTE \|note
-\|Subject excluded (missing data) — USUBJID RSV301-0025: Day 29 titre
-missing — excluded from primary analysis \|
-\|2026-06-30T19:02:37.942283Z \|NOTE \|note \|Subject excluded (missing
-data) — USUBJID RSV301-0052: Day 29 titre missing — excluded from
-primary analysis \|
 
 ------------------------------------------------------------------------
 

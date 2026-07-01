@@ -496,7 +496,7 @@ filter_log(log, from = format(Sys.Date(), "%Y-%m-%d"))[, c("type", "action")]
 filter_log(log, to = "2025-12-31")
 #>  [1] entry_id    timestamp   app         app_version user        type       
 #>  [7] action      object      field       before      after       reason     
-#> [13] entry_hash  prev_hash  
+#> [13] text        meaning     entry_hash  prev_hash  
 #> <0 rows> (or 0-length row.names)
 ```
 
@@ -553,7 +553,8 @@ df <- as.data.frame(log)
 names(df)
 #>  [1] "entry_id"    "timestamp"   "app"         "app_version" "user"       
 #>  [6] "type"        "action"      "object"      "field"       "before"     
-#> [11] "after"       "reason"      "entry_hash"  "prev_hash"
+#> [11] "after"       "reason"      "text"        "meaning"     "entry_hash" 
+#> [16] "prev_hash"
 nrow(df)
 #> [1] 14
 ```
@@ -584,20 +585,20 @@ df_export[, c("entry_id", "type", "action", "user", "chain_intact", "verified_at
 #> 13       13      NOTE        note          jsmith         TRUE
 #> 14       14 SIGNATURE   signature          jsmith         TRUE
 #>                    verified_at
-#> 1  2026-06-30T19:02:24.191643Z
-#> 2  2026-06-30T19:02:24.191643Z
-#> 3  2026-06-30T19:02:24.191643Z
-#> 4  2026-06-30T19:02:24.191643Z
-#> 5  2026-06-30T19:02:24.191643Z
-#> 6  2026-06-30T19:02:24.191643Z
-#> 7  2026-06-30T19:02:24.191643Z
-#> 8  2026-06-30T19:02:24.191643Z
-#> 9  2026-06-30T19:02:24.191643Z
-#> 10 2026-06-30T19:02:24.191643Z
-#> 11 2026-06-30T19:02:24.191643Z
-#> 12 2026-06-30T19:02:24.191643Z
-#> 13 2026-06-30T19:02:24.191643Z
-#> 14 2026-06-30T19:02:24.191643Z
+#> 1  2026-07-01T08:44:12.619241Z
+#> 2  2026-07-01T08:44:12.619241Z
+#> 3  2026-07-01T08:44:12.619241Z
+#> 4  2026-07-01T08:44:12.619241Z
+#> 5  2026-07-01T08:44:12.619241Z
+#> 6  2026-07-01T08:44:12.619241Z
+#> 7  2026-07-01T08:44:12.619241Z
+#> 8  2026-07-01T08:44:12.619241Z
+#> 9  2026-07-01T08:44:12.619241Z
+#> 10 2026-07-01T08:44:12.619241Z
+#> 11 2026-07-01T08:44:12.619241Z
+#> 12 2026-07-01T08:44:12.619241Z
+#> 13 2026-07-01T08:44:12.619241Z
+#> 14 2026-07-01T08:44:12.619241Z
 ```
 
 ``` r

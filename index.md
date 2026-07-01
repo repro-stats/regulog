@@ -40,16 +40,24 @@ log <- regulog_init(
 )
 
 # Log actions, changes, and decisions
-log_action(log, "data_read", "adsl.sas7bdat",
-           "Reading ADSL for primary efficacy analysis")
+log_action(log,
+  action = "data_read",
+  object = "adsl.sas7bdat",
+  reason = "Reading ADSL for primary efficacy analysis"
+)
 
-log_change(log, object = "alpha", field = "value",
-           before = "0.05", after = "0.025",
-           reason = "Updated per protocol amendment 2")
+log_change(log,
+  object = "alpha",
+  field  = "value",
+  before = "0.05",
+  after  = "0.025",
+  reason = "Updated per protocol amendment 2"
+)
 
 log_note(log,
   "Outlier in subject 01-042 retained per SAP section 8.3 —
-   discussed with medical monitor 2026-06-20")
+   discussed with medical monitor 2026-06-20"
+)
 
 # Log data reads, scoped to a block — read() is logged automatically
 with_log(log, {

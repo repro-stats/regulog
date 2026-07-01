@@ -104,13 +104,14 @@ Step 4 failure: entries were inserted, deleted, or reordered.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">log</span> <span class="op">&lt;-</span> <span class="fu"><a href="regulog_init.html">regulog_init</a></span><span class="op">(</span>app <span class="op">=</span> <span class="st">"my-app"</span>, user <span class="op">=</span> <span class="st">"jsmith"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="log_action.html">log_action</a></span><span class="op">(</span><span class="va">log</span>,</span></span>
-<span class="r-in"><span>  action <span class="op">=</span> <span class="st">"approved"</span>, object <span class="op">=</span> <span class="st">"file.csv"</span>,</span></span>
+<span class="r-in"><span>  action <span class="op">=</span> <span class="st">"approved"</span>,</span></span>
+<span class="r-in"><span>  object <span class="op">=</span> <span class="st">"file.csv"</span>,</span></span>
 <span class="r-in"><span>  reason <span class="op">=</span> <span class="st">"Review complete"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> regulog: logged action 'approved' on 'file.csv'</span>
 <span class="r-in"><span><span class="fu">verify_log</span><span class="op">(</span><span class="va">log</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> regulog: Log intact: 1 entry, chain unbroken</span>
-<span class="r-in"><span><span class="co">#&gt; v Log intact: 1 entry, chain unbroken</span></span></span>
+<span class="r-in"><span><span class="co">#&gt; regulog: Log intact: 1 entry, chain unbroken</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
