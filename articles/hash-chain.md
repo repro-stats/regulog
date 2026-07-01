@@ -21,9 +21,9 @@ hash becomes the anchor for the entire chain.
 log <- regulog_init(app = "demo", version = "1.0", user = "analyst")
 
 cat("Genesis hash:", log$genesis_hash, "\n")
-#> Genesis hash: 86a203cf77184c13be38039b4f6816ad9cd4e01f101eaab548433b10074774b2
+#> Genesis hash: f4eda190c8d9ec7fc47e14de8430d64dc25cc8c1dfb786a00b17003cfa57d0f4
 cat("Last hash:   ", log$last_hash, "\n")
-#> Last hash:    86a203cf77184c13be38039b4f6816ad9cd4e01f101eaab548433b10074774b2
+#> Last hash:    f4eda190c8d9ec7fc47e14de8430d64dc25cc8c1dfb786a00b17003cfa57d0f4
 ```
 
 The genesis hash incorporates the app name, version, and creation
@@ -58,9 +58,9 @@ entry <- log$entries[[1L]]
 cat("Entry ID:   ", entry$entry_id, "\n")
 #> Entry ID:    1
 cat("Prev hash:  ", entry$prev_hash, "\n") # = genesis hash
-#> Prev hash:   86a203cf77184c13be38039b4f6816ad9cd4e01f101eaab548433b10074774b2
+#> Prev hash:   f4eda190c8d9ec7fc47e14de8430d64dc25cc8c1dfb786a00b17003cfa57d0f4
 cat("Entry hash: ", entry$entry_hash, "\n")
-#> Entry hash:  b382f94ea889b0471d3dc2869039c69af840a4e3d4a096c8b688beeca3736736
+#> Entry hash:  a8b1a137d7a83432efca32e92507477e8681595fce5fd01455f57b01b271c197
 ```
 
 The `prev_hash` of the first entry matches the `genesis_hash`. The chain
@@ -74,9 +74,9 @@ log_note(log, "Outlier in subject 042 retained per SAP section 8.3")
 #> regulog: note logged
 
 cat("Entry 1 hash:", log$entries[[1L]]$entry_hash, "\n")
-#> Entry 1 hash: b382f94ea889b0471d3dc2869039c69af840a4e3d4a096c8b688beeca3736736
+#> Entry 1 hash: a8b1a137d7a83432efca32e92507477e8681595fce5fd01455f57b01b271c197
 cat("Entry 2 prev:", log$entries[[2L]]$prev_hash, "\n")
-#> Entry 2 prev: b382f94ea889b0471d3dc2869039c69af840a4e3d4a096c8b688beeca3736736
+#> Entry 2 prev: a8b1a137d7a83432efca32e92507477e8681595fce5fd01455f57b01b271c197
 cat("Match:       ", log$entries[[1L]]$entry_hash ==
   log$entries[[2L]]$prev_hash, "\n")
 #> Match:        TRUE

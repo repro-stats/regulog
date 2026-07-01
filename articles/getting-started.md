@@ -258,9 +258,9 @@ be repeated at every call:
 ``` r
 
 with_log(log, {
-  adsl <- read(haven::read_sas, "data/adsl.sas7bdat")
-  adae <- read(haven::read_sas, "data/adae.sas7bdat")
-  adlb <- read(haven::read_sas, "data/adlb.sas7bdat")
+  adsl   <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae   <- read(haven::read_sas, "data/adae.sas7bdat")
+  adlb   <- read(haven::read_sas, "data/adlb.sas7bdat")
   params <- read(readr::read_csv, "config/parameters.csv")
 })
 ```
@@ -585,20 +585,20 @@ df_export[, c("entry_id", "type", "action", "user", "chain_intact", "verified_at
 #> 13       13      NOTE        note          jsmith         TRUE
 #> 14       14 SIGNATURE   signature          jsmith         TRUE
 #>                    verified_at
-#> 1  2026-07-01T16:19:31.825147Z
-#> 2  2026-07-01T16:19:31.825147Z
-#> 3  2026-07-01T16:19:31.825147Z
-#> 4  2026-07-01T16:19:31.825147Z
-#> 5  2026-07-01T16:19:31.825147Z
-#> 6  2026-07-01T16:19:31.825147Z
-#> 7  2026-07-01T16:19:31.825147Z
-#> 8  2026-07-01T16:19:31.825147Z
-#> 9  2026-07-01T16:19:31.825147Z
-#> 10 2026-07-01T16:19:31.825147Z
-#> 11 2026-07-01T16:19:31.825147Z
-#> 12 2026-07-01T16:19:31.825147Z
-#> 13 2026-07-01T16:19:31.825147Z
-#> 14 2026-07-01T16:19:31.825147Z
+#> 1  2026-07-01T19:54:35.783387Z
+#> 2  2026-07-01T19:54:35.783387Z
+#> 3  2026-07-01T19:54:35.783387Z
+#> 4  2026-07-01T19:54:35.783387Z
+#> 5  2026-07-01T19:54:35.783387Z
+#> 6  2026-07-01T19:54:35.783387Z
+#> 7  2026-07-01T19:54:35.783387Z
+#> 8  2026-07-01T19:54:35.783387Z
+#> 9  2026-07-01T19:54:35.783387Z
+#> 10 2026-07-01T19:54:35.783387Z
+#> 11 2026-07-01T19:54:35.783387Z
+#> 12 2026-07-01T19:54:35.783387Z
+#> 13 2026-07-01T19:54:35.783387Z
+#> 14 2026-07-01T19:54:35.783387Z
 ```
 
 ``` r
@@ -643,15 +643,136 @@ export_audit_trail(log,
 
 ## 12. Validation (regulated environments)
 
-IQ, OQ, and PQ qualification scripts are included with the package:
+Any software used in a regulated environment — under 21 CFR Part 11, EU
+Annex 11, or GAMP 5 — must be formally qualified before it can be used
+to generate or sign electronic records that regulators may inspect.
+`regulog` ships pre-written, executable IQ/OQ/PQ qualification protocols
+that cover all three phases.
+
+### Running the protocols
+
+Run each script in sequence in the target environment — the R
+installation that will be used for regulated work:
 
 ``` r
 
+# Phase 1: Installation Qualification (10 tests)
+# Verifies R version, package installation, dependency integrity,
+# file system access, and namespace exports.
 source(system.file("validation/IQ_regulog.R", package = "regulog"))
+
+# Phase 2: Operational Qualification (26 tests)
+# Tests every 21 CFR §11.10 requirement: hash chain integrity,
+# tamper detection, user attribution, timestamps, export format,
+# electronic signatures, and error isolation.
 source(system.file("validation/OQ_regulog.R", package = "regulog"))
+
+# Phase 3: Performance Qualification (7 tests)
+# End-to-end clinical workflows: data review, regulatory export,
+# multi-user session independence, 500-entry load test, and
+# inspector query simulation.
 source(system.file("validation/PQ_regulog.R", package = "regulog"))
 ```
 
+### Capturing the qualification record
+
+Retain the output of each run as documented evidence of system
+qualification. The simplest approach is to capture it to a file:
+
+``` r
+
+sink("IQ_execution_record.txt")
+source(system.file("validation/IQ_regulog.R", package = "regulog"))
+sink()
+
+sink("OQ_execution_record.txt")
+source(system.file("validation/OQ_regulog.R", package = "regulog"))
+sink()
+
+sink("PQ_execution_record.txt")
+source(system.file("validation/PQ_regulog.R", package = "regulog"))
+sink()
+```
+
+Each execution record includes the timestamp, R version, platform, and
+the pass/fail result of every test against its acceptance criterion.
+
+### Requirements traceability
+
+The RTM maps every OQ test to the regulatory clause it addresses:
+
+``` r
+
+read.csv(system.file("validation/RTM_regulog.csv", package = "regulog"))
+```
+
+### Logging the qualification itself
+
+The qualification run is itself an activity in a regulated environment
+and should be logged. Using `regulog` to audit its own qualification
+produces a Part 11-compliant record of who ran it, when, and the
+outcome:
+
+``` r
+
+log <- regulog_init(
+  app     = "regulog-qualification",
+  version = "0.2.0",
+  user    = "val.lead",
+  path    = "qualification/audit_trail.rlog"
+)
+
+log_action(log,
+  action = "qualification_start",
+  object = "regulog 0.2.0",
+  reason = "IQ/OQ/PQ qualification initiated per SOP-VAL-007"
+)
+
+source(system.file("validation/IQ_regulog.R", package = "regulog"))
+log_action(log,
+  action = "IQ_complete",
+  object = "IQ_regulog.R",
+  reason = "10 tests passed. Proceeding to OQ."
+)
+
+source(system.file("validation/OQ_regulog.R", package = "regulog"))
+log_action(log,
+  action = "OQ_complete",
+  object = "OQ_regulog.R",
+  reason = "26 tests passed. Proceeding to PQ."
+)
+
+source(system.file("validation/PQ_regulog.R", package = "regulog"))
+log_action(log,
+  action = "PQ_complete",
+  object = "PQ_regulog.R",
+  reason = "7 tests passed. Qualification complete."
+)
+
+log_signature(log,
+  "I certify that regulog 0.2.0 has been qualified in this environment
+   per SOP-VAL-007 and is approved for use in regulated R workflows."
+)
+
+verify_log(log)
+export_audit_trail(log,
+  format = "csv",
+  signed = TRUE,
+  path   = "qualification/audit_trail_export.csv"
+)
+```
+
+### Re-qualification
+
+Any significant change — a new package version, a change to the R
+environment, or a platform migration — requires re-qualification. Re-run
+the three protocols in the updated environment and retain the new
+execution records as evidence that the qualified state has been
+re-established.
+
 See also
 [`vignette("hash-chain")`](https://reprostats.org/regulog/articles/hash-chain.md)
-for a detailed explanation of the tamper detection mechanism.
+for a detailed explanation of the tamper detection mechanism, and the
+[qualification guide on
+reprostats.org](https://reprostats.org/blog/qualifying-regulog-validated-environment.html)
+for a fuller discussion of the regulatory context.
