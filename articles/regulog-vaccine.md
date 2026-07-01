@@ -59,25 +59,25 @@ with real immunogenicity data.
 ``` r
 
 n_per_arm <- 150L
-n_total   <- n_per_arm * 2L
+n_total <- n_per_arm * 2L
 
 # Subject-level data
 adsl <- data.frame(
-  STUDYID  = "RSV-VAC-301",
-  USUBJID  = sprintf("RSV301-%04d", seq_len(n_total)),
-  TRT01P   = rep(c("Vaccine", "Placebo"), each = n_per_arm),
-  TRT01PN  = rep(c(1L, 2L), each = n_per_arm),
-  AGE      = round(rnorm(n_total, mean = 68, sd = 5)),
-  SEX      = sample(c("M", "F"), n_total, replace = TRUE, prob = c(0.45, 0.55)),
-  SEROFL   = "Y",  # seronegative at baseline (eligible)
-  ITTFL    = "Y",
-  PPROTFL  = sample(c("Y", "N"), n_total, replace = TRUE, prob = c(0.94, 0.06)),
+  STUDYID = "RSV-VAC-301",
+  USUBJID = sprintf("RSV301-%04d", seq_len(n_total)),
+  TRT01P = rep(c("Vaccine", "Placebo"), each = n_per_arm),
+  TRT01PN = rep(c(1L, 2L), each = n_per_arm),
+  AGE = round(rnorm(n_total, mean = 68, sd = 5)),
+  SEX = sample(c("M", "F"), n_total, replace = TRUE, prob = c(0.45, 0.55)),
+  SEROFL = "Y", # seronegative at baseline (eligible)
+  ITTFL = "Y",
+  PPROTFL = sample(c("Y", "N"), n_total, replace = TRUE, prob = c(0.94, 0.06)),
   stringsAsFactors = FALSE
 )
 
 # Immunogenicity titres — ADIS structure
 visits <- data.frame(
-  AVISIT  = c("Day 1",  "Day 29", "Day 181"),
+  AVISIT = c("Day 1", "Day 29", "Day 181"),
   AVISITN = c(1L, 29L, 181L),
   stringsAsFactors = FALSE
 )
@@ -88,7 +88,8 @@ adis <- expand.grid(
   stringsAsFactors = FALSE
 ) |>
   merge(adsl[, c("USUBJID", "TRT01P", "ITTFL", "PPROTFL")],
-        by = "USUBJID") |>
+    by = "USUBJID"
+  ) |>
   merge(visits, by = "AVISITN") |>
   arrange(USUBJID, AVISITN)
 
@@ -116,9 +117,9 @@ for (i in seq_len(nrow(adis))) {
   }
 }
 
-adis$AVAL    <- pmax(10, round(adis$AVAL / 10) * 10)
+adis$AVAL <- pmax(10, round(adis$AVAL / 10) * 10)
 adis$STUDYID <- "RSV-VAC-301"
-adis$PARAM   <- "RSV Neutralising Antibody Titre (IU/mL)"
+adis$PARAM <- "RSV Neutralising Antibody Titre (IU/mL)"
 adis$PARAMCD <- "RSVNABT"
 
 # Introduce realistic missingness (~4%)
@@ -174,7 +175,8 @@ log <- regulog_init(
   path    = file.path(tempdir(), "audit_RSV301_primary_v1.rlog")
 )
 
-log_note(log,
+log_note(
+  log,
   "Primary immunogenicity analysis per SAP v2.0, Section 5.1. Protocol:
    RSV-VAC-301. Data cut: 2026-05-15. Analysis set: immunogenicity
    per-protocol population (PPROTFL = Y)."
@@ -192,7 +194,7 @@ log
     #>   App:     RSV-VAC-301-primary-immunogenicity v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/RtmpiLytVW/audit_RSV301_primary_v1.rlog
+    #>   Path:    /tmp/Rtmp1oJsNb/audit_RSV301_primary_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -246,7 +248,8 @@ arm_counts <- adis_pp |>
   count(TRT01P)
 
 for (i in seq_len(nrow(arm_counts))) {
-  log_note(log,
+  log_note(
+    log,
     sprintf("PP population count — %s: n = %d", arm_counts$TRT01P[i], arm_counts$n[i])
   )
 }
@@ -265,7 +268,8 @@ for (i in seq_len(nrow(arm_counts))) {
 miss_d29 <- adis_pp |>
   filter(AVISITN == 29L, is.na(AVAL))
 
-log_note(log,
+log_note(
+  log,
   sprintf(
     "Missing data review — Day 29 missing titres: %d subjects (%.1f%%) — excluded from GMT analysis per SAP",
     nrow(miss_d29),
@@ -279,7 +283,8 @@ log_note(log,
 ``` r
 
 for (subj in miss_d29$USUBJID) {
-  log_note(log,
+  log_note(
+    log,
     sprintf("Subject excluded (missing data) — USUBJID %s: Day 29 titre missing — excluded from primary analysis", subj)
   )
 }
@@ -337,10 +342,14 @@ log_action(log,
   object = "GMT at Day 29",
   reason = sprintf(
     "Computed GMT and 95%% CI at Day 29 per SAP Section 5.1. %s",
-    paste(sprintf("%s: GMT = %.1f (95%% CI: %.1f, %.1f)",
-                  gmt_d29$TRT01P, gmt_d29$gmt,
-                  gmt_d29$gmt_lo, gmt_d29$gmt_hi),
-          collapse = " | ")
+    paste(
+      sprintf(
+        "%s: GMT = %.1f (95%% CI: %.1f, %.1f)",
+        gmt_d29$TRT01P, gmt_d29$gmt,
+        gmt_d29$gmt_lo, gmt_d29$gmt_hi
+      ),
+      collapse = " | "
+    )
   )
 )
 ```
@@ -355,11 +364,11 @@ gmt_ratio <- vac_gmt / pbo_gmt
 
 log_vac <- log2(adis_primary$AVAL[adis_primary$TRT01P == "Vaccine"])
 log_pbo <- log2(adis_primary$AVAL[adis_primary$TRT01P == "Placebo"])
-ttest   <- t.test(log_vac, log_pbo)
+ttest <- t.test(log_vac, log_pbo)
 
 gmt_ratio_lo <- 2^(ttest$conf.int[1L])
 gmt_ratio_hi <- 2^(ttest$conf.int[2L])
-p_value      <- ttest$p.value
+p_value <- ttest$p.value
 
 log_action(log,
   action = "compute_gmt_ratio",
@@ -396,7 +405,8 @@ baseline titre. We log the definition, the computation, and the result.
 
 ``` r
 
-log_note(log,
+log_note(
+  log,
   "Seroconversion defined as >= 4-fold rise from baseline (Day 29 / Day 1 >= 4)"
 )
 ```
@@ -425,12 +435,16 @@ log_action(log,
   object = "Seroconversion rates",
   reason = sprintf(
     "Computed per SAP Section 5.2. %s",
-    paste(sprintf("%s: %d/%d (%.1f%%, 95%% CI: %.1f%%-%.1f%%)",
-                  sc_rates$TRT01P, sc_rates$n_sc, sc_rates$n,
-                  sc_rates$rate * 100,
-                  sc_rates$rate_lo * 100,
-                  sc_rates$rate_hi * 100),
-          collapse = " | ")
+    paste(
+      sprintf(
+        "%s: %d/%d (%.1f%%, 95%% CI: %.1f%%-%.1f%%)",
+        sc_rates$TRT01P, sc_rates$n_sc, sc_rates$n,
+        sc_rates$rate * 100,
+        sc_rates$rate_lo * 100,
+        sc_rates$rate_hi * 100
+      ),
+      collapse = " | "
+    )
   )
 )
 ```
@@ -439,16 +453,19 @@ log_action(log,
 
 ``` r
 
-knitr::kable(sc_rates |>
-  mutate(
-    rate    = sprintf("%.1f%%", rate * 100),
-    rate_lo = sprintf("%.1f%%", rate_lo * 100),
-    rate_hi = sprintf("%.1f%%", rate_hi * 100)
-  ) |>
-  select(TRT01P, n, n_sc, rate, rate_lo, rate_hi),
-  col.names = c("Treatment", "N", "Seroconverters",
-                "Rate", "95% CI Lower", "95% CI Upper"),
-  caption   = "Seroconversion rates at Day 29 (PP population)"
+knitr::kable(
+  sc_rates |>
+    mutate(
+      rate    = sprintf("%.1f%%", rate * 100),
+      rate_lo = sprintf("%.1f%%", rate_lo * 100),
+      rate_hi = sprintf("%.1f%%", rate_hi * 100)
+    ) |>
+    select(TRT01P, n, n_sc, rate, rate_lo, rate_hi),
+  col.names = c(
+    "Treatment", "N", "Seroconverters",
+    "Rate", "95% CI Lower", "95% CI Upper"
+  ),
+  caption = "Seroconversion rates at Day 29 (PP population)"
 )
 ```
 
@@ -471,8 +488,8 @@ adis_d181 <- adis_pp |>
 gmt_d181 <- adis_d181 |>
   group_by(TRT01P) |>
   summarise(
-    n      = n(),
-    gmt    = 2^mean(log2(AVAL), na.rm = TRUE),
+    n = n(),
+    gmt = 2^mean(log2(AVAL), na.rm = TRUE),
     gmt_lo = 2^(mean(log2(AVAL)) - qt(0.975, n() - 1) * sd(log2(AVAL)) / sqrt(n())),
     gmt_hi = 2^(mean(log2(AVAL)) + qt(0.975, n() - 1) * sd(log2(AVAL)) / sqrt(n())),
     .groups = "drop"
@@ -483,10 +500,14 @@ log_action(log,
   object = "GMT persistence at Day 181",
   reason = sprintf(
     "Computed GMT persistence per SAP Section 5.3 (secondary endpoint). %s",
-    paste(sprintf("%s: GMT = %.1f (95%% CI: %.1f, %.1f)",
-                  gmt_d181$TRT01P, gmt_d181$gmt,
-                  gmt_d181$gmt_lo, gmt_d181$gmt_hi),
-          collapse = " | ")
+    paste(
+      sprintf(
+        "%s: GMT = %.1f (95%% CI: %.1f, %.1f)",
+        gmt_d181$TRT01P, gmt_d181$gmt,
+        gmt_d181$gmt_lo, gmt_d181$gmt_hi
+      ),
+      collapse = " | "
+    )
   )
 )
 ```
@@ -511,7 +532,8 @@ outlier_review <- adis_primary |>
 
 n_outliers <- sum(outlier_review$outlier, na.rm = TRUE)
 
-log_note(log,
+log_note(
+  log,
   sprintf(
     "Outlier screen (|z| > 3 on log2 scale): %d flagged — retained per SAP (no clinical basis for exclusion; sensitivity analysis planned)",
     n_outliers
@@ -526,7 +548,8 @@ log_note(log,
 if (n_outliers > 0L) {
   for (subj in outlier_review$USUBJID[outlier_review$outlier]) {
     z <- outlier_review$z_score[outlier_review$USUBJID == subj]
-    log_note(log,
+    log_note(
+      log,
       sprintf("Outlier flagged — USUBJID %s: z = %.2f — retained, flagged for sensitivity", subj, z)
     )
   }
@@ -543,7 +566,7 @@ gmt_time <- adis_pp |>
   filter(!is.na(AVAL)) |>
   group_by(TRT01P, AVISITN, AVISIT) |>
   summarise(
-    gmt    = 2^mean(log2(AVAL)),
+    gmt = 2^mean(log2(AVAL)),
     gmt_lo = 2^(mean(log2(AVAL)) - qt(0.975, n() - 1) * sd(log2(AVAL)) / sqrt(n())),
     gmt_hi = 2^(mean(log2(AVAL)) + qt(0.975, n() - 1) * sd(log2(AVAL)) / sqrt(n())),
     .groups = "drop"
@@ -621,29 +644,41 @@ results <- data.frame(
     "GMT at Day 181 — Placebo"
   ),
   Result = c(
-    sprintf("%.1f (%.1f, %.1f)", vac_gmt,
-            gmt_d29$gmt_lo[gmt_d29$TRT01P == "Vaccine"],
-            gmt_d29$gmt_hi[gmt_d29$TRT01P == "Vaccine"]),
-    sprintf("%.1f (%.1f, %.1f)", pbo_gmt,
-            gmt_d29$gmt_lo[gmt_d29$TRT01P == "Placebo"],
-            gmt_d29$gmt_hi[gmt_d29$TRT01P == "Placebo"]),
+    sprintf(
+      "%.1f (%.1f, %.1f)", vac_gmt,
+      gmt_d29$gmt_lo[gmt_d29$TRT01P == "Vaccine"],
+      gmt_d29$gmt_hi[gmt_d29$TRT01P == "Vaccine"]
+    ),
+    sprintf(
+      "%.1f (%.1f, %.1f)", pbo_gmt,
+      gmt_d29$gmt_lo[gmt_d29$TRT01P == "Placebo"],
+      gmt_d29$gmt_hi[gmt_d29$TRT01P == "Placebo"]
+    ),
     sprintf("%.2f (%.2f, %.2f)", gmt_ratio, gmt_ratio_lo, gmt_ratio_hi),
-    sprintf("%.1f%% (%.1f%%, %.1f%%)",
-            sc_rates$rate[sc_rates$TRT01P == "Vaccine"] * 100,
-            sc_rates$rate_lo[sc_rates$TRT01P == "Vaccine"] * 100,
-            sc_rates$rate_hi[sc_rates$TRT01P == "Vaccine"] * 100),
-    sprintf("%.1f%% (%.1f%%, %.1f%%)",
-            sc_rates$rate[sc_rates$TRT01P == "Placebo"] * 100,
-            sc_rates$rate_lo[sc_rates$TRT01P == "Placebo"] * 100,
-            sc_rates$rate_hi[sc_rates$TRT01P == "Placebo"] * 100),
-    sprintf("%.1f (%.1f, %.1f)",
-            gmt_d181$gmt[gmt_d181$TRT01P == "Vaccine"],
-            gmt_d181$gmt_lo[gmt_d181$TRT01P == "Vaccine"],
-            gmt_d181$gmt_hi[gmt_d181$TRT01P == "Vaccine"]),
-    sprintf("%.1f (%.1f, %.1f)",
-            gmt_d181$gmt[gmt_d181$TRT01P == "Placebo"],
-            gmt_d181$gmt_lo[gmt_d181$TRT01P == "Placebo"],
-            gmt_d181$gmt_hi[gmt_d181$TRT01P == "Placebo"])
+    sprintf(
+      "%.1f%% (%.1f%%, %.1f%%)",
+      sc_rates$rate[sc_rates$TRT01P == "Vaccine"] * 100,
+      sc_rates$rate_lo[sc_rates$TRT01P == "Vaccine"] * 100,
+      sc_rates$rate_hi[sc_rates$TRT01P == "Vaccine"] * 100
+    ),
+    sprintf(
+      "%.1f%% (%.1f%%, %.1f%%)",
+      sc_rates$rate[sc_rates$TRT01P == "Placebo"] * 100,
+      sc_rates$rate_lo[sc_rates$TRT01P == "Placebo"] * 100,
+      sc_rates$rate_hi[sc_rates$TRT01P == "Placebo"] * 100
+    ),
+    sprintf(
+      "%.1f (%.1f, %.1f)",
+      gmt_d181$gmt[gmt_d181$TRT01P == "Vaccine"],
+      gmt_d181$gmt_lo[gmt_d181$TRT01P == "Vaccine"],
+      gmt_d181$gmt_hi[gmt_d181$TRT01P == "Vaccine"]
+    ),
+    sprintf(
+      "%.1f (%.1f, %.1f)",
+      gmt_d181$gmt[gmt_d181$TRT01P == "Placebo"],
+      gmt_d181$gmt_lo[gmt_d181$TRT01P == "Placebo"],
+      gmt_d181$gmt_hi[gmt_d181$TRT01P == "Placebo"]
+    )
   ),
   stringsAsFactors = FALSE
 )
@@ -697,7 +732,8 @@ automatically.
 
 ``` r
 
-log_signature(log,
+log_signature(
+  log,
   "I confirm that this analysis was conducted in accordance with SAP v2.0
    and that the results presented are accurate and complete to the best
    of my knowledge."
@@ -735,7 +771,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 28 row(s) to /tmp/RtmpiLytVW/audit_trail_RSV301_primary_v1.csv
+    #> regulog: exported 28 row(s) to /tmp/Rtmp1oJsNb/audit_trail_RSV301_primary_v1.csv
 
 ``` r
 
@@ -752,16 +788,16 @@ filter_log(log) |>
 
 | time     | type   | action              | object                               |
 |:---------|:-------|:--------------------|:-------------------------------------|
-| 08:44:26 | NOTE   | note                | NA                                   |
-| 08:44:26 | ACTION | data_read           | /tmp/RtmpiLytVW/file1c662d4fe06c.csv |
-| 08:44:26 | ACTION | data_read           | /tmp/RtmpiLytVW/file1c6678185141.csv |
-| 08:44:26 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
-| 08:44:26 | NOTE   | note                | NA                                   |
-| 08:44:26 | NOTE   | note                | NA                                   |
-| 08:44:26 | NOTE   | note                | NA                                   |
-| 08:44:26 | NOTE   | note                | NA                                   |
-| 08:44:26 | NOTE   | note                | NA                                   |
-| 08:44:26 | NOTE   | note                | NA                                   |
+| 15:47:24 | NOTE   | note                | NA                                   |
+| 15:47:24 | ACTION | data_read           | /tmp/Rtmp1oJsNb/file1c165e214fe6.csv |
+| 15:47:24 | ACTION | data_read           | /tmp/Rtmp1oJsNb/file1c1661a30c74.csv |
+| 15:47:24 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
+| 15:47:24 | NOTE   | note                | NA                                   |
+| 15:47:24 | NOTE   | note                | NA                                   |
+| 15:47:24 | NOTE   | note                | NA                                   |
+| 15:47:24 | NOTE   | note                | NA                                   |
+| 15:47:24 | NOTE   | note                | NA                                   |
+| 15:47:24 | NOTE   | note                | NA                                   |
 
 Audit trail — first 10 entries {.table}
 

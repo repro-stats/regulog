@@ -93,12 +93,13 @@ log_action(log,
 #> regulog: logged action 'approved' on 'model_v3'
 df <- export_audit_trail(log, format = "csv")
 
-if (FALSE) { # \dontrun{
+# \donttest{
 export_audit_trail(log,
   format = "csv",
   from   = "2026-01-01",
   signed = TRUE,
-  path   = "audit_export.csv"
+  path   = tempfile(fileext = ".csv")
 )
-} # }
+#> regulog: exported 1 row(s) to /tmp/RtmplMovTL/file19b047cad73b.csv
+# }
 ```

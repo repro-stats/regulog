@@ -11,12 +11,12 @@ Source:
 [`DESCRIPTION`](https://github.com/repro-stats/regulog/blob/main/DESCRIPTION)
 
 Penn N (2026). *regulog: Tamper-Evident Audit Logging for R*. R package
-version 0.2.0, <https://repro-stats.github.io/regulog/>.
+version 0.2.0, <https://reprostats.org/regulog/>.
 
     @Manual{,
       title = {regulog: Tamper-Evident Audit Logging for R},
       author = {Ndoh Penn},
       year = {2026},
       note = {R package version 0.2.0},
-      url = {https://repro-stats.github.io/regulog/},
+      url = {https://reprostats.org/regulog/},
     }

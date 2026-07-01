@@ -139,7 +139,7 @@ to generate a validation dossier for your specific environment.
 
 Useful links:
 
-- <https://repro-stats.github.io/regulog/>
+- <https://reprostats.org/regulog/>
 
 - <https://github.com/repro-stats/regulog>
 

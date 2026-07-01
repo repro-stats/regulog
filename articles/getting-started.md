@@ -258,9 +258,9 @@ be repeated at every call:
 ``` r
 
 with_log(log, {
-  adsl   <- read(haven::read_sas, "data/adsl.sas7bdat")
-  adae   <- read(haven::read_sas, "data/adae.sas7bdat")
-  adlb   <- read(haven::read_sas, "data/adlb.sas7bdat")
+  adsl <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae <- read(haven::read_sas, "data/adae.sas7bdat")
+  adlb <- read(haven::read_sas, "data/adlb.sas7bdat")
   params <- read(readr::read_csv, "config/parameters.csv")
 })
 ```
@@ -585,20 +585,20 @@ df_export[, c("entry_id", "type", "action", "user", "chain_intact", "verified_at
 #> 13       13      NOTE        note          jsmith         TRUE
 #> 14       14 SIGNATURE   signature          jsmith         TRUE
 #>                    verified_at
-#> 1  2026-07-01T08:44:12.619241Z
-#> 2  2026-07-01T08:44:12.619241Z
-#> 3  2026-07-01T08:44:12.619241Z
-#> 4  2026-07-01T08:44:12.619241Z
-#> 5  2026-07-01T08:44:12.619241Z
-#> 6  2026-07-01T08:44:12.619241Z
-#> 7  2026-07-01T08:44:12.619241Z
-#> 8  2026-07-01T08:44:12.619241Z
-#> 9  2026-07-01T08:44:12.619241Z
-#> 10 2026-07-01T08:44:12.619241Z
-#> 11 2026-07-01T08:44:12.619241Z
-#> 12 2026-07-01T08:44:12.619241Z
-#> 13 2026-07-01T08:44:12.619241Z
-#> 14 2026-07-01T08:44:12.619241Z
+#> 1  2026-07-01T15:47:11.835584Z
+#> 2  2026-07-01T15:47:11.835584Z
+#> 3  2026-07-01T15:47:11.835584Z
+#> 4  2026-07-01T15:47:11.835584Z
+#> 5  2026-07-01T15:47:11.835584Z
+#> 6  2026-07-01T15:47:11.835584Z
+#> 7  2026-07-01T15:47:11.835584Z
+#> 8  2026-07-01T15:47:11.835584Z
+#> 9  2026-07-01T15:47:11.835584Z
+#> 10 2026-07-01T15:47:11.835584Z
+#> 11 2026-07-01T15:47:11.835584Z
+#> 12 2026-07-01T15:47:11.835584Z
+#> 13 2026-07-01T15:47:11.835584Z
+#> 14 2026-07-01T15:47:11.835584Z
 ```
 
 ``` r
