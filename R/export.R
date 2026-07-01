@@ -60,12 +60,12 @@
 #' )
 #' df <- export_audit_trail(log, format = "csv")
 #'
-#' \dontrun{
+#' \donttest{
 #' export_audit_trail(log,
 #'   format = "csv",
 #'   from   = "2026-01-01",
 #'   signed = TRUE,
-#'   path   = "audit_export.csv"
+#'   path   = tempfile(fileext = ".csv")
 #' )
 #' }
 #'
@@ -81,16 +81,14 @@ export_audit_trail <- function(log,
 
   # Resolve entries and metadata
   if (inherits(log, "regulog")) {
-    entries   <- log$entries
-    app       <- log$app
-    version   <- log$version
-    hash_algo <- log$hash_algo
+    entries <- log$entries
+    app     <- log$app
+    version <- log$version
   } else if (is.character(log) && length(log) == 1L) {
-    all_rec   <- .read_rlog(log)
-    app       <- all_rec[[1L]]$app         %||% "unknown"
-    version   <- all_rec[[1L]]$app_version %||% "unknown"
-    hash_algo <- all_rec[[1L]]$hash_algo   %||% "sha256"
-    entries   <- all_rec
+    all_rec <- .read_rlog(log)
+    app     <- all_rec[[1L]]$app         %||% "unknown"
+    version <- all_rec[[1L]]$app_version %||% "unknown"
+    entries <- all_rec
   } else {
     stop("`log` must be a `regulog` object or a path to a `.rlog` file.")
   }

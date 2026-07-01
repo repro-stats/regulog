@@ -228,9 +228,9 @@ every call:
 
 ```{r with-log, eval = FALSE}
 with_log(log, {
-  adsl   <- read(haven::read_sas, "data/adsl.sas7bdat")
-  adae   <- read(haven::read_sas, "data/adae.sas7bdat")
-  adlb   <- read(haven::read_sas, "data/adlb.sas7bdat")
+  adsl <- read(haven::read_sas, "data/adsl.sas7bdat")
+  adae <- read(haven::read_sas, "data/adae.sas7bdat")
+  adlb <- read(haven::read_sas, "data/adlb.sas7bdat")
   params <- read(readr::read_csv, "config/parameters.csv")
 })
 ```

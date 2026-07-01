@@ -162,7 +162,7 @@ regulog_shiny_init <- function(session,
 #' }
 #'
 #' @export
-regulog_observer <- function(log, session, eventExpr, action, object, reason, ...) {
+regulog_observer <- function(log, session, eventExpr, action, object, reason, ...) { # nolint: object_name_linter
   .require_shiny()
 
   shiny::observeEvent(eventExpr, {

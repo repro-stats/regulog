@@ -68,8 +68,16 @@ filter_log(log, type = c("ACTION", "NOTE"), user = "jsmith")
 filter_log(log, from = "2026-06-01", to = "2026-12-31")
 
 # Works directly on a .rlog file — no live session needed
-\dontrun{
-filter_log("logs/audit.rlog", type = "SIGNATURE")
+\donttest{
+tmp <- tempfile(fileext = ".rlog")
+log2 <- regulog_init(app = "analysis", version = "1.0", user = "jsmith",
+  path = tmp)
+log_action(log2,
+  action = "run",
+  object = "primary.R",
+  reason = "Primary model fitted"
+)
+filter_log(tmp, type = "ACTION")
 }
 
 }

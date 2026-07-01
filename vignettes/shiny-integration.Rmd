@@ -250,7 +250,7 @@ output$download_audit <- downloadHandler(
 )
 
 # In UI:
-# downloadButton("download_audit", "Download audit trail (CSV)")
+# downloadButton("download_audit", "Download audit trail (CSV)") # nolint: commented_code_linter
 ```
 
 ## 9. Per-session vs shared log
@@ -348,7 +348,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$load_dataset, {
     with_log(log, {
-      dataset <- read(haven::read_sas, input$dataset_path)
+      dataset <- read(haven::read_sas, input$dataset_path) # nolint: object_usage_linter
     })
     showNotification("Dataset loaded and logged.", type = "message")
   })

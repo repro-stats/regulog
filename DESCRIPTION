@@ -15,6 +15,7 @@ Description: Provides tamper-evident, hash-chained audit logging for R
     IQ/OQ/PQ qualification scripts for use in validated computerised systems.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en-GB
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
@@ -36,5 +37,5 @@ Suggests:
 Config/testthat/edition: 3
 Config/Needs/website: dplyr, ggplot2, tidyr
 VignetteBuilder: knitr
-URL: https://repro-stats.github.io/regulog/, https://github.com/repro-stats/regulog
+URL: https://reprostats.org/regulog/, https://github.com/repro-stats/regulog
 BugReports: https://github.com/repro-stats/regulog/issues

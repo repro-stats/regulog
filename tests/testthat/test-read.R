@@ -135,13 +135,19 @@ test_that("multiple rl_read() calls chain correctly in sequence", {
 # ── with_log() ────────────────────────────────────────────────────────────────
 
 test_that("with_log() requires a regulog object", {
-  expect_error(with_log("not a log", { 1 + 1 }))
-  expect_error(with_log(NULL, { 1 + 1 }))
+  expect_error(with_log("not a log", {
+    1 + 1
+  }))
+  expect_error(with_log(NULL, {
+    1 + 1
+  }))
 })
 
 test_that("with_log() returns the value of expr", {
   log <- regulog_init(app = "test", version = "0.1", user = "tester")
-  result <- with_log(log, { 42L })
+  result <- with_log(log, {
+    42L
+  })
   expect_equal(result, 42L)
 })
 
@@ -163,7 +169,9 @@ test_that("with_log() exposes a local read() bound to the supplied log", {
 test_that("with_log() propagates errors raised inside the block", {
   log <- regulog_init(app = "test", version = "0.1", user = "tester")
   expect_error(
-    with_log(log, { stop("deliberate error") }),
+    with_log(log, {
+      stop("deliberate error")
+    }),
     "deliberate error"
   )
 })
@@ -173,7 +181,9 @@ test_that("with_log() preserves entries logged before an error inside the block"
   log_action(log, action = "setup", object = "init", reason = "Pre-block entry")
 
   tryCatch(
-    with_log(log, { stop("deliberate error") }),
+    with_log(log, {
+      stop("deliberate error")
+    }),
     error = function(e) NULL
   )
 
@@ -184,7 +194,9 @@ test_that("with_log() preserves entries logged before an error inside the block"
 
 test_that("with_log()'s read() binding does not leak into the calling environment", {
   log <- regulog_init(app = "test", version = "0.1", user = "tester")
-  with_log(log, { 1 + 1 })
+  with_log(log, {
+    1 + 1
+  })
 
   # `read` should not exist in this test's local frame after with_log() returns
   expect_false(exists("read", where = environment(), inherits = FALSE))
@@ -213,8 +225,12 @@ test_that("two independent with_log() calls on separate logs do not interfere", 
   log_a <- regulog_init(app = "test", version = "0.1", user = "user_a")
   log_b <- regulog_init(app = "test", version = "0.1", user = "user_b")
 
-  with_log(log_a, { read(utils::read.csv, tmp) })
-  with_log(log_b, { read(utils::read.csv, tmp) })
+  with_log(log_a, {
+    read(utils::read.csv, tmp)
+  })
+  with_log(log_b, {
+    read(utils::read.csv, tmp)
+  })
 
   expect_equal(length(log_a$entries), 1L)
   expect_equal(length(log_b$entries), 1L)

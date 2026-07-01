@@ -11,3 +11,5 @@
 ^audit_signed\.csv$
 ^logs/
 ^pkgdown$
+^cran-comments\.md$
+^\.lintr$

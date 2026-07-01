@@ -155,7 +155,7 @@ source(system.file("validation/PQ_regulog.R", package = "regulog"))
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://repro-stats.github.io/regulog/}
+  \item \url{https://reprostats.org/regulog/}
   \item \url{https://github.com/repro-stats/regulog}
   \item Report bugs at \url{https://github.com/repro-stats/regulog/issues}
 }

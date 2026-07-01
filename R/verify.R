@@ -75,15 +75,15 @@ verify_log.character <- function(log, verbose = TRUE) {
   if (length(genesis_idx) == 0L) {
     warning("No GENESIS record found in ", log, ". Verification may be incomplete.")
     genesis_hash <- "0"
-    hash_algo    <- "sha256"   # best guess for very old files
+    hash_algo <- "sha256" # best guess for very old files
     data_entries <- all_records
   } else {
-    genesis_rec  <- all_records[[genesis_idx[[1L]]]]
+    genesis_rec <- all_records[[genesis_idx[[1L]]]]
     genesis_hash <- genesis_rec$entry_hash
     # hash_algo is persisted in the genesis record from v0.2.0 onward.
     # For files written by earlier versions that lack this field, fall back
     # to "sha256" (the only algo that was ever shipped).
-    hash_algo    <- genesis_rec$hash_algo %||% "sha256"
+    hash_algo <- genesis_rec$hash_algo %||% "sha256"
     data_entries <- all_records[-genesis_idx]
   }
 
@@ -106,7 +106,7 @@ verify_log.character <- function(log, verbose = TRUE) {
   prev_hash <- first_prev
 
   for (i in seq_along(entries)) {
-    e  <- entries[[i]]
+    e <- entries[[i]]
     id <- e$entry_id %||% i
 
     # Reconstruct hash input using the same canonical format as .build_entry():
@@ -136,7 +136,7 @@ verify_log.character <- function(log, verbose = TRUE) {
     computed <- digest::digest(hash_input, algo = hash_algo, serialize = FALSE)
 
     ok_content <- identical(computed, e$entry_hash)
-    ok_chain   <- identical(e$prev_hash, prev_hash)
+    ok_chain <- identical(e$prev_hash, prev_hash)
 
     if (!ok_content) {
       msg <- sprintf(
@@ -159,7 +159,7 @@ verify_log.character <- function(log, verbose = TRUE) {
   }
 
   intact <- length(errors) == 0L
-  n      <- length(entries)
+  n <- length(entries)
 
   if (verbose) {
     if (intact) {

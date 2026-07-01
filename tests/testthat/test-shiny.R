@@ -95,7 +95,7 @@ test_that("regulog_shiny_init persists to disk when path supplied", {
   expect_true(file.exists(tmp))
   lines <- readLines(tmp, warn = FALSE)
   lines <- lines[nzchar(lines)]
-  expect_gte(length(lines), 2L) # genesis + session_start
+  expect_gte(length(lines), 2L) # genesis + session_start # nolint
 })
 
 test_that("regulog_shiny_init chain verifies after session lifecycle", {

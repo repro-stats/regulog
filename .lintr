@@ -1,0 +1,15 @@
+linters: linters_with_defaults(
+    line_length_linter(120L),
+    object_name_linter = NULL
+  )
+exclusions: list(
+    "inst/validation/IQ_regulog.R"          = Inf,
+    "inst/validation/OQ_regulog.R"          = Inf,
+    "inst/validation/PQ_regulog.R"          = Inf,
+    "inst/validation/IQ_additions_v0.2.0.R" = Inf,
+    "inst/validation/OQ_additions_v0.2.0.R" = Inf,
+    "inst/validation/PQ_additions_v0.2.0.R" = Inf,
+    "vignettes/articles/regulog-oncology.Rmd" = Inf,
+    "vignettes/articles/regulog-vaccine.Rmd"  = Inf,
+    "vignettes/hash-chain.Rmd"                = Inf
+  )

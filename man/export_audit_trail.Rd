@@ -74,12 +74,12 @@ log_action(log,
 )
 df <- export_audit_trail(log, format = "csv")
 
-\dontrun{
+\donttest{
 export_audit_trail(log,
   format = "csv",
   from   = "2026-01-01",
   signed = TRUE,
-  path   = "audit_export.csv"
+  path   = tempfile(fileext = ".csv")
 )
 }
 

@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml)
-[![Codecov](https://codecov.io/gh/repro-stats/regulog/branch/main/graph/badge.svg)](https://codecov.io/gh/repro-stats/regulog)
+[![Codecov](https://codecov.io/gh/repro-stats/regulog/branch/main/graph/badge.svg)](https://app.codecov.io/gh/repro-stats/regulog)
 <!-- badges: end -->
 
 **Tamper-Evident Audit Logging for R**

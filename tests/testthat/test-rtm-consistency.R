@@ -17,7 +17,9 @@
 #' @noRd
 .expand_refs <- function(ref_col, prefix) {
   raw <- ref_col[nzchar(trimws(ref_col))]
-  if (length(raw) == 0L) return(character(0L))
+  if (length(raw) == 0L) {
+    return(character(0L))
+  }
 
   # Split each cell on "," and ":" -- ":" denotes an inclusive range,
   # "," (if ever used) would denote a discrete list
@@ -43,10 +45,14 @@
 #' @noRd
 .validation_path <- function(file) {
   installed <- system.file("validation", file, package = "regulog")
-  if (nzchar(installed) && file.exists(installed)) return(installed)
+  if (nzchar(installed) && file.exists(installed)) {
+    return(installed)
+  }
 
   dev_path <- testthat::test_path("..", "..", "inst", "validation", file)
-  if (file.exists(dev_path)) return(dev_path)
+  if (file.exists(dev_path)) {
+    return(dev_path)
+  }
 
   NA_character_
 }
@@ -66,8 +72,10 @@ rtm_path <- .validation_path("RTM_regulog.csv")
 test_that("RTM_regulog.csv can be located and parsed", {
   skip_if(is.na(rtm_path), "RTM_regulog.csv not found; skipping RTM consistency checks")
   rtm <- utils::read.csv(rtm_path, stringsAsFactors = FALSE)
-  expect_true(all(c("req_id", "iq_ref", "oq_ref", "pq_ref",
-                    "regulog_function", "status") %in% names(rtm)))
+  expect_true(all(c(
+    "req_id", "iq_ref", "oq_ref", "pq_ref",
+    "regulog_function", "status"
+  ) %in% names(rtm)))
   expect_gt(nrow(rtm), 0L)
 })
 
@@ -82,7 +90,7 @@ test_that("every OQ test ID cited in the RTM is defined in OQ_regulog.R", {
   skip_if(is.na(oq_path), "OQ_regulog.R not found")
 
   rtm <- utils::read.csv(rtm_path, stringsAsFactors = FALSE)
-  cited   <- unique(.expand_refs(rtm$oq_ref, "OQ-"))
+  cited <- unique(.expand_refs(rtm$oq_ref, "OQ-"))
   defined <- unique(.extract_defined_ids(readLines(oq_path, warn = FALSE), "OQ-"))
 
   stale <- setdiff(cited, defined)
@@ -106,7 +114,7 @@ test_that("every IQ test ID cited in the RTM is defined in IQ_regulog.R", {
   skip_if(is.na(iq_path), "IQ_regulog.R not found")
 
   rtm <- utils::read.csv(rtm_path, stringsAsFactors = FALSE)
-  cited   <- unique(.expand_refs(rtm$iq_ref, "IQ-"))
+  cited <- unique(.expand_refs(rtm$iq_ref, "IQ-"))
   defined <- unique(.extract_defined_ids(readLines(iq_path, warn = FALSE), "IQ-"))
 
   stale <- setdiff(cited, defined)
@@ -130,7 +138,7 @@ test_that("every PQ test ID cited in the RTM is defined in PQ_regulog.R", {
   skip_if(is.na(pq_path), "PQ_regulog.R not found")
 
   rtm <- utils::read.csv(rtm_path, stringsAsFactors = FALSE)
-  cited   <- unique(.expand_refs(rtm$pq_ref, "PQ-"))
+  cited <- unique(.expand_refs(rtm$pq_ref, "PQ-"))
   defined <- unique(.extract_defined_ids(readLines(pq_path, warn = FALSE), "PQ-"))
 
   stale <- setdiff(cited, defined)
@@ -157,8 +165,8 @@ test_that("no RTM row references a function that is not currently exported", {
   # methods registered via @exportS3Method (e.g. as.data.frame.regulog) --
   # those are registered as S3 method dispatch entries, not namespace
   # exports, and must be checked separately.
-  exported    <- getNamespaceExports("regulog")
-  s3_methods  <- tryCatch(
+  exported <- getNamespaceExports("regulog")
+  s3_methods <- tryCatch(
     as.character(utils::.S3methods(class = "regulog", envir = asNamespace("regulog"))),
     error = function(e) character(0L)
   )
