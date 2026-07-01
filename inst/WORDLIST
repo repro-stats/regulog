@@ -7,7 +7,10 @@ CDISC
 CFR
 CMD
 Codecov
+cryptographic
+GAMP
 GMTs
+GxP
 Immunogenicity
 KRAS
 NDJSON
@@ -27,7 +30,9 @@ immunogenicity
 inspectable
 lifecycle
 offs
+org
 prev
+reprostats
 repudiable
 rlog
 seroconverter
