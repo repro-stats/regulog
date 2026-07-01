@@ -89,15 +89,13 @@
 #' @export
 regulog_shiny_init <- function(session,
                                app,
-                               version = "unknown",
-                               path = NULL,
+                               version   = "unknown",
+                               path      = NULL,
                                hash_algo = "sha256") {
   .require_shiny()
 
-  # Resolve authenticated user
   user <- .resolve_shiny_user(session)
 
-  # Default to a per-session temp file if no path given
   resolved_path <- path %||% tempfile(
     pattern = paste0("regulog_", gsub("[^a-zA-Z0-9]", "_", app), "_"),
     fileext = ".rlog"
@@ -120,7 +118,6 @@ regulog_shiny_init <- function(session,
     hash_algo = hash_algo
   )
 
-  # Log session lifecycle events
   log_action(log,
     action = "session_start",
     object = session$token,
@@ -204,5 +201,4 @@ regulog_observer <- function(log, session, eventExpr, action, object, reason, ..
 
   user
 }
-
-`%||%` <- function(x, y) if (is.null(x)) y else x
+# %||% is defined in regulog.R — not duplicated here

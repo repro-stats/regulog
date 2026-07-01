@@ -31,9 +31,10 @@ Defaults to \code{"sha256"}. Do not change once a log file is in use.}
 An S3 object of class \code{"regulog"} (an environment).
 }
 \description{
-Creates a new audit log session object. Subsequent calls to \code{\link[=log_action]{log_action()}}
-and \code{\link[=log_change]{log_change()}} append hash-chained entries. If \code{path} is supplied,
-entries are written to a newline-delimited JSON file (\code{.rlog}).
+Creates a new audit log session object. Subsequent calls to \code{\link[=log_action]{log_action()}},
+\code{\link[=log_change]{log_change()}}, \code{\link[=log_note]{log_note()}}, and \code{\link[=log_signature]{log_signature()}} append hash-chained
+entries. If \code{path} is supplied, entries are written to a newline-delimited
+JSON file (\code{.rlog}).
 }
 \details{
 \subsection{Entry structure}{
@@ -46,6 +47,7 @@ Every entry written to disk is a JSON object on a single line:
   "app":         "my-app",
   "app_version": "1.0.0",
   "user":        "jsmith",
+  "type":        "ACTION",
   "action":      "approved",
   "object":      "model_v3",
   "reason":      "Validation metrics passed threshold",

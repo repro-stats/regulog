@@ -14,7 +14,7 @@
 \value{
 A \code{data.frame} with columns \code{entry_id}, \code{timestamp}, \code{app},
 \code{app_version}, \code{user}, \code{type}, \code{action}, \code{object}, \code{field}, \code{before},
-\code{after}, \code{reason}, \code{entry_hash}, \code{prev_hash}.
+\code{after}, \code{reason}, \code{text}, \code{meaning}, \code{entry_hash}, \code{prev_hash}.
 }
 \description{
 Coerces the entries list of a \code{regulog} object into a flat \code{data.frame},
@@ -26,8 +26,12 @@ Called implicitly by \code{\link[=filter_log]{filter_log()}} and useful for dire
 }
 \examples{
 log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
-log_action(log, "run", "primary.R", "Primary model fitted")
-log_note(log, "Outlier retained per SAP")
+log_action(log,
+  action = "run",
+  object = "primary.R",
+  reason = "Primary model fitted"
+)
+log_note(log, "Outlier in subject 042 retained per SAP")
 
 as.data.frame(log)
 

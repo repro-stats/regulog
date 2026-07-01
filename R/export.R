@@ -37,22 +37,25 @@
 #' | `app` | Application name |
 #' | `app_version` | Application version |
 #' | `user` | Acting user identity |
-#' | `type` | `ACTION` or `CHANGE` |
-#' | `action` | Action label (ACTION entries) |
+#' | `type` | `ACTION`, `CHANGE`, `NOTE`, or `SIGNATURE` |
+#' | `action` | Action label (`ACTION` entries) |
 #' | `object` | Target of the action or change |
-#' | `field` | Field name (CHANGE entries) |
-#' | `before` | Prior value (CHANGE entries) |
-#' | `after` | New value (CHANGE entries) |
-#' | `reason` | Justification |
+#' | `field` | Field name (`CHANGE` entries) |
+#' | `before` | Prior value (`CHANGE` entries) |
+#' | `after` | New value (`CHANGE` and `SIGNATURE` entries) |
+#' | `reason` | Justification (`ACTION`, `CHANGE`, `NOTE` entries) |
+#' | `text` | Free-text annotation (`NOTE` entries) |
+#' | `meaning` | Signature meaning (`SIGNATURE` entries) |
 #' | `entry_hash` | SHA-256 of this entry |
 #' | `prev_hash` | SHA-256 of prior entry |
-#' | `chain_intact` | `TRUE/FALSE` (signed exports only) |
+#' | `chain_intact` | `TRUE`/`FALSE` (signed exports only) |
 #' | `verified_at` | ISO-8601 UTC of export (signed exports only) |
 #'
 #' @examples
 #' log <- regulog_init(app = "my-app", user = "jsmith")
 #' log_action(log,
-#'   action = "approved", object = "model_v3",
+#'   action = "approved",
+#'   object = "model_v3",
 #'   reason = "Metrics passed threshold"
 #' )
 #' df <- export_audit_trail(log, format = "csv")
@@ -68,26 +71,26 @@
 #'
 #' @export
 export_audit_trail <- function(log,
-                               format = c("csv", "json"),
-                               from = NULL,
-                               to = NULL,
-                               path = NULL,
-                               signed = FALSE,
+                               format          = c("csv", "json"),
+                               from            = NULL,
+                               to              = NULL,
+                               path            = NULL,
+                               signed          = FALSE,
                                include_genesis = FALSE) {
   format <- match.arg(format)
 
   # Resolve entries and metadata
   if (inherits(log, "regulog")) {
-    entries <- log$entries
-    app <- log$app
-    version <- log$version
+    entries   <- log$entries
+    app       <- log$app
+    version   <- log$version
     hash_algo <- log$hash_algo
   } else if (is.character(log) && length(log) == 1L) {
-    all_rec <- .read_rlog(log)
-    app <- all_rec[[1L]]$app %||% "unknown"
-    version <- all_rec[[1L]]$app_version %||% "unknown"
-    hash_algo <- "sha256"
-    entries <- all_rec
+    all_rec   <- .read_rlog(log)
+    app       <- all_rec[[1L]]$app         %||% "unknown"
+    version   <- all_rec[[1L]]$app_version %||% "unknown"
+    hash_algo <- all_rec[[1L]]$hash_algo   %||% "sha256"
+    entries   <- all_rec
   } else {
     stop("`log` must be a `regulog` object or a path to a `.rlog` file.")
   }
@@ -97,14 +100,14 @@ export_audit_trail <- function(log,
     entries <- Filter(function(e) !identical(e$type, "GENESIS"), entries)
   }
 
-  # Date filtering
+  # Date filtering (shared helper — see filter_log.R)
   entries <- .filter_by_date(entries, from, to)
 
-  export_ts <- format(Sys.time(), "%Y-%m-%dT%H:%M:%OS6Z", tz = "UTC")
+  export_ts    <- format(Sys.time(), "%Y-%m-%dT%H:%M:%OS6Z", tz = "UTC")
   chain_intact <- NA
 
   if (signed) {
-    vr <- verify_log(log, verbose = FALSE)
+    vr           <- verify_log(log, verbose = FALSE)
     chain_intact <- vr$intact
   }
 
@@ -127,10 +130,10 @@ export_audit_trail <- function(log,
     df <- .empty_csv_frame(signed)
   } else {
     rows <- lapply(entries, .entry_to_row)
-    df <- do.call(rbind, rows)
+    df   <- do.call(rbind, rows)
     if (signed) {
       df$chain_intact <- chain_intact
-      df$verified_at <- export_ts
+      df$verified_at  <- export_ts
     }
   }
 
@@ -144,36 +147,41 @@ export_audit_trail <- function(log,
 
 .entry_to_row <- function(e) {
   data.frame(
-    entry_id = e$entry_id %||% NA_integer_,
-    timestamp = e$timestamp %||% NA_character_,
-    app = e$app %||% NA_character_,
+    entry_id    = e$entry_id    %||% NA_integer_,
+    timestamp   = e$timestamp   %||% NA_character_,
+    app         = e$app         %||% NA_character_,
     app_version = e$app_version %||% NA_character_,
-    user = e$user %||% NA_character_,
-    type = e$type %||% NA_character_,
-    action = e$action %||% NA_character_,
-    object = e$object %||% NA_character_,
-    field = e$field %||% NA_character_,
-    before = e$before %||% NA_character_,
-    after = e$after %||% NA_character_,
-    reason = e$reason %||% NA_character_,
-    entry_hash = e$entry_hash %||% NA_character_,
-    prev_hash = e$prev_hash %||% NA_character_,
+    user        = e$user        %||% NA_character_,
+    type        = e$type        %||% NA_character_,
+    action      = e$action      %||% NA_character_,
+    object      = e$object      %||% NA_character_,
+    field       = e$field       %||% NA_character_,
+    before      = e$before      %||% NA_character_,
+    after       = e$after       %||% NA_character_,
+    reason      = e$reason      %||% NA_character_,
+    text        = e$text        %||% NA_character_,
+    meaning     = e$meaning     %||% NA_character_,
+    entry_hash  = e$entry_hash  %||% NA_character_,
+    prev_hash   = e$prev_hash   %||% NA_character_,
     stringsAsFactors = FALSE
   )
 }
 
 .empty_csv_frame <- function(signed) {
   df <- data.frame(
-    entry_id = integer(0), timestamp = character(0), app = character(0),
-    app_version = character(0), user = character(0), type = character(0),
-    action = character(0), object = character(0), field = character(0),
-    before = character(0), after = character(0), reason = character(0),
-    entry_hash = character(0), prev_hash = character(0),
+    entry_id    = integer(0),   timestamp   = character(0),
+    app         = character(0), app_version = character(0),
+    user        = character(0), type        = character(0),
+    action      = character(0), object      = character(0),
+    field       = character(0), before      = character(0),
+    after       = character(0), reason      = character(0),
+    text        = character(0), meaning     = character(0),
+    entry_hash  = character(0), prev_hash   = character(0),
     stringsAsFactors = FALSE
   )
   if (signed) {
     df$chain_intact <- logical(0)
-    df$verified_at <- character(0)
+    df$verified_at  <- character(0)
   }
   df
 }
@@ -192,14 +200,16 @@ export_audit_trail <- function(log,
       app_version  = version,
       entry_count  = length(entries),
       chain_intact = if (signed) chain_intact else NULL,
-      verified_at  = if (signed) export_ts else NULL
+      verified_at  = if (signed) export_ts    else NULL
     ),
     entries = entries
   )
 
-  json_str <- jsonlite::toJSON(envelope,
-    auto_unbox = TRUE, pretty = TRUE,
-    null = "null"
+  json_str <- jsonlite::toJSON(
+    envelope,
+    auto_unbox = TRUE,
+    pretty     = TRUE,
+    null       = "null"
   )
 
   if (!is.null(path)) {
@@ -217,30 +227,26 @@ export_audit_trail <- function(log,
 
 
 # --------------------------------------------------------------------------- #
-#  Date filtering                                                               #
+#  Date filtering  (shared with filter_log.R via .filter_by_date)              #
 # --------------------------------------------------------------------------- #
 
 .filter_by_date <- function(entries, from, to) {
-  if (is.null(from) && is.null(to)) {
-    return(entries)
-  }
+  if (is.null(from) && is.null(to)) return(entries)
 
   .ts <- function(e) {
     as.POSIXct(e$timestamp, tz = "UTC", format = "%Y-%m-%dT%H:%M:%OSZ")
   }
 
   if (!is.null(from)) {
-    from_dt <- as.POSIXct(paste0(from, "T00:00:00Z"),
-      tz = "UTC",
-      format = "%Y-%m-%dT%H:%M:%SZ"
+    from_dt <- as.POSIXct(
+      paste0(from, "T00:00:00Z"), tz = "UTC", format = "%Y-%m-%dT%H:%M:%SZ"
     )
     entries <- Filter(function(e) .ts(e) >= from_dt, entries)
   }
 
   if (!is.null(to)) {
-    to_dt <- as.POSIXct(paste0(to, "T23:59:59Z"),
-      tz = "UTC",
-      format = "%Y-%m-%dT%H:%M:%SZ"
+    to_dt <- as.POSIXct(
+      paste0(to, "T23:59:59Z"), tz = "UTC", format = "%Y-%m-%dT%H:%M:%SZ"
     )
     entries <- Filter(function(e) .ts(e) <= to_dt, entries)
   }

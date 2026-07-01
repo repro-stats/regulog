@@ -589,7 +589,11 @@ trail_mm <- export_audit_trail(log_mm,
 # Preview the primary analysis log
 filter_log(log) |>
   head(12L) |>
-  select(timestamp, type, action, reason) |>
+  mutate(
+    time   = substr(timestamp, 12L, 19L),   # HH:MM:SS only — full ISO timestamp is too wide
+    action = ifelse(is.na(action), type, action)
+  ) |>
+  select(time, type, action, object) |>
   knitr::kable(caption = "Audit trail — first 12 entries")
 ```
 

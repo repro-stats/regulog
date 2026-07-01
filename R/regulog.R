@@ -16,9 +16,10 @@
 
 #' Initialise a regulog audit log session
 #'
-#' Creates a new audit log session object. Subsequent calls to [log_action()]
-#' and [log_change()] append hash-chained entries. If `path` is supplied,
-#' entries are written to a newline-delimited JSON file (`.rlog`).
+#' Creates a new audit log session object. Subsequent calls to [log_action()],
+#' [log_change()], [log_note()], and [log_signature()] append hash-chained
+#' entries. If `path` is supplied, entries are written to a newline-delimited
+#' JSON file (`.rlog`).
 #'
 #' @param app Character. Application or system name (e.g. `"data-pipeline"`,
 #'   `"review-tool"`, `"ml-trainer"`).
@@ -42,6 +43,7 @@
 #'   "app":         "my-app",
 #'   "app_version": "1.0.0",
 #'   "user":        "jsmith",
+#'   "type":        "ACTION",
 #'   "action":      "approved",
 #'   "object":      "model_v3",
 #'   "reason":      "Validation metrics passed threshold",
@@ -79,40 +81,47 @@
 #'
 #' @export
 regulog_init <- function(app,
-                         version = "unknown",
-                         user = Sys.info()[["user"]],
-                         path = NULL,
+                         version   = "unknown",
+                         user      = Sys.info()[["user"]],
+                         path      = NULL,
                          hash_algo = "sha256") {
-  if (!is.character(app) || !nzchar(app)) stop("`app` must be a non-empty string.")
+  if (!is.character(app)  || !nzchar(app))  stop("`app` must be a non-empty string.")
   if (!is.character(user) || !nzchar(user)) stop("`user` must be a non-empty string.")
 
+  # Call .utc_now() exactly once so the genesis hash and the stored genesis
+  # record timestamp are computed from the same instant. Two separate calls
+  # produce different microsecond values, making the genesis hash permanently
+  # unverifiable from the stored record.
+  now <- .utc_now()
+
   genesis_hash <- digest::digest(
-    object    = paste0("GENESIS", "|", app, "|", version, "|", .utc_now()),
+    object    = paste0("GENESIS", "|", app, "|", version, "|", now),
     algo      = hash_algo,
     serialize = FALSE
   )
 
   log <- new.env(parent = emptyenv())
-  log$app <- app
-  log$version <- version
-  log$user <- user
-  log$path <- path
-  log$hash_algo <- hash_algo
-  log$entries <- list()
-  log$last_hash <- genesis_hash
+  log$app        <- app
+  log$version    <- version
+  log$user       <- user
+  log$path       <- path
+  log$hash_algo  <- hash_algo
+  log$entries    <- list()
+  log$last_hash  <- genesis_hash
   log$genesis_hash <- genesis_hash
-  log$entry_id <- 0L
-  log$created_at <- .utc_now()
+  log$entry_id   <- 0L
+  log$created_at <- now   # same instant as genesis hash — not a second call
 
   if (!is.null(path)) {
     .ensure_log_dir(path)
     genesis_record <- list(
       entry_id    = 0L,
-      timestamp   = log$created_at,
+      timestamp   = now,        # same instant used in hash computation
       app         = app,
       app_version = version,
       user        = user,
       type        = "GENESIS",
+      hash_algo   = hash_algo,  # persisted so verify_log.character() can read it
       prev_hash   = "0",
       entry_hash  = genesis_hash
     )
@@ -216,9 +225,9 @@ log_change <- function(log,
   .assert_reason(reason)
 
   entry <- .build_entry(
-    log = log,
-    type = "CHANGE",
-    user = user,
+    log    = log,
+    type   = "CHANGE",
+    user   = user,
     fields = list(
       object = object,
       field  = field,
@@ -283,7 +292,9 @@ print.regulog <- function(x, ...) {
   # Field order: entry_id | timestamp | app | app_version | user | type |
   #              <field-values in sorted key order> | prev_hash
   field_str <- paste(
-    paste(sort(names(fields)), sapply(sort(names(fields)), function(k) fields[[k]]),
+    paste(
+      sort(names(fields)),
+      sapply(sort(names(fields)), function(k) fields[[k]]),
       sep = "=", collapse = ";"
     ),
     sep = ""
@@ -321,7 +332,7 @@ print.regulog <- function(x, ...) {
 #' Commit: update state and write to disk
 #' @noRd
 .commit <- function(log, entry) {
-  log$entries <- c(log$entries, list(entry))
+  log$entries  <- c(log$entries, list(entry))
   log$last_hash <- entry$entry_hash
   if (!is.null(log$path)) {
     .append_ndjson(entry, log$path)
@@ -345,3 +356,6 @@ print.regulog <- function(x, ...) {
     )
   }
 }
+
+#' @noRd
+`%||%` <- function(x, y) if (is.null(x)) y else x

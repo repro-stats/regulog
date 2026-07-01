@@ -48,16 +48,18 @@ into the export — useful for handoffs, audits, or archival.
    \code{app} \tab Application name \cr
    \code{app_version} \tab Application version \cr
    \code{user} \tab Acting user identity \cr
-   \code{type} \tab \code{ACTION} or \code{CHANGE} \cr
-   \code{action} \tab Action label (ACTION entries) \cr
+   \code{type} \tab \code{ACTION}, \code{CHANGE}, \code{NOTE}, or \code{SIGNATURE} \cr
+   \code{action} \tab Action label (\code{ACTION} entries) \cr
    \code{object} \tab Target of the action or change \cr
-   \code{field} \tab Field name (CHANGE entries) \cr
-   \code{before} \tab Prior value (CHANGE entries) \cr
-   \code{after} \tab New value (CHANGE entries) \cr
-   \code{reason} \tab Justification \cr
+   \code{field} \tab Field name (\code{CHANGE} entries) \cr
+   \code{before} \tab Prior value (\code{CHANGE} entries) \cr
+   \code{after} \tab New value (\code{CHANGE} and \code{SIGNATURE} entries) \cr
+   \code{reason} \tab Justification (\code{ACTION}, \code{CHANGE}, \code{NOTE} entries) \cr
+   \code{text} \tab Free-text annotation (\code{NOTE} entries) \cr
+   \code{meaning} \tab Signature meaning (\code{SIGNATURE} entries) \cr
    \code{entry_hash} \tab SHA-256 of this entry \cr
    \code{prev_hash} \tab SHA-256 of prior entry \cr
-   \code{chain_intact} \tab \code{TRUE/FALSE} (signed exports only) \cr
+   \code{chain_intact} \tab \code{TRUE}/\code{FALSE} (signed exports only) \cr
    \code{verified_at} \tab ISO-8601 UTC of export (signed exports only) \cr
 }
 
@@ -66,7 +68,8 @@ into the export — useful for handoffs, audits, or archival.
 \examples{
 log <- regulog_init(app = "my-app", user = "jsmith")
 log_action(log,
-  action = "approved", object = "model_v3",
+  action = "approved",
+  object = "model_v3",
   reason = "Metrics passed threshold"
 )
 df <- export_audit_trail(log, format = "csv")

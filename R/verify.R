@@ -36,11 +36,12 @@
 #' @examples
 #' log <- regulog_init(app = "my-app", user = "jsmith")
 #' log_action(log,
-#'   action = "approved", object = "file.csv",
+#'   action = "approved",
+#'   object = "file.csv",
 #'   reason = "Review complete"
 #' )
 #' verify_log(log)
-#' #> v Log intact: 1 entry, chain unbroken
+#' #> regulog: Log intact: 1 entry, chain unbroken
 #'
 #' @export
 verify_log <- function(log, verbose = TRUE) {
@@ -74,15 +75,21 @@ verify_log.character <- function(log, verbose = TRUE) {
   if (length(genesis_idx) == 0L) {
     warning("No GENESIS record found in ", log, ". Verification may be incomplete.")
     genesis_hash <- "0"
+    hash_algo    <- "sha256"   # best guess for very old files
     data_entries <- all_records
   } else {
-    genesis_hash <- all_records[[genesis_idx[[1L]]]]$entry_hash
+    genesis_rec  <- all_records[[genesis_idx[[1L]]]]
+    genesis_hash <- genesis_rec$entry_hash
+    # hash_algo is persisted in the genesis record from v0.2.0 onward.
+    # For files written by earlier versions that lack this field, fall back
+    # to "sha256" (the only algo that was ever shipped).
+    hash_algo    <- genesis_rec$hash_algo %||% "sha256"
     data_entries <- all_records[-genesis_idx]
   }
 
   .run_verification(
     entries    = data_entries,
-    hash_algo  = "sha256", # stored in genesis in future; defaulting for v0.1
+    hash_algo  = hash_algo,
     first_prev = genesis_hash,
     verbose    = verbose
   )
@@ -99,7 +106,7 @@ verify_log.character <- function(log, verbose = TRUE) {
   prev_hash <- first_prev
 
   for (i in seq_along(entries)) {
-    e <- entries[[i]]
+    e  <- entries[[i]]
     id <- e$entry_id %||% i
 
     # Reconstruct hash input using the same canonical format as .build_entry():
@@ -111,7 +118,9 @@ verify_log.character <- function(log, verbose = TRUE) {
     )
     payload_keys <- sort(setdiff(names(e), structural))
     field_str <- paste(
-      paste(payload_keys, sapply(payload_keys, function(k) e[[k]]),
+      paste(
+        payload_keys,
+        sapply(payload_keys, function(k) e[[k]]),
         sep = "=", collapse = ";"
       ),
       sep = ""
@@ -127,10 +136,12 @@ verify_log.character <- function(log, verbose = TRUE) {
     computed <- digest::digest(hash_input, algo = hash_algo, serialize = FALSE)
 
     ok_content <- identical(computed, e$entry_hash)
-    ok_chain <- identical(e$prev_hash, prev_hash)
+    ok_chain   <- identical(e$prev_hash, prev_hash)
 
     if (!ok_content) {
-      msg <- sprintf("Entry #%d: entry_hash mismatch \u2014 content may have been modified", id)
+      msg <- sprintf(
+        "Entry #%d: entry_hash mismatch \u2014 content may have been modified", id
+      )
       errors <- c(errors, msg)
       if (is.na(first_broken)) first_broken <- as.integer(id)
     }
@@ -148,7 +159,7 @@ verify_log.character <- function(log, verbose = TRUE) {
   }
 
   intact <- length(errors) == 0L
-  n <- length(entries)
+  n      <- length(entries)
 
   if (verbose) {
     if (intact) {
@@ -179,6 +190,4 @@ verify_log.character <- function(log, verbose = TRUE) {
   lines <- lines[nzchar(trimws(lines))]
   lapply(lines, function(l) jsonlite::fromJSON(l, simplifyVector = FALSE))
 }
-
-#' @noRd
-`%||%` <- function(x, y) if (is.null(x)) y else x
+# %||% is defined in regulog.R — not duplicated here

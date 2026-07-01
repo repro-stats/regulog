@@ -23,8 +23,7 @@ filter_log(
 all users.}
 
 \item{action}{Character vector of action values to keep (e.g.
-\code{"approved"}, \code{"signature"}, \code{"note"}, \code{"data_read"}). \code{NULL} returns
-all actions.}
+\code{"approved"}, \code{"data_read"}). \code{NULL} returns all actions.}
 
 \item{from}{Start of the time window. ISO 8601 string (\code{"2026-06-01"})
 or \code{Date}. \code{NULL} applies no lower bound.}
@@ -43,9 +42,17 @@ returns every entry.
 }
 \examples{
 log <- regulog_init(app = "analysis", version = "1.0", user = "jsmith")
-log_action(log, "run", "primary.R", "Primary model fitted")
+log_action(log,
+  action = "run",
+  object = "primary.R",
+  reason = "Primary model fitted"
+)
 log_note(log, "Outlier in subject 042 retained per SAP")
-log_action(log, "export", "results.csv", "Sent to sponsor")
+log_action(log,
+  action = "export",
+  object = "results.csv",
+  reason = "Sent to sponsor"
+)
 log_signature(log, "Analysis complete and accurate per SAP v2")
 
 # All entries as a data frame

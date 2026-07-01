@@ -43,10 +43,11 @@ Step 4 failure: entries were inserted, deleted, or reordered.
 \examples{
 log <- regulog_init(app = "my-app", user = "jsmith")
 log_action(log,
-  action = "approved", object = "file.csv",
+  action = "approved",
+  object = "file.csv",
   reason = "Review complete"
 )
 verify_log(log)
-#> v Log intact: 1 entry, chain unbroken
+#> regulog: Log intact: 1 entry, chain unbroken
 
 }

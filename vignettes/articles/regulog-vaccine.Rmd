@@ -594,7 +594,11 @@ trail <- export_audit_trail(log,
 # Preview the audit trail
 filter_log(log) |>
   head(10L) |>
-  select(timestamp, type, action, reason) |>
+  mutate(
+    time   = substr(timestamp, 12L, 19L),
+    action = ifelse(is.na(action), type, action)
+  ) |>
+  select(time, type, action, object) |>
   knitr::kable(caption = "Audit trail — first 10 entries")
 ```
 
