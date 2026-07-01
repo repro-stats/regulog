@@ -5,14 +5,15 @@ Authors@R:
     person("Ndoh", "Penn", email = "ndohpenn9@gmail.com", role = c("aut", "cre"),
        comment = c(ORCID = "0009-0003-9054-465X"))
 Description: Provides tamper-evident, hash-chained audit logging for R
-    applications. Every log entry is cryptographically linked to its
+    applications. Every log entry is linked via a cryptographic hash to its
     predecessor, making insertions, deletions, and modifications detectable.
     Covers user attribution, timestamp integrity, mandatory reason capture,
     chain verification, structured export, and Shiny session instrumentation.
+    For more details see <https://reprostats.org/regulog/>.
     Suitable for any context where accountability and traceability matter:
-    regulated environments (21 CFR Part 11, EU Annex 11), internal tooling,
+    regulated environments (21 CFR Part 11 / Code of Federal Regulations, EU Annex 11), internal tooling,
     data pipelines, and multi-user Shiny applications. Ships with optional
-    IQ/OQ/PQ qualification scripts for use in validated computerised systems.
+    Installation/Operational/Performance qualification (IQ/OQ/PQ) scripts for use in validated computerised systems.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-GB
