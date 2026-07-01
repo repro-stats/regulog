@@ -83,10 +83,10 @@ log_signature(log, "Analysis complete and accurate per SAP v2")
 # All entries as a data frame
 filter_log(log)
 #>   entry_id                   timestamp      app app_version   user      type
-#> 1        1 2026-07-01T16:04:02.614017Z analysis         1.0 jsmith    ACTION
-#> 2        2 2026-07-01T16:04:02.615891Z analysis         1.0 jsmith      NOTE
-#> 3        3 2026-07-01T16:04:02.617526Z analysis         1.0 jsmith    ACTION
-#> 4        4 2026-07-01T16:04:02.619218Z analysis         1.0 jsmith SIGNATURE
+#> 1        1 2026-07-01T16:19:25.496463Z analysis         1.0 jsmith    ACTION
+#> 2        2 2026-07-01T16:19:25.497447Z analysis         1.0 jsmith      NOTE
+#> 3        3 2026-07-01T16:19:25.498305Z analysis         1.0 jsmith    ACTION
+#> 4        4 2026-07-01T16:19:25.499216Z analysis         1.0 jsmith SIGNATURE
 #>      action      object           field before after
 #> 1       run   primary.R            <NA>   <NA>  <NA>
 #> 2      note        <NA>            <NA>   <NA>  <NA>
@@ -98,55 +98,55 @@ filter_log(log)
 #> 3                           Sent to sponsor <NA>    <NA>
 #> 4 Analysis complete and accurate per SAP v2 <NA>    <NA>
 #>                                                         entry_hash
-#> 1 b2fd9bdf3eefc16a7e97f13e7ab67d493c1d0c9b11668952c6b5db34c16785c8
-#> 2 d76f5c8d61067f3b0cf69240ec5cb7c923e3e579e741dfff17f1af1451bb5e7d
-#> 3 4c4d897dd06b5a891213084e549ad51518b9fd6ab0c29bb011fa70cb6e703954
-#> 4 63286e39bd7cb3f6fd37cc19853a05da32f965c95db0845d40eb763d5c0e2335
+#> 1 d2151550859dcee9a5a6d7ecdb6a6ae1959221992b62f6557c83ace15d83858b
+#> 2 4d5038d5a23d9c21c104e17dde0322ecdd6b0c9d2c2b84602d4a5457a33430aa
+#> 3 8257b40ef3536a888bdfea803d6412a3827bd30e326a10210105bd28e328809d
+#> 4 96236b7a95378a440da1b2cc8c6021449311e4f4d67162b6e73387527ae72d41
 #>                                                          prev_hash
-#> 1 74c31e46983ce29fc5eb4ccd63369f969073a1356ed001beb1bb3493b493c655
-#> 2 b2fd9bdf3eefc16a7e97f13e7ab67d493c1d0c9b11668952c6b5db34c16785c8
-#> 3 d76f5c8d61067f3b0cf69240ec5cb7c923e3e579e741dfff17f1af1451bb5e7d
-#> 4 4c4d897dd06b5a891213084e549ad51518b9fd6ab0c29bb011fa70cb6e703954
+#> 1 480cf09108056a12c4728a55f05822532334dd0f7244645f018af84e596af037
+#> 2 d2151550859dcee9a5a6d7ecdb6a6ae1959221992b62f6557c83ace15d83858b
+#> 3 4d5038d5a23d9c21c104e17dde0322ecdd6b0c9d2c2b84602d4a5457a33430aa
+#> 4 8257b40ef3536a888bdfea803d6412a3827bd30e326a10210105bd28e328809d
 
 # Only signatures
 filter_log(log, type = "SIGNATURE")
 #>   entry_id                   timestamp      app app_version   user      type
-#> 1        4 2026-07-01T16:04:02.619218Z analysis         1.0 jsmith SIGNATURE
+#> 1        4 2026-07-01T16:19:25.499216Z analysis         1.0 jsmith SIGNATURE
 #>      action object           field before after
 #> 1 signature jsmith entries_covered   <NA>     3
 #>                                      reason text meaning
 #> 1 Analysis complete and accurate per SAP v2 <NA>    <NA>
 #>                                                         entry_hash
-#> 1 63286e39bd7cb3f6fd37cc19853a05da32f965c95db0845d40eb763d5c0e2335
+#> 1 96236b7a95378a440da1b2cc8c6021449311e4f4d67162b6e73387527ae72d41
 #>                                                          prev_hash
-#> 1 4c4d897dd06b5a891213084e549ad51518b9fd6ab0c29bb011fa70cb6e703954
+#> 1 8257b40ef3536a888bdfea803d6412a3827bd30e326a10210105bd28e328809d
 
 # Actions and notes by a specific user
 filter_log(log, type = c("ACTION", "NOTE"), user = "jsmith")
 #>   entry_id                   timestamp      app app_version   user   type
-#> 1        1 2026-07-01T16:04:02.614017Z analysis         1.0 jsmith ACTION
-#> 2        2 2026-07-01T16:04:02.615891Z analysis         1.0 jsmith   NOTE
-#> 3        3 2026-07-01T16:04:02.617526Z analysis         1.0 jsmith ACTION
+#> 1        1 2026-07-01T16:19:25.496463Z analysis         1.0 jsmith ACTION
+#> 2        2 2026-07-01T16:19:25.497447Z analysis         1.0 jsmith   NOTE
+#> 3        3 2026-07-01T16:19:25.498305Z analysis         1.0 jsmith ACTION
 #>   action      object field before after                                  reason
 #> 1    run   primary.R  <NA>   <NA>  <NA>                    Primary model fitted
 #> 2   note        <NA>  <NA>   <NA>  <NA> Outlier in subject 042 retained per SAP
 #> 3 export results.csv  <NA>   <NA>  <NA>                         Sent to sponsor
 #>   text meaning                                                       entry_hash
-#> 1 <NA>    <NA> b2fd9bdf3eefc16a7e97f13e7ab67d493c1d0c9b11668952c6b5db34c16785c8
-#> 2 <NA>    <NA> d76f5c8d61067f3b0cf69240ec5cb7c923e3e579e741dfff17f1af1451bb5e7d
-#> 3 <NA>    <NA> 4c4d897dd06b5a891213084e549ad51518b9fd6ab0c29bb011fa70cb6e703954
+#> 1 <NA>    <NA> d2151550859dcee9a5a6d7ecdb6a6ae1959221992b62f6557c83ace15d83858b
+#> 2 <NA>    <NA> 4d5038d5a23d9c21c104e17dde0322ecdd6b0c9d2c2b84602d4a5457a33430aa
+#> 3 <NA>    <NA> 8257b40ef3536a888bdfea803d6412a3827bd30e326a10210105bd28e328809d
 #>                                                          prev_hash
-#> 1 74c31e46983ce29fc5eb4ccd63369f969073a1356ed001beb1bb3493b493c655
-#> 2 b2fd9bdf3eefc16a7e97f13e7ab67d493c1d0c9b11668952c6b5db34c16785c8
-#> 3 d76f5c8d61067f3b0cf69240ec5cb7c923e3e579e741dfff17f1af1451bb5e7d
+#> 1 480cf09108056a12c4728a55f05822532334dd0f7244645f018af84e596af037
+#> 2 d2151550859dcee9a5a6d7ecdb6a6ae1959221992b62f6557c83ace15d83858b
+#> 3 4d5038d5a23d9c21c104e17dde0322ecdd6b0c9d2c2b84602d4a5457a33430aa
 
 # Entries within a date range
 filter_log(log, from = "2026-06-01", to = "2026-12-31")
 #>   entry_id                   timestamp      app app_version   user      type
-#> 1        1 2026-07-01T16:04:02.614017Z analysis         1.0 jsmith    ACTION
-#> 2        2 2026-07-01T16:04:02.615891Z analysis         1.0 jsmith      NOTE
-#> 3        3 2026-07-01T16:04:02.617526Z analysis         1.0 jsmith    ACTION
-#> 4        4 2026-07-01T16:04:02.619218Z analysis         1.0 jsmith SIGNATURE
+#> 1        1 2026-07-01T16:19:25.496463Z analysis         1.0 jsmith    ACTION
+#> 2        2 2026-07-01T16:19:25.497447Z analysis         1.0 jsmith      NOTE
+#> 3        3 2026-07-01T16:19:25.498305Z analysis         1.0 jsmith    ACTION
+#> 4        4 2026-07-01T16:19:25.499216Z analysis         1.0 jsmith SIGNATURE
 #>      action      object           field before after
 #> 1       run   primary.R            <NA>   <NA>  <NA>
 #> 2      note        <NA>            <NA>   <NA>  <NA>
@@ -158,15 +158,15 @@ filter_log(log, from = "2026-06-01", to = "2026-12-31")
 #> 3                           Sent to sponsor <NA>    <NA>
 #> 4 Analysis complete and accurate per SAP v2 <NA>    <NA>
 #>                                                         entry_hash
-#> 1 b2fd9bdf3eefc16a7e97f13e7ab67d493c1d0c9b11668952c6b5db34c16785c8
-#> 2 d76f5c8d61067f3b0cf69240ec5cb7c923e3e579e741dfff17f1af1451bb5e7d
-#> 3 4c4d897dd06b5a891213084e549ad51518b9fd6ab0c29bb011fa70cb6e703954
-#> 4 63286e39bd7cb3f6fd37cc19853a05da32f965c95db0845d40eb763d5c0e2335
+#> 1 d2151550859dcee9a5a6d7ecdb6a6ae1959221992b62f6557c83ace15d83858b
+#> 2 4d5038d5a23d9c21c104e17dde0322ecdd6b0c9d2c2b84602d4a5457a33430aa
+#> 3 8257b40ef3536a888bdfea803d6412a3827bd30e326a10210105bd28e328809d
+#> 4 96236b7a95378a440da1b2cc8c6021449311e4f4d67162b6e73387527ae72d41
 #>                                                          prev_hash
-#> 1 74c31e46983ce29fc5eb4ccd63369f969073a1356ed001beb1bb3493b493c655
-#> 2 b2fd9bdf3eefc16a7e97f13e7ab67d493c1d0c9b11668952c6b5db34c16785c8
-#> 3 d76f5c8d61067f3b0cf69240ec5cb7c923e3e579e741dfff17f1af1451bb5e7d
-#> 4 4c4d897dd06b5a891213084e549ad51518b9fd6ab0c29bb011fa70cb6e703954
+#> 1 480cf09108056a12c4728a55f05822532334dd0f7244645f018af84e596af037
+#> 2 d2151550859dcee9a5a6d7ecdb6a6ae1959221992b62f6557c83ace15d83858b
+#> 3 4d5038d5a23d9c21c104e17dde0322ecdd6b0c9d2c2b84602d4a5457a33430aa
+#> 4 8257b40ef3536a888bdfea803d6412a3827bd30e326a10210105bd28e328809d
 
 # Works directly on a .rlog file — no live session needed
 # \donttest{
@@ -181,12 +181,12 @@ log_action(log2,
 #> regulog: logged action 'run' on 'primary.R'
 filter_log(tmp, type = "ACTION")
 #>   entry_id                   timestamp      app app_version   user   type
-#> 1        1 2026-07-01T16:04:02.656026Z analysis         1.0 jsmith ACTION
+#> 1        1 2026-07-01T16:19:25.530165Z analysis         1.0 jsmith ACTION
 #>   action    object field before after               reason text meaning
 #> 1    run primary.R  <NA>   <NA>  <NA> Primary model fitted <NA>    <NA>
 #>                                                         entry_hash
-#> 1 2f454b92fa61d61a9d5abe2fb83be9b9575c6452e5f56ca21ea4fc4c2009b5ca
+#> 1 f7d041bad69b60d12469c2c947d9a7c77290a59774a8a5f59ea6ed05c40240f6
 #>                                                          prev_hash
-#> 1 c879d59f6bb949f08f0b9c731f0a5da56b149f5d9a3f9d6f8af6d0270a17f357
+#> 1 7594379bc62a422d0ded8e10bea44894de1cb04b201348d20052fa5ee7c33d7b
 # }
 ```
