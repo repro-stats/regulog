@@ -5,7 +5,7 @@
 [![Codecov](https://codecov.io/gh/repro-stats/regulog/branch/main/graph/badge.svg)](https://app.codecov.io/gh/repro-stats/regulog)
 <!-- badges: end -->
 
-**Tamper-Evident Audit Logging for R**
+**Tamper-Evident Audit Logging for Regulated Environments**
 
 Every analytical action taken in a consequential R environment should be
 documented — who did it, what they did, when, and why. In practice,
@@ -128,13 +128,38 @@ active R session.
 
 ## Validation
 
-IQ, OQ, and PQ qualification scripts are included for regulated use:
+Deploying any software in a regulated environment requires documented
+evidence that it is installed correctly, operates as specified, and
+performs reliably under real-world conditions. This is the IQ/OQ/PQ
+qualification process required under 21 CFR Part 11, EU Annex 11, and
+GAMP 5 before a tool can be used in GxP workflows.
+
+`regulog` ships pre-written, executable qualification protocols. Instead
+of authoring validation documents from scratch — a process that typically
+takes weeks of internal effort — your team runs three commands and
+receives a complete, signed qualification record:
 
 ```r
 source(system.file("validation/IQ_regulog.R", package = "regulog"))
 source(system.file("validation/OQ_regulog.R", package = "regulog"))
 source(system.file("validation/PQ_regulog.R", package = "regulog"))
 ```
+
+Each protocol is self-contained and produces a pass/fail summary
+against explicit acceptance criteria:
+
+| Protocol | What it covers | Tests |
+|---|---|---|
+| **IQ** — Installation Qualification | R version, package installation, dependency integrity, file system access | 10 |
+| **OQ** — Operational Qualification | All 21 CFR §11.10 requirements: hash chain, tamper detection, user attribution, timestamps, export, signatures | 26 |
+| **PQ** — Performance Qualification | End-to-end clinical workflows: data review, regulatory export, multi-user sessions, 500-entry load test, inspector query simulation | 7 |
+
+Protocols are version-controlled alongside the package and updated with
+every release that affects qualified behaviour.
+
+The qualification record produced by each run — including the platform,
+R version, date, and pass/fail status — can be retained as documented
+evidence of system qualification in your validated environment.
 
 ## Regulatory coverage
 
