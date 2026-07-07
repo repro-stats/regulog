@@ -194,7 +194,7 @@ log
     #>   App:     RSV-VAC-301-primary-immunogenicity v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/RtmpWDHXBD/audit_RSV301_primary_v1.rlog
+    #>   Path:    /tmp/RtmpRMI7Fc/audit_RSV301_primary_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -771,7 +771,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 28 row(s) to /tmp/RtmpWDHXBD/audit_trail_RSV301_primary_v1.csv
+    #> regulog: exported 28 row(s) to /tmp/RtmpRMI7Fc/audit_trail_RSV301_primary_v1.csv
 
 ``` r
 
@@ -788,16 +788,16 @@ filter_log(log) |>
 
 | time     | type   | action              | object                               |
 |:---------|:-------|:--------------------|:-------------------------------------|
-| 20:01:02 | NOTE   | note                | NA                                   |
-| 20:01:02 | ACTION | data_read           | /tmp/RtmpWDHXBD/file1c6322fb578.csv  |
-| 20:01:02 | ACTION | data_read           | /tmp/RtmpWDHXBD/file1c633023e7f9.csv |
-| 20:01:02 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
-| 20:01:02 | NOTE   | note                | NA                                   |
-| 20:01:02 | NOTE   | note                | NA                                   |
-| 20:01:02 | NOTE   | note                | NA                                   |
-| 20:01:02 | NOTE   | note                | NA                                   |
-| 20:01:02 | NOTE   | note                | NA                                   |
-| 20:01:03 | NOTE   | note                | NA                                   |
+| 13:57:45 | NOTE   | note                | NA                                   |
+| 13:57:45 | ACTION | data_read           | /tmp/RtmpRMI7Fc/file1c67105ed04c.csv |
+| 13:57:45 | ACTION | data_read           | /tmp/RtmpRMI7Fc/file1c67544abbc2.csv |
+| 13:57:45 | ACTION | apply_pp_population | RSV-VAC-301 per-protocol population  |
+| 13:57:45 | NOTE   | note                | NA                                   |
+| 13:57:45 | NOTE   | note                | NA                                   |
+| 13:57:45 | NOTE   | note                | NA                                   |
+| 13:57:45 | NOTE   | note                | NA                                   |
+| 13:57:45 | NOTE   | note                | NA                                   |
+| 13:57:45 | NOTE   | note                | NA                                   |
 
 Audit trail — first 10 entries {.table}
 
@@ -852,14 +852,14 @@ sessionInfo()
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] ggplot2_4.0.3 tidyr_1.3.2   dplyr_1.2.1   regulog_0.2.0
+    #> [1] ggplot2_4.0.3 tidyr_1.3.2   dplyr_1.2.1   regulog_0.2.1
     #> 
     #> loaded via a namespace (and not attached):
     #>  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.1     tidyselect_1.2.1  
     #>  [5] jquerylib_0.1.4    systemfonts_1.3.2  scales_1.4.0       textshaping_1.0.5 
     #>  [9] yaml_2.3.12        fastmap_1.2.0      R6_2.6.1           generics_0.1.4    
     #> [13] knitr_1.51         tibble_3.3.1       desc_1.4.3         bslib_0.11.0      
-    #> [17] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
+    #> [17] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.3.0        cachem_1.1.0      
     #> [21] xfun_0.59          S7_0.2.2           fs_2.1.0           sass_0.4.10       
     #> [25] otel_0.2.0         cli_3.6.6          withr_3.0.3        pkgdown_2.2.0     
     #> [29] magrittr_2.0.5     digest_0.6.39      grid_4.6.1         lifecycle_1.0.5   

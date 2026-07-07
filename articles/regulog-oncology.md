@@ -221,7 +221,7 @@ log
     #>   App:     NSCLC-KRASi-301-safety-summary v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/Rtmp6e6Xcz/audit_KRASi301_safety_v1.rlog
+    #>   Path:    /tmp/RtmpQJM2IO/audit_KRASi301_safety_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -893,7 +893,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 21 row(s) to /tmp/Rtmp6e6Xcz/audit_KRASi301_safety_v1.csv
+    #> regulog: exported 21 row(s) to /tmp/RtmpQJM2IO/audit_KRASi301_safety_v1.csv
 
 ``` r
 
@@ -904,7 +904,7 @@ trail_mm <- export_audit_trail(log_mm,
 )
 ```
 
-    #> regulog: exported 2 row(s) to /tmp/Rtmp6e6Xcz/audit_KRASi301_safety_mm_review_v1.csv
+    #> regulog: exported 2 row(s) to /tmp/RtmpQJM2IO/audit_KRASi301_safety_mm_review_v1.csv
 
 ``` r
 
@@ -921,18 +921,18 @@ filter_log(log) |>
 
 | time     | type   | action                 | object                               |
 |:---------|:-------|:-----------------------|:-------------------------------------|
-| 20:00:54 | NOTE   | note                   | NA                                   |
-| 20:00:54 | ACTION | data_read              | /tmp/Rtmp6e6Xcz/file1c2548e40a47.csv |
-| 20:00:54 | ACTION | data_read              | /tmp/Rtmp6e6Xcz/file1c2510068778.csv |
-| 20:00:54 | NOTE   | note                   | NA                                   |
-| 20:00:54 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
-| 20:00:55 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
-| 20:00:55 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
-| 20:00:55 | ACTION | compute_sae_summary    | SAE summary table                    |
-| 20:00:55 | NOTE   | note                   | NA                                   |
-| 20:00:55 | NOTE   | note                   | NA                                   |
-| 20:00:55 | NOTE   | note                   | NA                                   |
-| 20:00:55 | NOTE   | note                   | NA                                   |
+| 13:57:38 | NOTE   | note                   | NA                                   |
+| 13:57:38 | ACTION | data_read              | /tmp/RtmpQJM2IO/file1c2a1492109.csv  |
+| 13:57:38 | ACTION | data_read              | /tmp/RtmpQJM2IO/file1c2a6d7375b1.csv |
+| 13:57:38 | NOTE   | note                   | NA                                   |
+| 13:57:38 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
+| 13:57:38 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
+| 13:57:38 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
+| 13:57:38 | ACTION | compute_sae_summary    | SAE summary table                    |
+| 13:57:38 | NOTE   | note                   | NA                                   |
+| 13:57:38 | NOTE   | note                   | NA                                   |
+| 13:57:38 | NOTE   | note                   | NA                                   |
+| 13:57:38 | NOTE   | note                   | NA                                   |
 
 Audit trail — first 12 entries {.table}
 
@@ -995,14 +995,14 @@ sessionInfo()
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] ggplot2_4.0.3 tidyr_1.3.2   dplyr_1.2.1   regulog_0.2.0
+    #> [1] ggplot2_4.0.3 tidyr_1.3.2   dplyr_1.2.1   regulog_0.2.1
     #> 
     #> loaded via a namespace (and not attached):
     #>  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.1     tidyselect_1.2.1  
     #>  [5] jquerylib_0.1.4    systemfonts_1.3.2  scales_1.4.0       textshaping_1.0.5 
     #>  [9] yaml_2.3.12        fastmap_1.2.0      R6_2.6.1           labeling_0.4.3    
     #> [13] generics_0.1.4     knitr_1.51         tibble_3.3.1       desc_1.4.3        
-    #> [17] bslib_0.11.0       pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0       
+    #> [17] bslib_0.11.0       pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.3.0       
     #> [21] cachem_1.1.0       xfun_0.59          S7_0.2.2           fs_2.1.0          
     #> [25] sass_0.4.10        otel_0.2.0         cli_3.6.6          withr_3.0.3       
     #> [29] pkgdown_2.2.0      magrittr_2.0.5     digest_0.6.39      grid_4.6.1        

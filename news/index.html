@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">regulog</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,36 +43,44 @@
 <h2 class="pkg-version" data-toc-text="development version" id="regulog-development-version">regulog (development version)<a class="anchor" aria-label="anchor" href="#regulog-development-version"></a></h2>
 </div>
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.1" id="regulog-021">regulog 0.2.1<a class="anchor" aria-label="anchor" href="#regulog-021"></a></h2>
+<div class="section level3">
+<h3 id="cran-resubmission-fixes-0-2-1">CRAN resubmission fixes<a class="anchor" aria-label="anchor" href="#cran-resubmission-fixes-0-2-1"></a></h3>
+<ul><li>Removed “for R” from the package description</li>
+<li>Package names now in single quotes in DESCRIPTION (<code>'shiny'</code>, <code>'SHA-256'</code>)</li>
+<li>Shiny examples wrapped in <code>if(interactive()){}</code> per CRAN policy</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="regulog-020">regulog 0.2.0<a class="anchor" aria-label="anchor" href="#regulog-020"></a></h2>
 <div class="section level3">
 <h3 id="new-functions-0-2-0">New functions<a class="anchor" aria-label="anchor" href="#new-functions-0-2-0"></a></h3>
 <ul><li>
-<code><a href="../reference/log_note.html">log_note()</a></code> — log a free-text annotation or analytical decision as a tamper-evident NOTE entry. Every entry is mandatory-reason enforced and included in the hash chain.</li>
+<code><a href="../reference/log_note.html">log_note()</a></code> — log a free-text annotation or analytical decision as a tamper-evident NOTE entry. Mandatory-reason enforced and included in the hash chain.</li>
 <li>
 <code><a href="../reference/log_signature.html">log_signature()</a></code> — apply an electronic signature per 21 CFR Part 11 §11.100/§11.200. Signer identity is resolved from the session user; entries covered is captured automatically.</li>
 <li>
-<code><a href="../reference/filter_log.html">filter_log()</a></code> — query log entries as a <code>data.frame</code> by type, user, action, or date range. Also works directly on <code>.rlog</code> file paths without an active session.</li>
+<code><a href="../reference/filter_log.html">filter_log()</a></code> — query log entries as a <code>data.frame</code> by type, user, action, or date range. Works directly on <code>.rlog</code> file paths without an active session.</li>
 <li>
 <code><a href="../reference/as.data.frame.regulog.html">as.data.frame.regulog()</a></code> — S3 method to convert a <code>regulog</code> object to a flat data frame, one row per entry (genesis record excluded).</li>
 <li>
-<code><a href="../reference/rl_read.html">rl_read()</a></code> — explicit, logged read of any data source. Calls the supplied reader function and records the result as a <code>data_read</code> ACTION entry, capturing the resolved file path, row count, and column count. The path is resolved by argument name (<code>file</code>, <code>path</code>, <code>data_file</code>, <code>input</code>) where possible, falling back to the first unnamed argument — correct even when arguments are supplied out of position.</li>
+<code><a href="../reference/rl_read.html">rl_read()</a></code> — explicit, logged read of any data source. Records the reader function, resolved file path, row count, and column count as a <code>data_read</code> ACTION entry. Path is resolved by argument name (<code>file</code>, <code>path</code>, <code>data_file</code>, <code>input</code>), falling back to the first unnamed argument — correct even when arguments are supplied out of position.</li>
 <li>
-<code><a href="../reference/with_log.html">with_log()</a></code> — scoped logging for a code block. Provides a local <code>read()</code> binding tied to the supplied log, so reads inside the block don’t need to repeat the <code>log</code> argument. Each <code><a href="../reference/with_log.html">with_log()</a></code> call is isolated via lexical scope: concurrent calls (e.g. across Shiny sessions) never interfere with one another, and an error inside the block propagates normally without losing or corrupting entries logged before it.</li>
+<code><a href="../reference/with_log.html">with_log()</a></code> — scoped logging for a code block. Provides a local <code>read()</code> binding tied to the supplied log. Each call is isolated via lexical scope — concurrent calls across Shiny sessions never interfere, and errors inside the block propagate normally without corrupting previously logged entries.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="validation-0-2-0">Validation<a class="anchor" aria-label="anchor" href="#validation-0-2-0"></a></h3>
 <ul><li>IQ/OQ/PQ qualification scripts updated to v0.2:
-<ul><li>OQ-015 to OQ-024c: tests for <code>log_note</code>, <code>log_signature</code>, <code>filter_log</code>, <code>as.data.frame.regulog</code>, <code>rl_read</code>, and <code>with_log</code>, including concurrent-session isolation</li>
+<ul><li>OQ-015 to OQ-024c: tests for <code><a href="../reference/log_note.html">log_note()</a></code>, <code><a href="../reference/log_signature.html">log_signature()</a></code>, <code><a href="../reference/filter_log.html">filter_log()</a></code>, <code><a href="../reference/as.data.frame.regulog.html">as.data.frame.regulog()</a></code>, <code><a href="../reference/rl_read.html">rl_read()</a></code>, and <code><a href="../reference/with_log.html">with_log()</a></code>, including concurrent-session isolation</li>
 <li>PQ-006: annotated clinical analysis workflow with notes and signature</li>
-<li>PQ-007: regulatory inspector query workflow using <code>filter_log</code>
+<li>PQ-007: regulatory inspector query workflow using <code><a href="../reference/filter_log.html">filter_log()</a></code>
 </li>
 </ul></li>
-<li>Requirements Traceability Matrix extended with rows covering 21 CFR Part 11 §11.100 (signer identity), §11.200 (signature components), annotation trail, data read logging, and audit trail query interface. See <code>inst/validation/RTM_regulog.md</code> for column definitions and a script to verify the RTM stays in sync with the validation scripts and exported API.</li>
+<li>RTM extended with rows covering 21 CFR Part 11 §11.100/§11.200, annotation trail, data read logging, and audit trail query interface.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-0-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-2-0"></a></h3>
-<ul><li>
-<code>regulog-package.R</code> — package-level documentation with complete workflow, entry type reference, and regulatory coverage table.</li>
+<ul><li>Package-level documentation with complete workflow, entry type reference, and regulatory coverage table.</li>
 <li>Three vignettes: <code>getting-started</code>, <code>hash-chain</code>, <code>shiny-integration</code>.</li>
 </ul></div>
 </div>
@@ -84,7 +92,7 @@
 <li>
 <code><a href="../reference/verify_log.html">verify_log()</a></code> — SHA-256 hash chain verification.</li>
 <li>
-<code><a href="../reference/export_audit_trail.html">export_audit_trail()</a></code> — CSV and JSON export, with optional signing.</li>
+<code><a href="../reference/export_audit_trail.html">export_audit_trail()</a></code> — CSV and JSON export with optional signing.</li>
 <li>
 <code><a href="../reference/regulog_shiny_init.html">regulog_shiny_init()</a></code>, <code><a href="../reference/regulog_observer.html">regulog_observer()</a></code> — Shiny integration.</li>
 <li>IQ/OQ/PQ validation suite (IQ-001–009, OQ-001–014, PQ-001–005).</li>

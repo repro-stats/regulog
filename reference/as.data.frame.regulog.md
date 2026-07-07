@@ -50,15 +50,15 @@ log_note(log, "Outlier in subject 042 retained per SAP")
 
 as.data.frame(log)
 #>   entry_id                   timestamp      app app_version   user   type
-#> 1        1 2026-07-01T20:00:40.903149Z analysis         1.0 jsmith ACTION
-#> 2        2 2026-07-01T20:00:40.904188Z analysis         1.0 jsmith   NOTE
+#> 1        1 2026-07-07T13:57:25.593666Z analysis         1.0 jsmith ACTION
+#> 2        2 2026-07-07T13:57:25.594675Z analysis         1.0 jsmith   NOTE
 #>   action    object field before after                                  reason
 #> 1    run primary.R  <NA>   <NA>  <NA>                    Primary model fitted
 #> 2   note      <NA>  <NA>   <NA>  <NA> Outlier in subject 042 retained per SAP
 #>   text meaning                                                       entry_hash
-#> 1 <NA>    <NA> 5d0f2c1ed18ca4f73bc278da739edc82e515c574b3861dba1fbf3b7dfe8aa107
-#> 2 <NA>    <NA> 6a5cd7966511c4b146a738190bafa57d4cc26ac9d2fc01cb22b813b5174b336d
+#> 1 <NA>    <NA> 68de80f4ad080db7d77b014e3f8fd322ba3d16c689fcd17870ac06898f7c86b8
+#> 2 <NA>    <NA> 69ba06fcb73f5234610b79eae8a250e3f6b6c50f12b9276025b68b653b2ec00f
 #>                                                          prev_hash
-#> 1 5c2fbec8e5fed87db38f64b2535423a6dc3dcf52edc31cf0019a8385e47e2262
-#> 2 5d0f2c1ed18ca4f73bc278da739edc82e515c574b3861dba1fbf3b7dfe8aa107
+#> 1 f2b2b685c14003c45818a9a162ee0db223385fb7d7836bd99d9bd9e95e32cf0a
+#> 2 68de80f4ad080db7d77b014e3f8fd322ba3d16c689fcd17870ac06898f7c86b8
 ```
