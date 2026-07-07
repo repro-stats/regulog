@@ -1,19 +1,16 @@
+## Resubmission (0.2.1)
+
+Addressing reviewer feedback:
+
+- Removed "for R" from the title and description
+- Package names now in single quotes in the description ('shiny', 'SHA-256')
+- Replaced \dontrun{} with if(interactive()){} in shiny.R examples
+- \dontrun{} kept in read.R where examples need actual data files
+  (haven::read_sas, readr::read_csv on files that cannot exist in check)
+
 ## R CMD check results
- 
-0 errors | 0 warnings | 2 note
- 
-### NOTE: New submission
-Expected on first CRAN submission.
- 
-### NOTE: unable to verify current time
-Known macOS/network issue in the local check environment.
-Not reproducible and not related to the package.
 
-## Test environments
- 
-- macOS 26.5.1 aarch64-apple-darwin20, R 4.4.2 (local)
-- Windows Server 2022 x64, R-devel r90199 ucrt (win-builder)
+0 errors | 0 warnings | 2 notes
 
-## Reverse dependencies
- 
-None — this is an initial submission.
+- New submission — expected
+- Unable to verify current time — macOS network issue, unrelated to the package

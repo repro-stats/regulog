@@ -63,7 +63,7 @@
 #' ```
 #'
 #' @examples
-#' \dontrun{
+#' if(interactive()){
 #' library(shiny)
 #' library(regulog)
 #'
@@ -152,7 +152,7 @@ regulog_shiny_init <- function(session,
 #' @return A Shiny observer (invisibly).
 #'
 #' @examples
-#' \dontrun{
+#' if(interactive()){
 #' regulog_observer(log, session,
 #'   eventExpr = input$approve,
 #'   action    = "approved",
