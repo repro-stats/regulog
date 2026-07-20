@@ -4,6 +4,8 @@
 
 ## regulog 0.2.1
 
+CRAN release: 2026-07-16
+
 ### CRAN resubmission fixes
 
 - Removed “for R” from the package description

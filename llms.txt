@@ -22,7 +22,7 @@ any context where accountability and traceability matter.
 ``` r
 
 # Install from GitHub
-pak::pak("repro-stats/regulog")
+install.packages("regulog")
 ```
 
 ## Quick start
@@ -171,16 +171,14 @@ evidence of system qualification in your validated environment.
 
 # Package index
 
-## Session lifecycle
+## All functions
 
-- [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
-  : Initialise a regulog audit log session
-- [`regulog`](https://reprostats.org/regulog/reference/regulog-package.md)
-  [`regulog-package`](https://reprostats.org/regulog/reference/regulog-package.md)
-  : regulog: Tamper-Evident Audit Logging for R
-
-## Logging
-
+- [`as.data.frame(`*`<regulog>`*`)`](https://reprostats.org/regulog/reference/as.data.frame.regulog.md)
+  : Convert a regulog object to a data frame
+- [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md)
+  : Export the audit trail
+- [`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md)
+  : Filter audit log entries
 - [`log_action()`](https://reprostats.org/regulog/reference/log_action.md)
   : Log a discrete action in the audit trail
 - [`log_change()`](https://reprostats.org/regulog/reference/log_change.md)
@@ -189,51 +187,33 @@ evidence of system qualification in your validated environment.
   Log a free-text note in the audit trail
 - [`log_signature()`](https://reprostats.org/regulog/reference/log_signature.md)
   : Apply an electronic signature to the audit trail
-
-## Data reads
-
+- [`regulog`](https://reprostats.org/regulog/reference/regulog-package.md)
+  [`regulog-package`](https://reprostats.org/regulog/reference/regulog-package.md)
+  : regulog: Tamper-Evident Audit Logging for R
+- [`regulog_init()`](https://reprostats.org/regulog/reference/regulog_init.md)
+  : Initialise a regulog audit log session
+- [`regulog_observer()`](https://reprostats.org/regulog/reference/regulog_observer.md)
+  : Create a logging observer for a reactive Shiny input
+- [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md)
+  : Initialise a regulog session inside a Shiny server
 - [`rl_read()`](https://reprostats.org/regulog/reference/rl_read.md) :
   Log a data read operation
+- [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md)
+  : Verify the integrity of an audit log chain
 - [`with_log()`](https://reprostats.org/regulog/reference/with_log.md) :
   Run an expression with automatic data read logging
 
-## Verification and query
-
-- [`verify_log()`](https://reprostats.org/regulog/reference/verify_log.md)
-  : Verify the integrity of an audit log chain
-- [`filter_log()`](https://reprostats.org/regulog/reference/filter_log.md)
-  : Filter audit log entries
-- [`as.data.frame(`*`<regulog>`*`)`](https://reprostats.org/regulog/reference/as.data.frame.regulog.md)
-  : Convert a regulog object to a data frame
-
-## Export
-
-- [`export_audit_trail()`](https://reprostats.org/regulog/reference/export_audit_trail.md)
-  : Export the audit trail
-
-## Shiny integration
-
-- [`regulog_shiny_init()`](https://reprostats.org/regulog/reference/regulog_shiny_init.md)
-  : Initialise a regulog session inside a Shiny server
-- [`regulog_observer()`](https://reprostats.org/regulog/reference/regulog_observer.md)
-  : Create a logging observer for a reactive Shiny input
-
 # Articles
 
-### Get started
+### All vignettes
 
 - [Getting started with
   regulog](https://reprostats.org/regulog/articles/getting-started.md):
 - [The hash chain: how tamper detection
   works](https://reprostats.org/regulog/articles/hash-chain.md):
-- [Shiny
-  integration](https://reprostats.org/regulog/articles/shiny-integration.md):
-
-### Real-world applications
-
-End-to-end worked examples in clinical and pharmaceutical settings.
-
-- [21 CFR Part 11-compliant vaccine immunogenicity analysis in
-  R](https://reprostats.org/regulog/articles/regulog-vaccine.md):
 - [Audit-ready oncology safety monitoring with
   regulog](https://reprostats.org/regulog/articles/regulog-oncology.md):
+- [21 CFR Part 11-compliant vaccine immunogenicity analysis in
+  R](https://reprostats.org/regulog/articles/regulog-vaccine.md):
+- [Shiny
+  integration](https://reprostats.org/regulog/articles/shiny-integration.md):

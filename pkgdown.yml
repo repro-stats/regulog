@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   getting-started: getting-started.html
@@ -7,7 +7,7 @@ articles:
   articles/regulog-oncology: regulog-oncology.html
   articles/regulog-vaccine: regulog-vaccine.html
   shiny-integration: shiny-integration.html
-last_built: 2026-07-07T13:57Z
+last_built: 2026-07-20T09:08Z
 urls:
   reference: https://reprostats.org/regulog/reference
   article: https://reprostats.org/regulog/articles
