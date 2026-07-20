@@ -221,7 +221,7 @@ log
     #>   App:     NSCLC-KRASi-301-safety-summary v1.0.0
     #>   User:    jsmith
     #>   Entries: 1
-    #>   Path:    /tmp/RtmpTNZbOm/audit_KRASi301_safety_v1.rlog
+    #>   Path:    /tmp/RtmptIRPUB/audit_KRASi301_safety_v1.rlog
 
 ------------------------------------------------------------------------
 
@@ -893,7 +893,7 @@ trail <- export_audit_trail(log,
 )
 ```
 
-    #> regulog: exported 21 row(s) to /tmp/RtmpTNZbOm/audit_KRASi301_safety_v1.csv
+    #> regulog: exported 21 row(s) to /tmp/RtmptIRPUB/audit_KRASi301_safety_v1.csv
 
 ``` r
 
@@ -904,7 +904,7 @@ trail_mm <- export_audit_trail(log_mm,
 )
 ```
 
-    #> regulog: exported 2 row(s) to /tmp/RtmpTNZbOm/audit_KRASi301_safety_mm_review_v1.csv
+    #> regulog: exported 2 row(s) to /tmp/RtmptIRPUB/audit_KRASi301_safety_mm_review_v1.csv
 
 ``` r
 
@@ -921,18 +921,18 @@ filter_log(log) |>
 
 | time     | type   | action                 | object                               |
 |:---------|:-------|:-----------------------|:-------------------------------------|
-| 09:08:33 | NOTE   | note                   | NA                                   |
-| 09:08:33 | ACTION | data_read              | /tmp/RtmpTNZbOm/file1b914a5ebf03.csv |
-| 09:08:33 | ACTION | data_read              | /tmp/RtmpTNZbOm/file1b913e1e3af9.csv |
-| 09:08:33 | NOTE   | note                   | NA                                   |
-| 09:08:33 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
-| 09:08:33 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
-| 09:08:33 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
-| 09:08:34 | ACTION | compute_sae_summary    | SAE summary table                    |
-| 09:08:34 | NOTE   | note                   | NA                                   |
-| 09:08:34 | NOTE   | note                   | NA                                   |
-| 09:08:34 | NOTE   | note                   | NA                                   |
-| 09:08:34 | NOTE   | note                   | NA                                   |
+| 11:22:58 | NOTE   | note                   | NA                                   |
+| 11:22:58 | ACTION | data_read              | /tmp/RtmptIRPUB/file1bdf11e54014.csv |
+| 11:22:58 | ACTION | data_read              | /tmp/RtmptIRPUB/file1bdf14b0f6aa.csv |
+| 11:22:58 | NOTE   | note                   | NA                                   |
+| 11:22:58 | ACTION | define_safety_set      | NSCLC-KRASi-301 safety analysis set  |
+| 11:22:58 | ACTION | compute_teae_incidence | TEAE incidence table by SOC          |
+| 11:22:58 | ACTION | compute_grade34_ae     | Grade 3/4 TEAE table                 |
+| 11:22:58 | ACTION | compute_sae_summary    | SAE summary table                    |
+| 11:22:58 | NOTE   | note                   | NA                                   |
+| 11:22:58 | NOTE   | note                   | NA                                   |
+| 11:22:58 | NOTE   | note                   | NA                                   |
+| 11:22:58 | NOTE   | note                   | NA                                   |
 
 Audit trail — first 12 entries {.table}
 
@@ -995,7 +995,7 @@ sessionInfo()
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] ggplot2_4.0.3      tidyr_1.3.2        dplyr_1.2.1        regulog_0.2.1.9000
+    #> [1] ggplot2_4.0.3 tidyr_1.3.2   dplyr_1.2.1   regulog_0.2.1
     #> 
     #> loaded via a namespace (and not attached):
     #>  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.1     tidyselect_1.2.1  

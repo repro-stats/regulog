@@ -22,7 +22,7 @@ any context where accountability and traceability matter.
 ``` r
 
 # Install from GitHub
-install.packages("regulog")
+pak::pak("repro-stats/regulog")
 ```
 
 ## Quick start

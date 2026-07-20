@@ -49,12 +49,12 @@ A Shiny observer (invisibly).
 ## Examples
 
 ``` r
-if(interactive()){
+if (FALSE) { # \dontrun{
 regulog_observer(log, session,
   eventExpr = input$approve,
   action    = "approved",
   object    = reactive(input$selected_dataset),
   reason    = reactive(input$reason_text)
 )
-}
+} # }
 ```

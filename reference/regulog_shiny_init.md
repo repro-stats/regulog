@@ -90,7 +90,7 @@ picture of each session lifecycle.
 ## Examples
 
 ``` r
-if(interactive()){
+if (FALSE) { # \dontrun{
 library(shiny)
 library(regulog)
 
@@ -111,5 +111,5 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui = fluidPage(), server = server)
-}
+} # }
 ```

@@ -8,16 +8,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/repro-stats/regulog/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/repro-stats/regulog/blob/v0.2.1/DESCRIPTION)
 
 Penn N (2026). *regulog: Tamper-Evident Audit Logging for Regulated
-Environments*. R package version 0.2.1.9000,
+Environments*. R package version 0.2.1,
 <https://reprostats.org/regulog/>.
 
     @Manual{,
       title = {regulog: Tamper-Evident Audit Logging for Regulated Environments},
       author = {Ndoh Penn},
       year = {2026},
-      note = {R package version 0.2.1.9000},
+      note = {R package version 0.2.1},
       url = {https://reprostats.org/regulog/},
     }
