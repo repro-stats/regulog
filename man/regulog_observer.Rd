@@ -29,7 +29,7 @@ Wraps \code{shiny::observeEvent()} to log an action whenever \code{eventExpr} fi
 Reduces boilerplate when many UI events need to be audited.
 }
 \examples{
-\dontrun{
+if(interactive()){
 regulog_observer(log, session,
   eventExpr = input$approve,
   action    = "approved",

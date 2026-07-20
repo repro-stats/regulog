@@ -1,6 +1,7 @@
 # regulog <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/regulog)](https://CRAN.R-project.org/package=regulog)
 [![R-CMD-check](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/repro-stats/regulog/actions/workflows/R-CMD-check.yaml)
 [![Codecov](https://codecov.io/gh/repro-stats/regulog/branch/main/graph/badge.svg)](https://app.codecov.io/gh/repro-stats/regulog)
 <!-- badges: end -->

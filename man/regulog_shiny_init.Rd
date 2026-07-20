@@ -78,7 +78,7 @@ picture of each session lifecycle.
 }
 }
 \examples{
-\dontrun{
+if(interactive()){
 library(shiny)
 library(regulog)
 
